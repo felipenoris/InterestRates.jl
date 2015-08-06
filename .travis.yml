@@ -1,0 +1,11 @@
+language: julia
+julia:
+  - nightly
+notifications:
+    email: false
+script:
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.checkout("InterestRates"); Pkg.add("Coverage"); Pkg.test("InterestRates"; coverage=true)'
+after_success:
+  - julia -e 'cd(Pkg.dir("InterestRates")); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  - julia -e 'cd(Pkg.dir("InterestRates")); using Coverage; Codecov.submit(Codecov.process_folder())'
