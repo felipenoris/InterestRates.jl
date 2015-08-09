@@ -93,3 +93,20 @@ mat_vec = [ Date(2015,08,17), Date(2015,08,18), Date(2015,08,19), Date(2015,08,2
 
 println("discountfactor for Linear interpolation on vector with simple compounding")
 @time discountfactor(curve_ac365_simple_linear, mat_vec)
+
+comp = InterestRates.CompositeInterpolation(InterestRates.StepFunction(), InterestRates.Linear(), InterestRates.StepFunction())
+curve_ac365_simple_comp = InterestRates.IRCurve("dummy-simple-linear", InterestRates.Actual365(),
+	InterestRates.SimpleCompounding(), comp, dt_curve,
+	vert_x, vert_y)
+@test_approx_eq zero_rate(curve_ac365_simple_comp, mat_vec) [0.1,0.1,0.1125,0.1250,0.1375,0.15]
+@test_approx_eq zero_rate(curve_ac365_simple_comp, Date(2100,2,2)) 0.19
+
+curve_step = InterestRates.IRCurve("step-curve", InterestRates.Actual365(), 
+	InterestRates.SimpleCompounding(), InterestRates.StepFunction(), dt_curve,
+	vert_x, vert_y)
+mat_vec = [ Date(2015,08,08), Date(2015,08,12), Date(2015,08,17), Date(2015,08,18), Date(2015,08,19), 
+	Date(2015,08,21), Date(2015,08,22), Date(2015,08,23), Date(2015,08,25), Date(2015,08,26),
+	Date(2015,08,27), Date(2015,08,29), Date(2015,08,30), Date(2015,08,31), Date(2015,09,26)]
+
+@test_approx_eq zero_rate(curve_step, mat_vec) [0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.15, 0.15, 0.15, 0.20, 0.20, 0.20, 0.19, 0.19, 0.19]
+
