@@ -12,7 +12,8 @@ export
 	CurveMethod,
 	AbstractIRCurve, getcurvename, getcurvedate,
 	ERF, ER, discountfactor, zero_rate, forward_rate,
-	ERF_to_rate, discountfactor_to_rate
+	ERF_to_rate, discountfactor_to_rate,
+	isnullcurve
 
 include("types.jl")
 
@@ -21,11 +22,12 @@ include("types.jl")
 ERF(curve::NullIRCurve, maturity::Date) = 1.0
 ER(curve::NullIRCurve, maturity::Date) = 0.0
 discountfactor(curve::NullIRCurve, maturity::Date) = 1.0
-getcurvename(curve::NullIRCurve) = "Null"
+getcurvename(curve::NullIRCurve) = "NullCurve"
 isnullcurve(curve::NullIRCurve) = true
 isnullcurve(curve::AbstractIRCurve) = false
 forward_rate(curve::NullIRCurve, forward_date::Date, maturity::Date) = 0.0
 zero_rate(curve::NullIRCurve, maturity::Date) = 0.0
+zero_rate(curve::NullIRCurve, maturity_vec::Vector{Date}) = zeros(length(maturity_vec))
 
 
 ############# DAYCOUNT #################
@@ -68,6 +70,21 @@ _discountfactor(ct::CompoundingType, r::Float64, t::Float64) = 1.0 / _ERF(ct, r,
 _discountfactor(ct::CompoundingType, dcc::DayCountConvention, r::Float64, date_start::Date, date_end::Date) = _discountfactor(ct, r, yearfraction(dcc, date_start, date_end))
 discountfactor(curve::IRCurve, maturity::Date) = _discountfactor(curve.compounding, curve.daycount, zero_rate(curve, maturity), curve.dt_observation, maturity)
 
+# Vector function for ERF and discountfactor functions
+for fun in (:ERF, :discountfactor)
+	@eval begin
+		function ($fun)(curve::IRCurve, maturity_vec::Vector{Date})
+			l = length(maturity_vec)
+			_zero_rate_vec_ = zero_rate(curve, maturity_vec)
+			result = Array(Float64, l)
+			for i = 1:l
+				result[i] = $(symbol('_', fun))(curve.compounding, curve.daycount, _zero_rate_vec_[i], curve.dt_observation, maturity_vec[i])
+			end
+			return result
+		end
+	end
+end
+
 ########## INTEREST RATE CURVES #############
 
 # Access basic curve properties
@@ -86,6 +103,7 @@ end
 
 # Let's use the curve's method to multiple-dispatch. Ugly methods _zero_rate are not exported.
 zero_rate(curve::IRCurve, maturity::Date) = _zero_rate(curve.method, curve, maturity)
+zero_rate(curve::IRCurve, maturity_vec::Vector{Date}) = _zero_rate(curve.method, curve, maturity_vec)	
 
 include("methods.jl")
 

@@ -102,3 +102,17 @@ function _zero_rate(::FlatForward, curve::IRCurve, maturity::Date)
 
 	return discountfactor_to_rate(curve.compounding, exp(logPx), year_fraction_x)
 end
+
+# Generate vector functions
+for elty in (:FlatForward, :CompositeInterpolation, :StepFunction, :Linear )
+	@eval begin
+		function _zero_rate(m::$elty, curve::IRCurve, maturity_vec::Vector{Date})
+			l = length(maturity_vec)
+			rates = Array(Float64, l)
+			for i = 1:l
+				rates[i] = _zero_rate(m, curve, maturity_vec[i])
+			end
+		return rates
+		end
+	end
+end
