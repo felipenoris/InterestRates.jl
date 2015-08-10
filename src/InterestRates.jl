@@ -41,6 +41,8 @@ daysperyear(::Actual360) = 360
 daysperyear(::Actual365) = 365
 
 yearfraction(conv::DayCountConvention, date_start::Date, date_end::Date) = daycount(conv, date_start, date_end) / daysperyear(conv)
+yearfraction(curve::IRCurve, maturity::Date) = yearfraction(curve.daycount, curve.dt_observation, maturity)
+yearfraction(curve::IRCurve, forward_date::Date, maturity::Date) = yearfraction(curve.daycount, forward_date, maturity)
 
 ######### COMPOUNDING TYPE ############
 

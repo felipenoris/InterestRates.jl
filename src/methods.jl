@@ -103,8 +103,42 @@ function _zero_rate(::FlatForward, curve::IRCurve, maturity::Date)
 	return discountfactor_to_rate(curve.compounding, exp(logPx), year_fraction_x)
 end
 
+function _zero_rate(::NelsonSiegel, curve::IRCurve, maturity::Date)
+	
+	# param[1] = beta1
+	# param[2] = beta2
+	# param[3] = beta3
+	# param[4] = lambda
+
+	param = curve.parameters_values
+	t = yearfraction(curve, maturity)
+	_exp_lambda_t_ = exp(-param[4]*t)
+	F_beta2 = (1.0 - _exp_lambda_t_) / (param[4]*t)
+	
+	return param[1] + param[2]*F_beta2 + param[3]*(F_beta2 - _exp_lambda_t_)
+end
+
+function _zero_rate(::Svensson, curve::IRCurve, maturity::Date)
+	
+	# param[1] = beta1
+	# param[2] = beta2
+	# param[3] = beta3
+	# param[4] = beta4
+	# param[5] = lambda1
+	# param[6] = lambda2
+
+	param = curve.parameters_values
+	t = yearfraction(curve, maturity)
+	_exp_lambda1_t_ = exp(-param[5]*t)
+	_exp_lambda2_t_ = exp(-param[6]*t)
+	F_beta2 = (1.0 - _exp_lambda1_t_) / (param[5]*t)
+	
+	return param[1] + param[2]*F_beta2 + param[3]*(F_beta2 - _exp_lambda1_t_) + 
+			param[4]*( (1.0 - _exp_lambda2_t_)/(param[6]*t) - _exp_lambda2_t_)
+end
+
 # Generate vector functions
-for elty in (:FlatForward, :CompositeInterpolation, :StepFunction, :Linear )
+for elty in (:FlatForward, :CompositeInterpolation, :StepFunction, :Linear, :NelsonSiegel, :Svensson)
 	@eval begin
 		function _zero_rate(m::$elty, curve::IRCurve, maturity_vec::Vector{Date})
 			l = length(maturity_vec)

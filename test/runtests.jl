@@ -10,6 +10,22 @@ vert_y = [ 0.10, 0.15, 0.20, 0.19 ]
 
 dt_curve = Date(2015,08,03)
 
+# Error testing
+@test_throws ErrorException InterestRates.IRCurve("", InterestRates.Actual365(), InterestRates.ExponentialCompounding(),
+	InterestRates.Linear(), dt_curve, [1, 2, 6, 5], [.1, .1, .1, .1])
+
+@test_throws ErrorException InterestRates.IRCurve("", InterestRates.Actual365(), InterestRates.ExponentialCompounding(),
+	InterestRates.Linear(), dt_curve, [1, 2, 3, 4], [.1, .1, .1])
+
+@test_throws ErrorException InterestRates.IRCurve("", InterestRates.Actual365(), InterestRates.ExponentialCompounding(),
+	InterestRates.Linear(), dt_curve, Array(Int64,0) , [.1, .1, .1])
+
+@test_throws ErrorException InterestRates.IRCurve("", InterestRates.Actual365(), InterestRates.ExponentialCompounding(),
+	InterestRates.Linear(), dt_curve, Array(Int64,1) , Array(Float64,0))
+
+@test_throws ErrorException InterestRates.IRCurve("", InterestRates.Actual365(), InterestRates.ExponentialCompounding(),
+	InterestRates.Linear(), dt_curve, Array(Int64,0) , Array(Float64,0))
+
 BusinessDays.initcache()
 
 curve_b252_ec_lin = InterestRates.IRCurve("dummy-linear", InterestRates.BDays252(BrazilBanking()), 
@@ -109,4 +125,3 @@ mat_vec = [ Date(2015,08,08), Date(2015,08,12), Date(2015,08,17), Date(2015,08,1
 	Date(2015,08,27), Date(2015,08,29), Date(2015,08,30), Date(2015,08,31), Date(2015,09,26)]
 
 @test_approx_eq zero_rate(curve_step, mat_vec) [0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.15, 0.15, 0.15, 0.20, 0.20, 0.20, 0.19, 0.19, 0.19]
-
