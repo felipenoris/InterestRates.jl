@@ -125,3 +125,29 @@ mat_vec = [ Date(2015,08,08), Date(2015,08,12), Date(2015,08,17), Date(2015,08,1
 	Date(2015,08,27), Date(2015,08,29), Date(2015,08,30), Date(2015,08,31), Date(2015,09,26)]
 
 @test_approx_eq zero_rate(curve_step, mat_vec) [0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.15, 0.15, 0.15, 0.20, 0.20, 0.20, 0.19, 0.19, 0.19]
+
+# Nelson Siegel
+dt_curve = Date(2015, 08, 11)
+curve_NS = InterestRates.IRCurve("dummy-continuous-nelsonsiegel", InterestRates.Actual360(),
+	InterestRates.ContinuousCompounding(), InterestRates.NelsonSiegel(), dt_curve,
+	[1,2,3,4], [0.1, 0.2, 0.3, 0.5])
+
+mat_vec = [Date(2015,8,12), Date(2016,8,12)]
+@test_approx_eq zero_rate(curve_NS, mat_vec) [0.300069315921728, 0.311522078457982]
+@test_approx_eq discountfactor(curve_NS, mat_vec) [0.999166821408637, 0.727908844513432]
+
+println("discountfactor on NS curve")
+@time discountfactor(curve_NS, mat_vec)
+
+# Svensson
+dt_curve = Date(2015, 08, 11)
+curve_sven = InterestRates.IRCurve("dummy-continuous-nelsonsiegel", InterestRates.Actual360(),
+	InterestRates.ContinuousCompounding(), InterestRates.Svensson(), dt_curve,
+	[1,2,3,4,5,6], [0.1, 0.2, 0.3, 0.4, 0.5, 0.8])
+
+mat_vec = [Date(2015,8,12), Date(2016,8,12)]
+@test_approx_eq zero_rate(curve_sven, mat_vec) [0.300513102478340, 0.408050168725566]
+@test_approx_eq discountfactor(curve_sven, mat_vec) [0.999165589696054, 0.659690510410030]
+
+println("discountfactor on Svensson curve")
+@time discountfactor(curve_sven, mat_vec)

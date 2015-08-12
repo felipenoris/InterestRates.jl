@@ -105,10 +105,10 @@ end
 
 function _zero_rate(::NelsonSiegel, curve::IRCurve, maturity::Date)
 	
-	# param[1] = beta1
-	# param[2] = beta2
-	# param[3] = beta3
-	# param[4] = lambda
+	# beta1 = param[1]
+	# beta2 = param[2]
+	# beta3 = param[3]
+	# lambda = param[4]
 
 	param = curve.parameters_values
 	t = yearfraction(curve, maturity)
@@ -120,12 +120,12 @@ end
 
 function _zero_rate(::Svensson, curve::IRCurve, maturity::Date)
 	
-	# param[1] = beta1
-	# param[2] = beta2
-	# param[3] = beta3
-	# param[4] = beta4
-	# param[5] = lambda1
-	# param[6] = lambda2
+	# beta1 = param[1]
+	# beta2 = param[2]
+	# beta3 = param[3]
+	# beta4 = param[4]
+	# lambda1 = param[5]
+	# lambda2 = param[6]
 
 	param = curve.parameters_values
 	t = yearfraction(curve, maturity)
