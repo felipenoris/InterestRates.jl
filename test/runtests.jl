@@ -141,7 +141,7 @@ println("discountfactor on NS curve")
 
 # Svensson
 dt_curve = Date(2015, 08, 11)
-curve_sven = InterestRates.IRCurve("dummy-continuous-nelsonsiegel", InterestRates.Actual360(),
+curve_sven = InterestRates.IRCurve("dummy-continuous-svensson", InterestRates.Actual360(),
 	InterestRates.ContinuousCompounding(), InterestRates.Svensson(), dt_curve,
 	[1,2,3,4,5,6], [0.1, 0.2, 0.3, 0.4, 0.5, 0.8])
 
