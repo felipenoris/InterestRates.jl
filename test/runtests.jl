@@ -26,9 +26,9 @@ dt_curve = Date(2015,08,03)
 @test_throws ErrorException InterestRates.IRCurve("", InterestRates.Actual365(), InterestRates.ExponentialCompounding(),
 	InterestRates.Linear(), dt_curve, Array(Int64,0) , Array(Float64,0))
 
-BusinessDays.initcache()
+BusinessDays.initcache(BrazilBanking())
 
-curve_b252_ec_lin = InterestRates.IRCurve("dummy-linear", InterestRates.BDays252(BrazilBanking()), 
+curve_b252_ec_lin = InterestRates.IRCurve("dummy-linear", InterestRates.BDays252(BrazilBanking()),
 	InterestRates.ExponentialCompounding(), InterestRates.Linear(), dt_curve,
 	vert_x, vert_y)
  
