@@ -137,6 +137,8 @@ function _zero_rate(::Svensson, curve::IRCurve, maturity::Date)
 			param[4]*( (1.0 - _exp_lambda2_t_)/(param[6]*t) - _exp_lambda2_t_)
 end
 
+include("splines.jl")
+
 # Generate vector functions
 for elty in (:FlatForward, :CompositeInterpolation, :StepFunction, :Linear, :NelsonSiegel, :Svensson)
 	@eval begin

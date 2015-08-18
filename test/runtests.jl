@@ -151,3 +151,6 @@ mat_vec = [Date(2015,8,12), Date(2016,8,12)]
 
 println("discountfactor on Svensson curve")
 @time discountfactor(curve_sven, mat_vec)
+
+# Splines
+
