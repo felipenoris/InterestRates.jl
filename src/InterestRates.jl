@@ -29,7 +29,6 @@ forward_rate(curve::NullIRCurve, forward_date::Date, maturity::Date) = 0.0
 zero_rate(curve::NullIRCurve, maturity::Date) = 0.0
 zero_rate(curve::NullIRCurve, maturity_vec::Vector{Date}) = zeros(length(maturity_vec))
 
-
 ############# DAYCOUNT #################
 
 daycount(conv::BDays252, date_start::Date, date_end::Date) = Int(bdays(conv.hc, date_start, date_end))

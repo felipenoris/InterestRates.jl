@@ -5,8 +5,8 @@ using Base.Test
 using BusinessDays
 using InterestRates
 
-vert_x = [ 11, 15, 19, 23 ]
-vert_y = [ 0.10, 0.15, 0.20, 0.19 ]
+vert_x = [11, 15, 19, 23]
+vert_y = [0.10, 0.15, 0.20, 0.19]
 
 dt_curve = Date(2015,08,03)
 
@@ -154,3 +154,25 @@ println("discountfactor on Svensson curve")
 
 # Splines
 
+vert_x = [11, 15, 19, 23, 25]
+vert_y = [0.10, 0.12, 0.20, 0.22, 0.2]
+
+sp = InterestRates.splinefit([1, 2, 3, 4], [1.0, 2.0, 3.0, 4.0])
+InterestRates.splineint(sp, [5, 6])
+sp = InterestRates.splinefit([1.0, 2.0, 3.0, 4.0], [1.0, 2.0, 3.0, 4.0])
+InterestRates.splineint(sp, [1.0, 1.5])
+
+println("splinefit")
+@time sp = InterestRates.splinefit(vert_x, vert_y)
+
+println("splineint")
+@time y = InterestRates.splineint(sp, convert(Vector{Int}, 1:30))
+
+@test_approx_eq y[vert_x] vert_y
+
+curve_spline_rates = InterestRates.IRCurve("dummy-SplineOnRates", InterestRates.Actual360(),
+	InterestRates.ContinuousCompounding(), InterestRates.CubicSplineOnRates(), dt_curve,
+	vert_x, vert_y)
+
+@test_approx_eq zero_rate(curve_spline_rates, dt_curve + Dates.Day(11)) 0.1
+@test_approx_eq zero_rate(curve_spline_rates, [dt_curve+Dates.Day(11), dt_curve+Dates.Day(15)]) vert_y[1:2]

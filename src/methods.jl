@@ -139,6 +139,23 @@ end
 
 include("splines.jl")
 
+function _zero_rate(::CubicSplineOnRates, x::Vector{Int}, y::Vector{Float64}, x_out::Int)
+	sp = splinefit(x, y)
+	return splineint(sp, x_out)
+end
+
+function _zero_rate(::CubicSplineOnRates, curve::IRCurve, maturity_vec::Vector{Date})
+	sp = splinefit(curve.parameters_id, curve.parameters_values)
+	l = length(maturity_vec)
+	rates = Array(Float64, l)
+
+	for i in 1:l
+		dtm = days_to_maturity(curve, maturity_vec[i])
+		rates[i] = splineint(sp, dtm)
+	end
+	return rates
+end
+
 # Generate vector functions
 for elty in (:FlatForward, :CompositeInterpolation, :StepFunction, :Linear, :NelsonSiegel, :Svensson)
 	@eval begin
