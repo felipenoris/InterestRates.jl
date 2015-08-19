@@ -60,6 +60,21 @@ ERF_to_rate(curve::IRCurve, ERF::Float64, t::Float64) = _ERF_to_rate(curve.compo
 
 discountfactor_to_rate(c::CompoundingType, _discountfactor_::Float64, t::Float64) = _ERF_to_rate(c, 1.0 / _discountfactor_, t)
 
+function discountfactor_to_rate(c::CompoundingType, _discountfactor_vec_::Vector{Float64}, t_vec::Vector{Float64})
+	l = length(_discountfactor_vec_)
+
+	if l != length(t_vec)
+		error("_discountfactor_vec_ and t_vec must have the same length. ($l != $(length(t_vec)))")
+	end
+
+	result = Array(Float64, l)
+	for i in 1:l
+		result[i] = discountfactor_to_rate(c, _discountfactor_vec_[i], t_vec[i])
+	end
+
+	return result
+end
+
 # Effective Rate = [Effective Rate Factor] - 1
 _ER(c::CompoundingType, r::Float64, t::Float64) = _ERF(c, r, t) - 1.0
 _ER(ct::CompoundingType, dcc::DayCountConvention, r::Float64, date_start::Date, date_end::Date) = _ER(ct, r, yearfraction(dcc, date_start, date_end))

@@ -176,3 +176,10 @@ curve_spline_rates = InterestRates.IRCurve("dummy-SplineOnRates", InterestRates.
 
 @test_approx_eq zero_rate(curve_spline_rates, dt_curve + Dates.Day(11)) 0.1
 @test_approx_eq zero_rate(curve_spline_rates, [dt_curve+Dates.Day(11), dt_curve+Dates.Day(15)]) vert_y[1:2]
+
+curve_spline_discount = InterestRates.IRCurve("dummy-SplineOnDiscountFactors", InterestRates.Actual360(),
+	InterestRates.ContinuousCompounding(), InterestRates.CubicSplineOnDiscountFactors(), dt_curve,
+	vert_x, vert_y)
+
+@test_approx_eq zero_rate(curve_spline_discount, dt_curve + Dates.Day(11)) 0.1
+@test_approx_eq zero_rate(curve_spline_discount, [dt_curve+Dates.Day(11), dt_curve+Dates.Day(15)]) vert_y[1:2]

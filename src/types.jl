@@ -21,7 +21,7 @@ abstract DiscountFactorInterpolation <: Interpolation
 abstract RateInterpolation <: Interpolation
 
 type CubicSplineOnRates <: RateInterpolation end
-type CubicSplinesOnDiscountFactors <: DiscountFactorInterpolation end
+type CubicSplineOnDiscountFactors <: DiscountFactorInterpolation end
 type FlatForward <: DiscountFactorInterpolation end
 type Linear <: RateInterpolation end
 type NelsonSiegel <: Parametric end

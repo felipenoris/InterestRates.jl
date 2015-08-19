@@ -162,7 +162,7 @@ function _splinefit_discountfactors(curve::IRCurve)
 	dtm_vec = curve.parameters_id
 	curve_rates_vec = curve.parameters_values
 	l = length(dtm_vec)
-	yf_vec = Array(eltype(dtm_vec), l)
+	yf_vec = Array(Float64, l)
 	discount_vec = Array(Float64, l)
 
 	for i = 1:l
@@ -173,14 +173,14 @@ function _splinefit_discountfactors(curve::IRCurve)
 	return splinefit(yf_vec, discount_vec)
 end
 
-function _zero_rate(::CubicSplinesOnDiscountFactors, curve::IRCurve, maturity::Date)
+function _zero_rate(::CubicSplineOnDiscountFactors, curve::IRCurve, maturity::Date)
 	sp = _splinefit_discountfactors(curve)
 	yf_maturity = yearfraction(curve.daycount, curve.dt_observation, maturity)
 	result_discount_factor = splineint(sp, yf_maturity)
-	return discountfactor_to_rate(c.compounding, result_discount_factor, yf_maturity)
+	return discountfactor_to_rate(curve.compounding, result_discount_factor, yf_maturity)
 end
 
-function _zero_rate(::CubicSplinesOnDiscountFactors, curve::IRCurve, maturity_vec::Vector{Date})
+function _zero_rate(::CubicSplineOnDiscountFactors, curve::IRCurve, maturity_vec::Vector{Date})
 	sp = _splinefit_discountfactors(curve)
 	mat_vec_len = length(maturity_vec)
 	
@@ -189,7 +189,7 @@ function _zero_rate(::CubicSplinesOnDiscountFactors, curve::IRCurve, maturity_ve
 		yf_maturity_vec[i] = yearfraction(curve.daycount, curve.dt_observation, maturity_vec[i])
 	end
 
-	return splineint(sp, yf_maturity_vec)
+	return discountfactor_to_rate(curve.compounding, splineint(sp, yf_maturity_vec), yf_maturity_vec)
 end
 
 # Generate vector functions
