@@ -44,6 +44,9 @@ function splineint{T}(s::Spline{T}, x_out::Vector{T})
 end
 
 function splinefit{T}(x_in::Vector{T}, y_in::Vector{Float64})
+	#
+	# TODO: optimize. See http://www.math.ntnu.no/emner/TMA4215/2008h/cubicsplines.pdf
+	#
 	points_count = length(x_in)
 	if points_count != length(y_in)
 		error("x_in and y_in doesn't conform on sizes.")
@@ -91,7 +94,7 @@ function splinefit{T}(x_in::Vector{T}, y_in::Vector{Float64})
 
 		row += 1
 
-		# Conditions of first derivatives
+		# Conditions of first order derivatives
 		A[row, (i-2)*4 + 2] = 1.0
 		A[row, (i-2)*4 + 3] = 2.0*x_in[i]
 		A[row, (i-2)*4 + 4] = 3.0*(x_in[i]^2)
