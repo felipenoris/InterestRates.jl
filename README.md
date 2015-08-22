@@ -3,8 +3,11 @@ Tools for **Term Structure of Interest Rates** calculation, aimed at the valuati
 
 **Installation**: 
 ```julia
-julia> Pkg.clone("https://github.com/felipenoris/InterestRates.jl.git")
+julia> Pkg.add("InterestRates")
 ```
+*Current version is v0.0.1*
+*Requires Julia v0.4-*
+
 ## Concept
 
 A Term Structure of Interest Rates, also known as *zero-coupon curve*, is a function `f(t) -> y` that maps a given maturity `t` onto the yield `y` of a bond that matures at `t` and pays no coupons (*zero-coupon bond*).
