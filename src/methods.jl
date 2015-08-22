@@ -79,7 +79,7 @@ function _zero_rate(::StepFunction, x::Vector{Int}, y::Vector{Float64}, x_out::I
 	end
 end
 
-# Flat Forward is linear interpolation on discountfactors
+# Flat Forward is linear interpolation on the log of discountfactors
 # Maybe not useful for SimpleCompounding curves.
 function _zero_rate(::FlatForward, curve::IRCurve, maturity::Date)
 	# If this curve has only 1 vertice, this will be a flat curve

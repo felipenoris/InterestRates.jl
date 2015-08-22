@@ -10,7 +10,7 @@ type BDays252 <: DayCountConvention
 end
 
 abstract CompoundingType
-type ContinuousCompounding <: CompoundingType end   # exp(rt)
+type ContinuousCompounding <: CompoundingType end   # exp(r*t)
 type SimpleCompounding <: CompoundingType end       # (1+r*t)
 type ExponentialCompounding <: CompoundingType end  # (1+r)^t
 

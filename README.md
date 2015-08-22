@@ -13,19 +13,41 @@ For instance, say the current price of a bond that pays exactly `10` in `1 year`
 
 It's not feasible to observe prices for each possible maturity. We can observe only a set of discrete data points of the yield curve. Therefore, in order to determine the entire term structure, one must choose an interpolation method, or a term structure model.
 
+## Data Structure for Interest Rate Curve
+
 All yield curve calculation is built around a *database-friendly* data type: `IRCurve`.
 
 ```julia
 type IRCurve <: AbstractIRCurve
 	name::ASCIIString # curve name for reference
 	daycount::DayCountConvention # convention on how to count number of days between dates
-	compounding::CompoundingType # convention on how to convert an interest rates to a effective rate factor
+	compounding::CompoundingType # convention on how to convert an interest rate to an effective rate factor
 	method::CurveMethod # see Curve Methods section
 	dt_observation::Date # reference date for the curve data
 	parameters_id::Vector{Int} # for interpolation methods, id stores days_to_maturity on curve's daycount convention.
 	parameters_values::Vector{Float64}
 #...
 ```
+
+The type `DayCountConvention` sets the convention on how to count the number of days between dates, and also how to convert that number of days into a year fraction.
+
+Given an initial date `D1` and a final date `D2`, here's how the distance between `D1` and `D2` are mapped into a year fraction for each supported day count convention:
+
+* *Actual360* : `(D2 - D1) / 360`
+* *Actual365* : `(D2 - D1) / 365`
+* *BDays252* : `bdays(D1, D2) / 252`, where `bdays` is the business days between `D1` and `D2` from `BusinessDays.jl` package.
+
+The type `CompoundingType` sets the convention on how to convert a yield into a Effective Rate Factor.
+
+Given a yield `r` and a maturity year fraction `t`, here's how each supported compounding type maps the yield to Effective Rate Factors:
+
+* *ContinuousCompounding* : `exp(r*t)`
+* *SimpleCompounding* : `(1+r*t)`
+* *ExponentialCompounding* : `(1+r)^t`
+
+The `dt_observation` field sets the date when the Yield Curve if observed. All zero rate calculation will be performed based on this date.
+
+The fields `parameters_id` and `parameters_values` hold the observed market data for the yield curve, as discussed on *Curve Methods* section.
 
 ## Curve Methods
 
@@ -34,29 +56,37 @@ This package provides the following curve methods.
 **Interpolation Methods**
 
 * **Linear**: provides Linear Interpolation on rates.
-* **FlatForward**: provides Flat Forward interpolation, which is implemented as a Linear Interpolation on discount factors.
+* **FlatForward**: provides Flat Forward interpolation, which is implemented as a Linear Interpolation on the *log* of discount factors.
 * **StepFunction**: creates a step function around given data points.
 * **CubicSplineOnRates**: provides *natural cubic spline* interpolation on rates.
 * **CubicSplineOnDiscountFactors**: provides *natural cubic spline* interpolation on discount factors.
 
+For *Interpolation Methods*, the field `parameters_id` holds the number of days between `dt_observation` and the maturity of the observed yield, following the curve's day count convention, which must be given in advance, when creating an instance of the curve. The field `parameters_values` holds the yield values for each maturity provided in `parameters_id`. All yields must be anual based, and must also be given in advance, when creating the instance of the curve.
+
 **Term Structure Models**
 
-* **NelsonSiegel**: term structure model based on *Nelson, C.R., and A.F. Siegel (1987), Parsimonious Modeling of Yield Curve, The Journal of Busi- ness, 60, 473-489*.
+* **NelsonSiegel**: term structure model based on *Nelson, C.R., and A.F. Siegel (1987), Parsimonious Modeling of Yield Curve, The Journal of Business, 60, 473-489*.
 * **Svensson**: term structure model based on *Svensson, L.E. (1994), Estimating and Interpreting Forward Interest Rates: Sweden 1992-1994, IMF Working Paper, WP/94/114*.
 
+For *Term Structure Models*, the fields `parameters_id` and `parameters_values` hold the constants defined by each model, as described below. They must be given in advance, when creating the instance of the curve.
+
 For **NelsonSiegel** method, the array `parameters_values` holds the following parameters from the model:
-* **beta1** = parameters_values[1]
-* **beta2** = parameters_values[2]
-* **beta3** = parameters_values[3]
-* **lambda** = parameters_values[4]
+* **beta1** = parameters_values[1] , parameters_id[1] = 1
+* **beta2** = parameters_values[2] , parameters_id[2] = 2
+* **beta3** = parameters_values[3] , parameters_id[3] = 3
+* **lambda** = parameters_values[4], parameters_id[4] = 4
 
 For **Svensson** method, the array `parameters_values` hold the following parameters from the model:
-* **beta1** = parameters_values[1]
-* **beta2** = parameters_values[2]
-* **beta3** = parameters_values[3]
-* **beta4** = parameters_values[4]
-* **lambda1** = parameters_values[5]
-* **lambda2** = parameters_values[6]
+* **beta1** = parameters_values[1] , parameters_id[1] = 1
+* **beta2** = parameters_values[2] , parameters_id[2] = 2
+* **beta3** = parameters_values[3] , parameters_id[3] = 3
+* **beta4** = parameters_values[4] , parameters_id[4] = 4
+* **lambda1** = parameters_values[5] , parameters_id[5] = 5
+* **lambda2** = parameters_values[6] , parameters_id[6] = 6
+
+## Motivation for current design
+
+By sharing the same data structure for *Interpolation Methods* and *Term Structure Models*, this package provides a *database-friendly* way to store curve data. Since only the raw curve data is stored on `IRCurve` data structure, there's a minimal storage requirement in order to track historical data about curves. For the same reason, and given Julia's high speed, it's possible to load many instances of curves on memory and perform fast valuation of Fixed Income contracts.
 
 ## Usage
 
@@ -89,3 +119,10 @@ erf = ERF(mycurve, Date(2015,10,10))
 # Effective Rate for a given maturity
 er = ER(mycurve, Date(2015,10,10))
 ```
+
+See `runtests.jl` for more examples.
+
+## Alternative Libraries
+
+* *Ito.jl* : https://github.com/aviks/Ito.jl
+* *FinancialMarkets.jl* : https://github.com/imanuelcostigan/FinancialMarkets.jl
