@@ -121,6 +121,6 @@ end
 zero_rate(curve::IRCurve, maturity::Date) = _zero_rate(curve.method, curve, maturity)
 zero_rate(curve::IRCurve, maturity_vec::Vector{Date}) = _zero_rate(curve.method, curve, maturity_vec)	
 
-include("methods.jl")
+include("methods.jl") # implements various _zero_rate() methods for each CurveMethod
 
 end # module InterestRates

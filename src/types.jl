@@ -29,9 +29,9 @@ type Svensson <: Parametric end
 type StepFunction <: RateInterpolation end
 
 type CompositeInterpolation <: Interpolation
-	before_first::Interpolation
+	before_first::Interpolation # Interpolation method to be applied before the first point
 	inner::Interpolation
-	after_last::Interpolation
+	after_last::Interpolation # Interpolation method to be applied after the last point
 end
 
 abstract AbstractIRCurve

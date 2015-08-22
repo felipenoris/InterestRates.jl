@@ -1,10 +1,11 @@
 
-# Auxiliary functions for spline interpolation
+# Auxiliary functions for natural cubic spline interpolation
 
+# Stores parameters for fitted spline polynomials
 type Spline{T}
-	x::Vector{T}
+	x::Vector{T} # (x, y) are the original points
 	y::Vector{Float64}
-	params::Vector{Float64}
+	params::Vector{Float64} # stores parameters for polynomials. [ a1, b1, c1, d1, a2, b2, c2, d2 ...]
 	
 	Spline{T}(x::Vector{T}, y::Vector{Float64}, params::Vector{Float64}) = begin
 		polynms_count = length(x) - 1
@@ -18,7 +19,7 @@ end
 # Given a polinomial index, returns the indexer of the last parameter before the first parameter of the referenced polinomial
 _base_param_index_(poly_index::Int) = (poly_index-1)*4
 
-# Spline interpolation
+# Performs natural cubic spline interpolation
 function splineint{T}(s::Spline{T}, x_out::T)
 	poly_index::Int = 1
 	base_idx::Int
@@ -48,6 +49,7 @@ function splineint{T}(s::Spline{T}, x_out::T)
 	end
 end
 
+# Performs natural cubic spline interpolation
 function splineint{T}(s::Spline{T}, x_out::Vector{T})
 	len = length(x_out)
 	y_out = Array(Float64, len)
@@ -57,6 +59,7 @@ function splineint{T}(s::Spline{T}, x_out::Vector{T})
 	return y_out
 end
 
+# Build a Spline object by fitting 3rd order polynomials around points (x_in, y_in)
 function splinefit{T}(x_in::Vector{T}, y_in::Vector{Float64})
 	#
 	# TODO: optimize. See http://www.math.ntnu.no/emner/TMA4215/2008h/cubicsplines.pdf
