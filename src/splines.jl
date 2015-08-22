@@ -3,35 +3,49 @@
 
 type Spline{T}
 	x::Vector{T}
+	y::Vector{Float64}
 	params::Vector{Float64}
 	
-	Spline{T}(x::Vector{T}, params::Vector{Float64}) = begin
+	Spline{T}(x::Vector{T}, y::Vector{Float64}, params::Vector{Float64}) = begin
 		polynms_count = length(x) - 1
 		if length(params) != polynms_count * 4 # each polynomial has 4 parameters
 			error("params length $(length(params)) does not conform to the expected number of polynomials ($(polynms_count))")
 		end
-		new(x, params)
+		new(x, y, params)
 	end
 end
+
+# Given a polinomial index, returns the indexer of the last parameter before the first parameter of the referenced polinomial
+_base_param_index_(poly_index::Int) = (poly_index-1)*4
 
 # Spline interpolation
 function splineint{T}(s::Spline{T}, x_out::T)
 	poly_index::Int = 1
-	
+	base_idx::Int
+
 	if x_out > s.x[end]
+		# Extrapolation after last point
 		poly_index = length(s.x) - 1
+		base_idx = _base_param_index_(poly_index)
+		return (x_out - s.x[end])*(s.params[base_idx + 2] + 2*s.params[base_idx + 3]*s.x[end] + 3*s.params[base_idx + 4]*(s.x[end]^2)) + s.y[end]
+	elseif x_out < s.x[1]
+		# Extrapolation before first point
+		base_idx = 0
+		return (x_out - s.x[1])*(s.params[base_idx + 2] + 2*s.params[base_idx + 3]*s.x[1] + 3*s.params[base_idx + 4]*(s.x[1]^2)) + s.y[1]
 	else
+		# Interplation
 		while x_out > s.x[poly_index+1]
 			poly_index += 1
 		end
+		
+		base_idx = _base_param_index_(poly_index)
+		
+		#P1                       P2                    P3                     ...
+		#1   2    3      4        5   6    7      8     9   10   11     12
+		#a + bx + cx^2 + dx^3     a + bx + cx^2 + dx^3  a + bx + cx^2 + dx^3   ...
+		return s.params[base_idx + 1] + s.params[base_idx + 2]*x_out + 
+			s.params[base_idx + 3]*(x_out^2) + s.params[base_idx + 4]*(x_out^3)
 	end
-
-	base_idx = (poly_index-1)*4
-	#P1                       P2                    P3                     ...
-	#1   2    3      4        5   6    7      8     9   10   11     12
-	#a + bx + cx^2 + dx^3     a + bx + cx^2 + dx^3  a + bx + cx^2 + dx^3   ...
-	return s.params[base_idx + 1] + s.params[base_idx + 2]*x_out + 
-		s.params[base_idx + 3]*(x_out^2) + s.params[base_idx + 4]*(x_out^3)
 end
 
 function splineint{T}(s::Spline{T}, x_out::Vector{T})
@@ -122,5 +136,5 @@ function splinefit{T}(x_in::Vector{T}, y_in::Vector{Float64})
 	A[row, (points_count-2)*4 + 3] = 2.0
 	A[row, (points_count-2)*4 + 4] = 6.0 * x_in[points_count]
 	
-	return Spline{eltype(x_in)}(x_in, A \ b)
+	return Spline{eltype(x_in)}(x_in, y_in, A \ b)
 end

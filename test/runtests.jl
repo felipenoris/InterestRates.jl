@@ -167,8 +167,13 @@ println("splinefit")
 
 println("splineint")
 @time y = InterestRates.splineint(sp, convert(Vector{Int}, 1:30))
-
 @test_approx_eq y[vert_x] vert_y
+
+y_benchmark = [0.09756098, 0.09780488, 0.09804878, 0.09829268, 0.09853659, 0.09878049, 0.09902439, 0.09926829, 0.09951220, 0.09975610, 0.10000000, 0.10054116, 0.10286585,
+0.10875762, 0.12000000, 0.13753049, 0.15890244, 0.18082317, 0.20000000, 0.21371189, 0.22152439, 0.22357470, 0.22000000, 0.21137195, 0.20000000, 0.18817073,
+0.17634146, 0.16451220, 0.15268293, 0.14085366]
+
+@test_approx_eq_eps y y_benchmark 5e-9
 
 curve_spline_rates = InterestRates.IRCurve("dummy-SplineOnRates", InterestRates.Actual360(),
 	InterestRates.ContinuousCompounding(), InterestRates.CubicSplineOnRates(), dt_curve,
@@ -176,6 +181,9 @@ curve_spline_rates = InterestRates.IRCurve("dummy-SplineOnRates", InterestRates.
 
 @test_approx_eq zero_rate(curve_spline_rates, dt_curve + Dates.Day(11)) 0.1
 @test_approx_eq zero_rate(curve_spline_rates, [dt_curve+Dates.Day(11), dt_curve+Dates.Day(15)]) vert_y[1:2]
+
+mat_vec = convert(Vector{Dates.Day}, convert(Vector{Int}, 1:30)) + dt_curve
+@test_approx_eq zero_rate(curve_spline_rates, mat_vec) y
 
 curve_spline_discount = InterestRates.IRCurve("dummy-SplineOnDiscountFactors", InterestRates.Actual360(),
 	InterestRates.ContinuousCompounding(), InterestRates.CubicSplineOnDiscountFactors(), dt_curve,
