@@ -111,7 +111,7 @@ function splinefit{T}(x_in::Vector{T}, y_in::Vector{Float64})
 
 		row += 1
 
-		# Conditions of first order derivatives
+		# Conditions on first order derivatives
 		A[row, (i-2)*4 + 2] = 1.0
 		A[row, (i-2)*4 + 3] = 2.0*x_in[i]
 		A[row, (i-2)*4 + 4] = 3.0*(x_in[i]^2)
@@ -121,7 +121,7 @@ function splinefit{T}(x_in::Vector{T}, y_in::Vector{Float64})
 
 		row += 1
 
-		# Conditions of second order derivatives
+		# Conditions on second order derivatives
 		A[row, (i-2)*4 + 3] = 2.0
 		A[row, (i-2)*4 + 4] = 6.0 * x_in[i]
 		A[row, (i-1)*4 + 3] = -2.0
