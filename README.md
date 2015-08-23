@@ -3,9 +3,11 @@ Tools for **Term Structure of Interest Rates** calculation, aimed at the valuati
 
 **Installation**: 
 ```julia
+julia> Pkg.update()
 julia> Pkg.add("InterestRates")
 ```
 *Current version is v0.0.1*
+
 *Requires Julia v0.4-*
 
 ## Concept
@@ -63,6 +65,7 @@ This package provides the following curve methods.
 * **StepFunction**: creates a step function around given data points.
 * **CubicSplineOnRates**: provides *natural cubic spline* interpolation on rates.
 * **CubicSplineOnDiscountFactors**: provides *natural cubic spline* interpolation on discount factors.
+* **CompositeInterpolation**: provides support for different interpolation methods for: (1) extrapolation before first data point (`before_first`), (2) interpolation between the first and last point (`inner`), (3) extrapolation after last data point (`after_last`).
 
 For *Interpolation Methods*, the field `parameters_id` holds the number of days between `dt_observation` and the maturity of the observed yield, following the curve's day count convention, which must be given in advance, when creating an instance of the curve. The field `parameters_values` holds the yield values for each maturity provided in `parameters_id`. All yields must be anual based, and must also be given in advance, when creating the instance of the curve.
 
@@ -86,6 +89,24 @@ For **Svensson** method, the array `parameters_values` hold the following parame
 * **beta4** = parameters_values[4] , parameters_id[4] = 4
 * **lambda1** = parameters_values[5] , parameters_id[5] = 5
 * **lambda2** = parameters_values[6] , parameters_id[6] = 6
+
+### Methods hierarchy
+
+As a summary, curve methods are organized by the following hierarchy.
+
+* `<<CurveMethod>>`
+	* `<<Interpolation>>`
+		* `<<DiscountFactorInterpolation>>`
+			* `CubicSplineOnDiscountFactors`
+			* `FlatForward`
+		* `<<RateInterpolation>>`
+			* `CubicSplineOnRates`
+			* `Linear`
+			* `StepFunction`
+		* `CompositeInterpolation`
+	* `<<Parametric>>`
+		* `NelsonSiegel`
+		* `Svensson`
 
 ## Motivation for current design
 
