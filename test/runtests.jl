@@ -50,6 +50,9 @@ println("zero_rate for linear interpolation")
 @test_approx_eq zero_rate(curve_b252_ec_lin, advancebdays(BrazilBanking(), dt_curve, 11-4)) 0.05 # extrapolate before first vertice
 @test_approx_eq zero_rate(curve_b252_ec_lin, advancebdays(BrazilBanking(), dt_curve, 23+4)) 0.18 # extrapolate after last vertice
 
+dt_maturity = dt_curve+Dates.Day(30)
+@test_approx_eq ERF_to_rate(curve_b252_ec_lin, ERF(curve_b252_ec_lin, dt_maturity), InterestRates.yearfraction(curve_b252_ec_lin, dt_maturity)) zero_rate(curve_b252_ec_lin, dt_maturity)
+
 curve_ac360_cont_ff = InterestRates.IRCurve("dummy-cont-flatforward", InterestRates.Actual360(),
 	InterestRates.ContinuousCompounding(), InterestRates.FlatForward(), dt_curve,
 	vert_x, vert_y)
@@ -63,6 +66,9 @@ curve_ac360_cont_ff = InterestRates.IRCurve("dummy-cont-flatforward", InterestRa
 @test_approx_eq forward_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(11), dt_curve + Dates.Day(15)) 0.2875 # forward_rate calculation on vertices
 @test_approx_eq forward_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(11), dt_curve + Dates.Day(13)) 0.2875 # forward_rate calculation on interpolated maturity
 @test_approx_eq ERF(curve_ac360_cont_ff, dt_curve + Dates.Day(13)) 1.00466361875533 # ffwd interp on ERF
+
+dt_maturity = dt_curve+Dates.Day(30)
+@test_approx_eq ERF_to_rate(curve_ac360_cont_ff, ERF(curve_ac360_cont_ff, dt_maturity), InterestRates.yearfraction(curve_ac360_cont_ff, dt_maturity)) zero_rate(curve_ac360_cont_ff, dt_maturity)
 
 println("ERF for FlatForward interpolation")
 @time ERF(curve_ac360_cont_ff, dt_curve + Dates.Day(13))
@@ -107,6 +113,9 @@ mat_vec = [ Date(2015,08,17), Date(2015,08,18), Date(2015,08,19), Date(2015,08,2
 @test_approx_eq ERF(curve_ac365_simple_linear, mat_vec) [1.00239726027397, 1.00301369863014, 1.00369863013699, 1.00445205479452, 1.00527397260274, 1.00616438356164]
 @test_approx_eq discountfactor(curve_ac365_simple_linear, mat_vec) [0.997608472839084, 0.996995356459984, 0.996314999317592, 0.995567678145244, 0.994753696259454, 0.993873383253914]
 
+dt_maturity = dt_curve+Dates.Day(30)
+@test_approx_eq ERF_to_rate(curve_ac365_simple_linear, ERF(curve_ac365_simple_linear, dt_maturity), InterestRates.yearfraction(curve_ac365_simple_linear, dt_maturity)) zero_rate(curve_ac365_simple_linear, dt_maturity)
+
 println("discountfactor for Linear interpolation on vector with simple compounding")
 @time discountfactor(curve_ac365_simple_linear, mat_vec)
 
@@ -126,6 +135,9 @@ mat_vec = [ Date(2015,08,08), Date(2015,08,12), Date(2015,08,17), Date(2015,08,1
 
 @test_approx_eq zero_rate(curve_step, mat_vec) [0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.15, 0.15, 0.15, 0.20, 0.20, 0.20, 0.19, 0.19, 0.19]
 
+dt_maturity = dt_curve+Dates.Day(30)
+@test_approx_eq ERF_to_rate(curve_step, ERF(curve_step, dt_maturity), InterestRates.yearfraction(curve_step, dt_maturity)) zero_rate(curve_step, dt_maturity)
+
 # Nelson Siegel
 dt_curve = Date(2015, 08, 11)
 curve_NS = InterestRates.IRCurve("dummy-continuous-nelsonsiegel", InterestRates.Actual360(),
@@ -135,6 +147,9 @@ curve_NS = InterestRates.IRCurve("dummy-continuous-nelsonsiegel", InterestRates.
 mat_vec = [Date(2015,8,12), Date(2016,8,12)]
 @test_approx_eq zero_rate(curve_NS, mat_vec) [0.300069315921728, 0.311522078457982]
 @test_approx_eq discountfactor(curve_NS, mat_vec) [0.999166821408637, 0.727908844513432]
+
+dt_maturity = dt_curve+Dates.Day(30)
+@test_approx_eq ERF_to_rate(curve_NS, ERF(curve_NS, dt_maturity), InterestRates.yearfraction(curve_NS, dt_maturity)) zero_rate(curve_NS, dt_maturity)
 
 println("discountfactor on NS curve")
 @time discountfactor(curve_NS, mat_vec)
@@ -148,6 +163,9 @@ curve_sven = InterestRates.IRCurve("dummy-continuous-svensson", InterestRates.Ac
 mat_vec = [Date(2015,8,12), Date(2016,8,12)]
 @test_approx_eq zero_rate(curve_sven, mat_vec) [0.300513102478340, 0.408050168725566]
 @test_approx_eq discountfactor(curve_sven, mat_vec) [0.999165589696054, 0.659690510410030]
+
+dt_maturity = dt_curve+Dates.Day(30)
+@test_approx_eq ERF_to_rate(curve_NS, ERF(curve_NS, dt_maturity), InterestRates.yearfraction(curve_NS, dt_maturity)) zero_rate(curve_NS, dt_maturity)
 
 println("discountfactor on Svensson curve")
 @time discountfactor(curve_sven, mat_vec)
@@ -181,6 +199,9 @@ curve_spline_rates = InterestRates.IRCurve("dummy-SplineOnRates", InterestRates.
 
 @test_approx_eq zero_rate(curve_spline_rates, dt_curve + Dates.Day(11)) 0.1
 @test_approx_eq zero_rate(curve_spline_rates, [dt_curve+Dates.Day(11), dt_curve+Dates.Day(15)]) vert_y[1:2]
+
+dt_maturity = dt_curve+Dates.Day(30)
+@test_approx_eq ERF_to_rate(curve_spline_rates, ERF(curve_spline_rates, dt_maturity), InterestRates.yearfraction(curve_spline_rates, dt_maturity)) zero_rate(curve_spline_rates, dt_maturity)
 
 mat_vec = convert(Vector{Dates.Day}, convert(Vector{Int}, 1:30)) + dt_curve
 @test_approx_eq zero_rate(curve_spline_rates, mat_vec) y

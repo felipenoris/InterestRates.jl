@@ -42,7 +42,7 @@ Given an initial date `D1` and a final date `D2`, here's how the distance betwee
 * *Actual365* : `(D2 - D1) / 365`
 * *BDays252* : `bdays(D1, D2) / 252`, where `bdays` is the business days between `D1` and `D2` from `BusinessDays.jl` package.
 
-The type `CompoundingType` sets the convention on how to convert a yield into a Effective Rate Factor.
+The type `CompoundingType` sets the convention on how to convert a yield into an Effective Rate Factor.
 
 Given a yield `r` and a maturity year fraction `t`, here's how each supported compounding type maps the yield to Effective Rate Factors:
 
