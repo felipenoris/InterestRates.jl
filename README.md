@@ -50,7 +50,7 @@ Given a yield `r` and a maturity year fraction `t`, here's how each supported co
 * *SimpleCompounding* : `(1+r*t)`
 * *ExponentialCompounding* : `(1+r)^t`
 
-The `dt_observation` field sets the date when the Yield Curve if observed. All zero rate calculation will be performed based on this date.
+The `dt_observation` field sets the date when the Yield Curve is observed. All zero rate calculation will be performed based on this date.
 
 The fields `parameters_id` and `parameters_values` hold the observed market data for the yield curve, as discussed on *Curve Methods* section.
 

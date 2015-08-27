@@ -1,0 +1,48 @@
+Running perftests...
+######### SINGLE COMPUTATIONS ###########
+zero_rate for linear interpolation
+  0.000015 seconds (168 allocations: 10.715 KB)
+ERF for FlatForward interpolation
+  0.000013 seconds (27 allocations: 592 bytes)
+zero_rate for FlatForward interpolation
+  0.000010 seconds (23 allocations: 528 bytes)
+discountfactor for Linear interpolation on vector with simple compounding
+  0.000024 seconds (230 allocations: 5.000 KB)
+discountfactor on NS curve
+  0.000014 seconds (186 allocations: 3.625 KB)
+discountfactor on Svensson curve
+  0.000010 seconds (186 allocations: 3.625 KB)
+splinefit
+  0.000177 seconds (16 allocations: 5.172 KB)
+splineint
+  0.000009 seconds (8 allocations: 896 bytes)
+######### MULTIPLE COMPUTATIONS ###########
+Linear interpolation
+  0.383707 seconds (6.58 M allocations: 112.501 MB, 2.14% gc time)
+  0.824749 seconds (14.76 M allocations: 242.844 MB, 1.28% gc time)
+  0.826281 seconds (14.76 M allocations: 242.844 MB, 1.78% gc time)
+FlatForward interpolation
+  2.679940 seconds (95.54 M allocations: 1.544 GB, 2.51% gc time)
+  3.537968 seconds (135.03 M allocations: 2.192 GB, 2.67% gc time)
+  3.477657 seconds (135.03 M allocations: 2.192 GB, 2.63% gc time)
+Nelson Siegel Term Structure Model
+  0.851221 seconds (23.49 M allocations: 480.621 MB, 2.49% gc time)
+  1.673157 seconds (62.98 M allocations: 1.117 GB, 2.89% gc time)
+  1.681895 seconds (62.98 M allocations: 1.117 GB, 2.90% gc time)
+Svensson Term Structure Model
+  0.873549 seconds (23.49 M allocations: 480.621 MB, 2.30% gc time)
+  1.688753 seconds (62.98 M allocations: 1.117 GB, 2.76% gc time)
+  1.737860 seconds (62.98 M allocations: 1.117 GB, 2.78% gc time)
+Splines on Rates interpolation
+  0.507886 seconds (23.51 M allocations: 485.519 MB, 3.96% gc time)
+  1.310339 seconds (63.00 M allocations: 1.122 GB, 3.76% gc time)
+  1.309542 seconds (63.00 M allocations: 1.122 GB, 3.99% gc time)
+Splines on Discount Factors
+  0.774647 seconds (23.53 M allocations: 608.154 MB, 4.02% gc time)
+  1.629051 seconds (63.02 M allocations: 1.242 GB, 4.05% gc time)
+  1.637414 seconds (63.02 M allocations: 1.242 GB, 3.77% gc time)
+splinefit
+  0.031613 seconds (12.00 k allocations: 4.898 MB)
+splineint
+  0.117990 seconds (5.00 k allocations: 122.223 MB, 10.98% gc time)
+INFO: InterestRates tests passed
