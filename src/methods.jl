@@ -45,7 +45,7 @@ end
 
 # Perform Linear interpolation. Slope is determined by points (Xa, Ya) and (Xb, Yb).
 # Interpolation occurs on point (x_out, returnvalue)
-_linearinterp(Xa, Ya, Xb, Yb, x_out) = (x_out - Xa) * (Yb - Ya) / (Xb - Xa) + Ya
+_linearinterp{TX, TY}(Xa::TX, Ya::TY, Xb::TX, Yb::TY, x_out::TX) = (x_out - Xa) * (Yb - Ya) / (Xb - Xa) + Ya
 
 # Linear interpolation of zero_rates
 function _zero_rate(::Linear, x::Vector{Int}, y::Vector{Float64}, x_out::Int)
