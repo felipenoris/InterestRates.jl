@@ -32,8 +32,8 @@ curve_b252_ec_lin = InterestRates.IRCurve("dummy-linear", InterestRates.BDays252
 	InterestRates.ExponentialCompounding(), InterestRates.Linear(), dt_curve,
 	vert_x, vert_y)
  
-@test getcurvename(curve_b252_ec_lin) == "dummy-linear"
-@test getcurvedate(curve_b252_ec_lin) == dt_curve
+@test curve_get_name(curve_b252_ec_lin) == "dummy-linear"
+@test curve_get_date(curve_b252_ec_lin) == dt_curve
 
 maturity_2_days = advancebdays(BrazilBanking(), dt_curve, vert_x[1] + 2)
 yrs = (vert_x[1] + 2) / 252.0
