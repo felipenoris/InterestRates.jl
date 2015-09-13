@@ -94,8 +94,6 @@ for fun in (:ERF, :discountfactor)
 	end
 end
 
-########## INTEREST RATE CURVES #############
-
 forward_rate(curve::AbstractIRCurve, forward_date::Date, maturity::Date) = ERF_to_rate(curve, ERF(curve, forward_date, maturity), yearfraction(curve_get_daycount(curve), forward_date, maturity))
 
 function days_to_maturity(curve::AbstractIRCurve, maturity::Date)

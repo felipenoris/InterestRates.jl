@@ -24,13 +24,15 @@ All yield curve calculation is built around a *database-friendly* data type: `IR
 
 ```julia
 type IRCurve <: AbstractIRCurve
-	name::ASCIIString # curve name for reference
-	daycount::DayCountConvention # convention on how to count number of days between dates
-	compounding::CompoundingType # convention on how to convert an interest rate to an effective rate factor
-	method::CurveMethod # see Curve Methods section
-	dt_observation::Date # reference date for the curve data
-	parameters_id::Vector{Int} # for interpolation methods, id stores days_to_maturity on curve's daycount convention.
-	parameters_values::Vector{Float64}
+	name::ASCIIString
+	daycount::DayCountConvention
+	compounding::CompoundingType
+	method::CurveMethod
+	date::Date
+	dtm::Vector{Int} # stores days_to_maturity on curve's daycount convention for interpolation methods.
+	parameters::Vector{Float64} # for interpolation methods, parameters[i] stores yield for maturity dtm[i],
+								# for parametric methods, parameters stores model's constant parameters.
+	dict::Dict{Symbol, Any}		# holds pre-calculated values for optimization, or additional parameters.
 #...
 ```
 
@@ -50,9 +52,11 @@ Given a yield `r` and a maturity year fraction `t`, here's how each supported co
 * *SimpleCompounding* : `(1+r*t)`
 * *ExponentialCompounding* : `(1+r)^t`
 
-The `dt_observation` field sets the date when the Yield Curve is observed. All zero rate calculation will be performed based on this date.
+The `date` field sets the date when the Yield Curve is observed. All zero rate calculation will be performed based on this date.
 
-The fields `parameters_id` and `parameters_values` hold the observed market data for the yield curve, as discussed on *Curve Methods* section.
+The fields `dtm` and `parameters` hold the observed market data for the yield curve, as discussed on *Curve Methods* section.
+
+`dict` is avaliable for additional parameters, and to hold pre-calculated values for optimization.
 
 ## Curve Methods
 
@@ -67,28 +71,28 @@ This package provides the following curve methods.
 * **CubicSplineOnDiscountFactors**: provides *natural cubic spline* interpolation on discount factors.
 * **CompositeInterpolation**: provides support for different interpolation methods for: (1) extrapolation before first data point (`before_first`), (2) interpolation between the first and last point (`inner`), (3) extrapolation after last data point (`after_last`).
 
-For *Interpolation Methods*, the field `parameters_id` holds the number of days between `dt_observation` and the maturity of the observed yield, following the curve's day count convention, which must be given in advance, when creating an instance of the curve. The field `parameters_values` holds the yield values for each maturity provided in `parameters_id`. All yields must be anual based, and must also be given in advance, when creating the instance of the curve.
+For *Interpolation Methods*, the field `dtm` holds the number of days between `date` and the maturity of the observed yield, following the curve's day count convention, which must be given in advance, when creating an instance of the curve. The field `parameters` holds the yield values for each maturity provided in `dtm`. All yields must be anual based, and must also be given in advance, when creating the instance of the curve.
 
 **Term Structure Models**
 
 * **NelsonSiegel**: term structure model based on *Nelson, C.R., and A.F. Siegel (1987), Parsimonious Modeling of Yield Curve, The Journal of Business, 60, 473-489*.
 * **Svensson**: term structure model based on *Svensson, L.E. (1994), Estimating and Interpreting Forward Interest Rates: Sweden 1992-1994, IMF Working Paper, WP/94/114*.
 
-For *Term Structure Models*, the fields `parameters_id` and `parameters_values` hold the constants defined by each model, as described below. They must be given in advance, when creating the instance of the curve.
+For *Term Structure Models*, the field `parameters` holds the constants defined by each model, as described below. They must be given in advance, when creating the instance of the curve.
 
-For **NelsonSiegel** method, the array `parameters_values` holds the following parameters from the model:
-* **beta1** = parameters_values[1] , parameters_id[1] = 1
-* **beta2** = parameters_values[2] , parameters_id[2] = 2
-* **beta3** = parameters_values[3] , parameters_id[3] = 3
-* **lambda** = parameters_values[4], parameters_id[4] = 4
+For **NelsonSiegel** method, the array `parameters` holds the following parameters from the model:
+* **beta1** = parameters[1]
+* **beta2** = parameters[2]
+* **beta3** = parameters[3]
+* **lambda** = parameters[4]
 
-For **Svensson** method, the array `parameters_values` hold the following parameters from the model:
-* **beta1** = parameters_values[1] , parameters_id[1] = 1
-* **beta2** = parameters_values[2] , parameters_id[2] = 2
-* **beta3** = parameters_values[3] , parameters_id[3] = 3
-* **beta4** = parameters_values[4] , parameters_id[4] = 4
-* **lambda1** = parameters_values[5] , parameters_id[5] = 5
-* **lambda2** = parameters_values[6] , parameters_id[6] = 6
+For **Svensson** method, the array `parameters` hold the following parameters from the model:
+* **beta1** = parameters[1]
+* **beta2** = parameters[2]
+* **beta3** = parameters[3]
+* **beta4** = parameters[4]
+* **lambda1** = parameters[5]
+* **lambda2** = parameters[6]
 
 ### Methods hierarchy
 
@@ -119,8 +123,8 @@ using InterestRates
 
 # First, create a curve instance.
 
-vert_x = [11, 15, 19, 23] # for interpolation methods, represents the days to maturity
-vert_y = [0.10, 0.15, 0.20, 0.19] # yield values
+vert_x = [11, 15, 50, 80] # for interpolation methods, represents the days to maturity
+vert_y = [0.10, 0.15, 0.14, 0.17] # yield values
 
 dt_curve = Date(2015,08,03)
 
@@ -129,19 +133,24 @@ mycurve = InterestRates.IRCurve("dummy-simple-linear", InterestRates.Actual365()
 	vert_x, vert_y)
 
 # yield for a given maturity date
-y = zero_rate(mycurve, Date(2015,10,10))
+y = zero_rate(mycurve, Date(2015,08,25))
+# 0.148
 
 # forward rate between two future dates
-fy = forward_rate(mycurve, Date(2015,12,12), Date(2016, 02, 10))
+fy = forward_rate(mycurve, Date(2015,08,25), Date(2015, 10, 10))
+# 0.16134333771591897
 
 # Discount factor for a given maturity date
 df = discountfactor(mycurve, Date(2015,10,10))
+# 0.9714060637029466
 
 # Effective Rate Factor for a given maturity
 erf = ERF(mycurve, Date(2015,10,10))
+# 1.0294356164383562
 
 # Effective Rate for a given maturity
 er = ER(mycurve, Date(2015,10,10))
+# 0.029435616438356238
 ```
 
 See `runtests.jl` for more examples.
