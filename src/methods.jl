@@ -145,7 +145,7 @@ function _zero_rate(::CubicSplineOnRates, x::Vector{Int}, y::Vector{Float64}, x_
 end
 
 function _zero_rate(::CubicSplineOnRates, curve::IRCurve, maturity_vec::Vector{Date})
-	sp = splinefit(curve.parameters_id, curve_get_zero_rates(curve))
+	sp = splinefit(curve_get_dtm(curve), curve_get_zero_rates(curve))
 	
 	l = length(maturity_vec)
 	rates = Array(Float64, l)

@@ -127,7 +127,7 @@ dt_maturity = dt_curve+Dates.Day(30)
 dt_curve = Date(2015, 08, 11)
 curve_NS = InterestRates.IRCurve("dummy-continuous-nelsonsiegel", InterestRates.Actual360(),
 	InterestRates.ContinuousCompounding(), InterestRates.NelsonSiegel(), dt_curve,
-	[1,2,3,4], [0.1, 0.2, 0.3, 0.5])
+	[0.1, 0.2, 0.3, 0.5])
 
 mat_vec = [Date(2015,8,12), Date(2016,8,12)]
 @test_approx_eq zero_rate(curve_NS, mat_vec) [0.300069315921728, 0.311522078457982]
@@ -140,7 +140,7 @@ dt_maturity = dt_curve+Dates.Day(30)
 dt_curve = Date(2015, 08, 11)
 curve_sven = InterestRates.IRCurve("dummy-continuous-svensson", InterestRates.Actual360(),
 	InterestRates.ContinuousCompounding(), InterestRates.Svensson(), dt_curve,
-	[1,2,3,4,5,6], [0.1, 0.2, 0.3, 0.4, 0.5, 0.8])
+	[0.1, 0.2, 0.3, 0.4, 0.5, 0.8])
 
 mat_vec = [Date(2015,8,12), Date(2016,8,12)]
 @test_approx_eq zero_rate(curve_sven, mat_vec) [0.300513102478340, 0.408050168725566]

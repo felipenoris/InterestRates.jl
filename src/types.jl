@@ -17,6 +17,7 @@ type ExponentialCompounding <: CompoundingType end  # (1+r)^t
 abstract CurveMethod
 abstract Parametric <: CurveMethod
 abstract Interpolation <: CurveMethod
+
 abstract DiscountFactorInterpolation <: Interpolation
 abstract RateInterpolation <: Interpolation
 
@@ -42,31 +43,32 @@ type IRCurve <: AbstractIRCurve
 	compounding::CompoundingType
 	method::CurveMethod
 	date::Date
-	parameters_id::Vector{Int} # for interpolation methods, id stores days_to_maturity on curve's daycount convention.
-	parameters_values::Vector{Float64}
-	cache::Dict{Symbol, Any}
+	dtm::Vector{Int} # for interpolation methods, stores days_to_maturity on curve's daycount convention.
+	parameters::Vector{Float64} # for interpolation methods, parameters[i] stores yield for maturity dtm[i],
+								# for parametric methods, parameters stores model's constant parameters.
+	dict::Dict{Symbol, Any}		# holds pre-calculated values for optimization, or additional parameters.
 
-	# Constructor check inputs
-	IRCurve(name::ASCIIString, daycount::DayCountConvention,
-		compounding::CompoundingType, method::CurveMethod,
-		date::Date, parameters_id::Vector{Int},
-		parameters_values::Vector{Float64}) = begin
+	# Constructor for Interpolation methods
+	IRCurve{M<:Interpolation}(name::ASCIIString, daycount::DayCountConvention,
+		compounding::CompoundingType, method::M,
+		date::Date, dtm::Vector{Int},
+		yield_vec::Vector{Float64}, dict = Dict{Symbol, Any}()) = begin
 
-		if isempty(parameters_id) || isempty(parameters_values)
-			error("Empty curve parameter vector")
-		end
+		isempty(dtm) && error("Empty days-to-maturity vector")
+		isempty(yield_vec) && error("Empty yields vector")
+		(length(dtm) != length(yield_vec)) && error("dtm and yield_vec must have the same length")
+		(!issorted(dtm)) && error("dtm should be sorted before creating IRCurve instance")
 
-		if length(parameters_id) != length(parameters_values)
-			error("parameters_id and parameters_values must have the same length")
-		end
+		new(name, daycount, compounding, method, date, dtm, yield_vec, dict)
+	end
 
-		if !issorted(parameters_id)
-			error("parameters_id should be sorted before creating IRCurve instance")
-		end
-
-		cache = Dict{Symbol, Any}()
-
-		new(name, daycount, compounding, method, date, parameters_id, parameters_values, cache)
+	# Constructor for Parametric methods
+	IRCurve{M<:Parametric}(name::ASCIIString, daycount::DayCountConvention,
+		compounding::CompoundingType, method::M,
+		date::Date,
+		parameters::Vector{Float64}, dict = Dict{Symbol, Any}()) = begin
+		isempty(parameters) && error("Empty yields vector")
+		new(name, daycount, compounding, method, date, Array(Int,1), parameters, dict)
 	end
 end
 
@@ -86,6 +88,6 @@ curve_get_daycount(curve::IRCurve) = curve.daycount
 curve_get_compounding(curve::IRCurve) = curve.compounding
 curve_get_method(curve::IRCurve) = curve.method
 curve_get_date(curve::IRCurve) = curve.date
-curve_get_dtm(curve::IRCurve) = curve.parameters_id
-curve_get_zero_rates(curve::IRCurve) = curve.parameters_values
-curve_get_model_parameters(curve::IRCurve) = curve.parameters_values
+curve_get_dtm(curve::IRCurve) = curve.dtm
+curve_get_zero_rates(curve::IRCurve) = curve.parameters
+curve_get_model_parameters(curve::IRCurve) = curve.parameters
