@@ -59,7 +59,9 @@ type IRCurve <: AbstractIRCurve
 		(length(dtm) != length(yield_vec)) && error("dtm and yield_vec must have the same length")
 		(!issorted(dtm)) && error("dtm should be sorted before creating IRCurve instance")
 
-		new(name, daycount, compounding, method, date, dtm, yield_vec, dict)
+		c = new(name, daycount, compounding, method, date, dtm, yield_vec, dict)
+		curve_set_method(c, method)
+		return c
 	end
 
 	# Constructor for Parametric methods
@@ -68,7 +70,8 @@ type IRCurve <: AbstractIRCurve
 		date::Date,
 		parameters::Vector{Float64}, dict = Dict{Symbol, Any}()) = begin
 		isempty(parameters) && error("Empty yields vector")
-		new(name, daycount, compounding, method, date, Array(Int,1), parameters, dict)
+		c = new(name, daycount, compounding, method, date, Array(Int,1), parameters, dict)
+		return c
 	end
 end
 
@@ -91,3 +94,15 @@ curve_get_date(curve::IRCurve) = curve.date
 curve_get_dtm(curve::IRCurve) = curve.dtm
 curve_get_zero_rates(curve::IRCurve) = curve.parameters
 curve_get_model_parameters(curve::IRCurve) = curve.parameters
+
+function curve_set_method{M<:Interpolation}(curve::IRCurve, method::M)
+	# Can't change method from Interpolation to Parametric, due to different data structures
+	if typeof(curve.method) <: Parametric
+		error("Can't change method from Interpolation to Parametric, due to different data structures.")
+	end
+
+	curve.method = method
+	empty!(curve.dict)
+end
+
+curve_set_method(curve::IRCurve, method::CurveMethod) = error("Not allowed.")
