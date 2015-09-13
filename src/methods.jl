@@ -15,7 +15,9 @@ function _zero_rate(comp::CompositeInterpolation, curve::AbstractIRCurve, maturi
 	end
 end
 
-function _interpolationpoints(x::Vector{Int}, y::Vector{Float64}, x_out::Int)
+# Returns tuple (index_a, index_b) for input vector x
+# for interpolands on linear interpolation on point x_out
+function _interpolationpoints{T}(x::Vector{T}, x_out::T)
 	index_a::Int
 	index_b::Int
 
@@ -35,12 +37,7 @@ function _interpolationpoints(x::Vector{Int}, y::Vector{Float64}, x_out::Int)
 		index_b = findfirst(b -> b >=  x_out, x) # first element after x_out on x
 	end
 	
-	Xa = x[index_a]
-	Xb = x[index_b]
-	Ya = y[index_a]
-	Yb = y[index_b]
-	
-	return Xa, Ya, Xb, Yb
+	return index_a, index_b
 end
 
 # Perform Linear interpolation. Slope is determined by points (Xa, Ya) and (Xb, Yb).
@@ -54,8 +51,8 @@ function _zero_rate(::Linear, x::Vector{Int}, y::Vector{Float64}, x_out::Int)
 		return y[1]
 	end
 	
-	Xa, Ya, Xb, Yb = _interpolationpoints(x, y, x_out)
-	return _linearinterp(Xa, Ya, Xb, Yb, x_out)
+	index_a, index_b = _interpolationpoints(x, x_out)
+	return _linearinterp(x[index_a], y[index_a], x[index_b], y[index_b], x_out)
 end
 
 # Step Function
@@ -88,7 +85,11 @@ function _zero_rate(::FlatForward, curve::AbstractIRCurve, maturity::Date)
 	end
 	
 	x_out = days_to_maturity(curve, maturity)
-	Xa, Ya, Xb, Yb = _interpolationpoints(curve_get_dtm(curve), curve_get_zero_rates(curve), x_out)
+	index_a, index_b = _interpolationpoints(curve_get_dtm(curve), x_out)
+	Xa = curve_get_dtm(curve)[index_a]
+	Ya = curve_get_zero_rates(curve)[index_a]
+	Xb = curve_get_dtm(curve)[index_b]
+	Yb = curve_get_zero_rates(curve)[index_b]
 
 	_daysperyear_ = daysperyear(curve_get_daycount(curve))
 	year_fraction_a = Xa / _daysperyear_
