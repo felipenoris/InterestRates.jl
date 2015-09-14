@@ -103,7 +103,7 @@ end
 function run(c::CurveContainer, x_out_vec::Vector{Int})
 	for i = 1:100000
 		for x_out in x_out_vec
-			Xa, Ya, Xb, Yb = _interpolationpoints(get_dtm(c), get_zero_rates(c), x_out)
+			index_a, index_b = _interpolationpoints(get_dtm(c), get_zero_rates(c), x_out)
 		end
 	end
 end

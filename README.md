@@ -12,7 +12,7 @@ julia> Pkg.add("InterestRates")
 
 ## Concept
 
-A Term Structure of Interest Rates, also known as *zero-coupon curve*, is a function `f(t) -> y` that maps a given maturity `t` onto the yield `y` of a bond that matures at `t` and pays no coupons (*zero-coupon bond*).
+A Term Structure of Interest Rates, also known as *zero-coupon curve*, is a function `f(t) → y` that maps a given maturity `t` onto the yield `y` of a bond that matures at `t` and pays no coupons (*zero-coupon bond*).
 
 For instance, say the current price of a bond that pays exactly `10` in `1 year` is `9.25`. If one buys that bond for the current price and holds it until the maturity of the contract, that investor will gain `0.75`, which represents `8.11%` of the original price. That means that the bond is currently priced with a yield of `8.11%` *per year*.
 

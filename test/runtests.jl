@@ -189,4 +189,8 @@ curve_spline_discount = InterestRates.IRCurve("dummy-SplineOnDiscountFactors", I
 @test_approx_eq zero_rate(curve_spline_discount, dt_curve + Dates.Day(11)) 0.1
 @test_approx_eq zero_rate(curve_spline_discount, [dt_curve+Dates.Day(11), dt_curve+Dates.Day(15)]) vert_y[1:2]
 
+@test InterestRates.advancedays(InterestRates.BDays252(BrazilBanking()), Date(2015,9,1), [0, 1, 3, 4, 5]) == [Date(2015,9,1),Date(2015,9,2),Date(2015,9,4),Date(2015,9,8),Date(2015,9,9)]
+@test InterestRates.advancedays(InterestRates.Actual360(), Date(2015,9,1), [0, 1, 3, 4, 5]) == [Date(2015,9,1),Date(2015,9,2),Date(2015,9,4),Date(2015,9,5),Date(2015,9,6)]
+@test InterestRates.advancedays(InterestRates.Actual365(), Date(2015,9,1), [0, 1, 3, 4, 5]) == [Date(2015,9,1),Date(2015,9,2),Date(2015,9,4),Date(2015,9,5),Date(2015,9,6)]
+
 include("perftests.jl")

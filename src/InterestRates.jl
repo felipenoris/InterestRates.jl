@@ -29,6 +29,19 @@ daycount(conv::BDays252, date_start::Date, date_end::Date) = Int(bdays(conv.hc, 
 daycount(::Actual360, date_start::Date, date_end::Date) = Int(date_end - date_start)
 daycount(::Actual365, date_start::Date, date_end::Date) = Int(date_end - date_start)
 
+advancedays(conv::BDays252, date_start::Date, daycount::Int) = advancebdays(conv.hc, date_start, daycount)
+advancedays(::Actual360, date_start::Date, daycount::Int) = date_start + Day(daycount)
+advancedays(::Actual365, date_start::Date, daycount::Int) = date_start + Day(daycount)
+
+function advancedays(conv::DayCountConvention, date_start::Date, daycount_vec::Vector{Int})
+	l = length(daycount_vec)
+	result = Array(Date, l)
+	for i in 1:l
+		result[i] = advancedays(conv, date_start, daycount_vec[i])
+	end
+	return result
+end
+
 daysperyear(::BDays252) = 252
 daysperyear(::Actual360) = 360
 daysperyear(::Actual365) = 365
