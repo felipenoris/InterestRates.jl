@@ -42,6 +42,8 @@ function advancedays(conv::DayCountConvention, date_start::Date, daycount_vec::V
 	return result
 end
 
+advancedays(curve::AbstractIRCurve, daycount) = advancedays(curve_get_daycount(curve), curve_get_date(curve), daycount)
+
 daysperyear(::BDays252) = 252
 daysperyear(::Actual360) = 360
 daysperyear(::Actual365) = 365
