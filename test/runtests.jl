@@ -193,5 +193,9 @@ curve_spline_discount = InterestRates.IRCurve("dummy-SplineOnDiscountFactors", I
 @test InterestRates.advancedays(InterestRates.Actual360(), Date(2015,9,1), [0, 1, 3, 4, 5]) == [Date(2015,9,1),Date(2015,9,2),Date(2015,9,4),Date(2015,9,5),Date(2015,9,6)]
 @test InterestRates.advancedays(InterestRates.Actual365(), Date(2015,9,1), [0, 1, 3, 4, 5]) == [Date(2015,9,1),Date(2015,9,2),Date(2015,9,4),Date(2015,9,5),Date(2015,9,6)]
 
+param = 10
+InterestRates.curve_set_dict_parameter!(curve_spline_discount, :custom_parameter, param)
+@test InterestRates.curve_get_dict_parameter(curve_spline_discount, :custom_parameter) == param
+
 include("usage.jl")
 include("perftests.jl")
