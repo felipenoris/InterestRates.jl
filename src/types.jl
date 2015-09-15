@@ -59,9 +59,7 @@ type IRCurve <: AbstractIRCurve
 		(length(dtm) != length(yield_vec)) && error("dtm and yield_vec must have the same length")
 		(!issorted(dtm)) && error("dtm should be sorted before creating IRCurve instance")
 
-		c = new(name, daycount, compounding, method, date, dtm, yield_vec, dict)
-		curve_set_method(c, method)
-		return c
+		new(name, daycount, compounding, method, date, dtm, yield_vec, dict)
 	end
 
 	# Constructor for Parametric methods
@@ -70,8 +68,7 @@ type IRCurve <: AbstractIRCurve
 		date::Date,
 		parameters::Vector{Float64}, dict = Dict{Symbol, Any}()) = begin
 		isempty(parameters) && error("Empty yields vector")
-		c = new(name, daycount, compounding, method, date, Array(Int,1), parameters, dict)
-		return c
+		new(name, daycount, compounding, method, date, Array(Int,1), parameters, dict)
 	end
 end
 
@@ -84,6 +81,8 @@ curve_get_date(curve::AbstractIRCurve) = error("method not defined")
 curve_get_dtm(curve::AbstractIRCurve) = error("method not defined")
 curve_get_zero_rates(curve::AbstractIRCurve) = error("method not defined")
 curve_get_model_parameters(curve::AbstractIRCurve) = error("method not defined")
+curve_get_dict_parameter(curve::AbstractIRCurve, sym::Symbol) = error("method not defined")
+curve_set_dict_parameter!(curve::AbstractIRCurve, sym::Symbol, value) = error("method not defined")
 
 # Access basic curve properties
 curve_get_name(curve::IRCurve) = curve.name
@@ -94,15 +93,8 @@ curve_get_date(curve::IRCurve) = curve.date
 curve_get_dtm(curve::IRCurve) = curve.dtm
 curve_get_zero_rates(curve::IRCurve) = curve.parameters
 curve_get_model_parameters(curve::IRCurve) = curve.parameters
+curve_get_dict_parameter(curve::IRCurve, sym::Symbol) = curve.dict[sym]
 
-function curve_set_method{M<:Interpolation}(curve::IRCurve, method::M)
-	# Can't change method from Interpolation to Parametric, due to different data structures
-	if typeof(curve.method) <: Parametric
-		error("Can't change method from Interpolation to Parametric, due to different data structures.")
-	end
-
-	curve.method = method
-	empty!(curve.dict)
+function curve_set_dict_parameter!(curve::IRCurve, sym::Symbol, value)
+	curve.dict[sym] = value
 end
-
-curve_set_method(curve::IRCurve, method::CurveMethod) = error("Not allowed.")
