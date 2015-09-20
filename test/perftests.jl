@@ -3,75 +3,69 @@
 
 println("Running perftests...")
 
-vert_x = [11, 15, 19, 23, 25]
-vert_y = [0.10, 0.12, 0.20, 0.22, 0.2]
+using InterestRates
+
+dt_curve = Date(2015,08,08)
+
+vert_x = [11, 15, 19, 23, 25, 200, 500]
+vert_y = [0.10, 0.12, 0.20, 0.19, 0.21, 0.21, 0.22]
+NS_params = [0.1, 0.2, 0.3, 0.5]
+SVEN_params = [0.1, 0.2, 0.3, 0.4, 0.5, 0.8]
+
 mat_vec = [ Date(2015,08,08), Date(2015,08,12), Date(2015,08,17), Date(2015,08,18), Date(2015,08,19), 
 	Date(2015,08,21), Date(2015,08,22), Date(2015,08,23), Date(2015,08,25), Date(2015,08,26),
 	Date(2015,08,27), Date(2015,08,29), Date(2015,08,30), Date(2015,08,31), Date(2015,09,26)]
 
-println("######### SINGLE COMPUTATIONS ###########")
-println("zero_rate for linear interpolation")
-@time zero_rate(curve_b252_ec_lin, curve_get_date(curve_b252_ec_lin) + Dates.Day(5000))
+days_vec = [Dates.Day(i) for i=1:1500]
 
-println("ERF for FlatForward interpolation")
-@time ERF(curve_ac360_cont_ff, curve_get_date(curve_ac360_cont_ff) + Dates.Day(13))
+curve_linear = InterestRates.IRCurve("dummy-linear", InterestRates.Actual360(),
+	InterestRates.ExponentialCompounding(), InterestRates.Linear(), dt_curve,
+	vert_x, vert_y)
 
-println("zero_rate for FlatForward interpolation")
-@time zero_rate(curve_ac360_cont_ff, curve_get_date(curve_ac360_cont_ff) + Dates.Day(13))
+curve_flatforward = InterestRates.IRCurve("dummy-flatforward", InterestRates.Actual360(),
+	InterestRates.ExponentialCompounding(), InterestRates.FlatForward(), dt_curve,
+	vert_x, vert_y)
 
-println("discountfactor for Linear interpolation on vector with simple compounding")
-@time discountfactor(curve_ac365_simple_linear, mat_vec)
+curve_ns = InterestRates.IRCurve("dummy-ns", InterestRates.Actual360(),
+	InterestRates.ExponentialCompounding(), InterestRates.NelsonSiegel(), dt_curve,
+	NS_params)
 
-println("discountfactor on NS curve")
-@time discountfactor(curve_NS, mat_vec)
+curve_sven = InterestRates.IRCurve("dummy-sven", InterestRates.Actual360(),
+	InterestRates.ExponentialCompounding(), InterestRates.Svensson(), dt_curve,
+	SVEN_params)
 
-println("discountfactor on Svensson curve")
-@time discountfactor(curve_sven, mat_vec)
+curve_spline_rates = InterestRates.IRCurve("dummy-spline_rates", InterestRates.Actual360(),
+	InterestRates.ExponentialCompounding(), InterestRates.CubicSplineOnRates(), dt_curve,
+	vert_x, vert_y)
 
-println("splinefit")
-@time InterestRates.splinefit(vert_x, vert_y)
+curve_spline_df = InterestRates.IRCurve("dummy-spline_df", InterestRates.Actual360(),
+	InterestRates.ExponentialCompounding(), InterestRates.CubicSplineOnDiscountFactors(), dt_curve,
+	vert_x, vert_y)
 
-println("splineint")
-@time InterestRates.splineint(sp, convert(Vector{Int}, 1:30))
+curve_step = InterestRates.IRCurve("dummy-step", InterestRates.Actual360(),
+	InterestRates.ExponentialCompounding(), InterestRates.StepFunction(), dt_curve,
+	vert_x, vert_y)
 
-println("######### MULTIPLE COMPUTATIONS ###########")
+c_array = [curve_linear, curve_flatforward, curve_ns, curve_sven, curve_spline_rates, curve_spline_df, curve_step]
 
-days_vec = [Dates.Day(i) for i=1:724]
+# Warm up
 
-println("Linear interpolation")
-@time for i=1:1000 zero_rate(curve_b252_ec_lin, curve_get_date(curve_b252_ec_lin) + days_vec) end
-@time for i=1:1000 ERF(curve_b252_ec_lin, curve_get_date(curve_b252_ec_lin) + days_vec) end
-@time for i=1:1000 discountfactor(curve_b252_ec_lin, curve_get_date(curve_b252_ec_lin) + days_vec) end
+for c in c_array
+	zero_rate(c, mat_vec)
+	ERF(c, mat_vec)
+	discountfactor(c, mat_vec)
+end
 
-days_vec = [Dates.Day(i) for i=1:8000]
+sp = InterestRates.splinefit(vert_x, vert_y)
+InterestRates.splineint(sp, convert(Vector{Int}, 1:30))
 
-println("FlatForward interpolation")
-@time for i=1:1000 zero_rate(curve_ac360_cont_ff, curve_get_date(curve_ac360_cont_ff) + days_vec) end
-@time for i=1:1000 ERF(curve_ac360_cont_ff, curve_get_date(curve_ac360_cont_ff) + days_vec) end
-@time for i=1:1000 discountfactor(curve_ac360_cont_ff, curve_get_date(curve_ac360_cont_ff) + days_vec) end
+# Perftests
 
-println("Nelson Siegel Term Structure Model")
-@time for i=1:1000 zero_rate(curve_NS, curve_get_date(curve_NS) + days_vec) end
-@time for i=1:1000 ERF(curve_NS, curve_get_date(curve_NS) + days_vec) end
-@time for i=1:1000 discountfactor(curve_NS, curve_get_date(curve_NS) + days_vec) end
+for c in c_array
+	println("$(curve_get_method(c))")
+	@time for i=1:1000 zero_rate(c, curve_get_date(c) + days_vec) end
+	@time for i=1:1000 ERF(c, curve_get_date(c) + days_vec) end
+	@time for i=1:1000 discountfactor(c, curve_get_date(c) + days_vec) end
+end
 
-println("Svensson Term Structure Model")
-@time for i=1:1000 zero_rate(curve_sven, curve_get_date(curve_sven) + days_vec) end
-@time for i=1:1000 ERF(curve_sven, curve_get_date(curve_sven) + days_vec) end
-@time for i=1:1000 discountfactor(curve_sven, curve_get_date(curve_sven) + days_vec) end
-
-println("Splines on Rates interpolation")
-@time for i=1:1000 zero_rate(curve_spline_rates, curve_get_date(curve_spline_rates) + days_vec) end
-@time for i=1:1000 ERF(curve_spline_rates, curve_get_date(curve_spline_rates) + days_vec) end
-@time for i=1:1000 discountfactor(curve_spline_rates, curve_get_date(curve_spline_rates) + days_vec) end
-
-println("Splines on Discount Factors")
-@time for i=1:1000 zero_rate(curve_spline_discount, curve_get_date(curve_spline_discount) + days_vec) end
-@time for i=1:1000 ERF(curve_spline_discount, curve_get_date(curve_spline_discount) + days_vec) end
-@time for i=1:1000 discountfactor(curve_spline_discount, curve_get_date(curve_spline_discount) + days_vec) end
-
-println("splinefit")
-@time for i=1:1000 InterestRates.splinefit(vert_x, vert_y) end
-
-println("splineint")
-@time for i=1:1000 InterestRates.splineint(sp, convert(Vector{Int}, 1:8000)) end
+println("Perftests end")

@@ -1,48 +1,30 @@
 Running perftests...
-######### SINGLE COMPUTATIONS ###########
-zero_rate for linear interpolation
-  0.000015 seconds (168 allocations: 10.715 KB)
-ERF for FlatForward interpolation
-  0.000013 seconds (27 allocations: 592 bytes)
-zero_rate for FlatForward interpolation
-  0.000010 seconds (23 allocations: 528 bytes)
-discountfactor for Linear interpolation on vector with simple compounding
-  0.000024 seconds (230 allocations: 5.000 KB)
-discountfactor on NS curve
-  0.000014 seconds (186 allocations: 3.625 KB)
-discountfactor on Svensson curve
-  0.000010 seconds (186 allocations: 3.625 KB)
-splinefit
-  0.000177 seconds (16 allocations: 5.172 KB)
-splineint
-  0.000009 seconds (8 allocations: 896 bytes)
-######### MULTIPLE COMPUTATIONS ###########
-Linear interpolation
-  0.383707 seconds (6.58 M allocations: 112.501 MB, 2.14% gc time)
-  0.824749 seconds (14.76 M allocations: 242.844 MB, 1.28% gc time)
-  0.826281 seconds (14.76 M allocations: 242.844 MB, 1.78% gc time)
-FlatForward interpolation
-  2.679940 seconds (95.54 M allocations: 1.544 GB, 2.51% gc time)
-  3.537968 seconds (135.03 M allocations: 2.192 GB, 2.67% gc time)
-  3.477657 seconds (135.03 M allocations: 2.192 GB, 2.63% gc time)
-Nelson Siegel Term Structure Model
-  0.851221 seconds (23.49 M allocations: 480.621 MB, 2.49% gc time)
-  1.673157 seconds (62.98 M allocations: 1.117 GB, 2.89% gc time)
-  1.681895 seconds (62.98 M allocations: 1.117 GB, 2.90% gc time)
-Svensson Term Structure Model
-  0.873549 seconds (23.49 M allocations: 480.621 MB, 2.30% gc time)
-  1.688753 seconds (62.98 M allocations: 1.117 GB, 2.76% gc time)
-  1.737860 seconds (62.98 M allocations: 1.117 GB, 2.78% gc time)
-Splines on Rates interpolation
-  0.507886 seconds (23.51 M allocations: 485.519 MB, 3.96% gc time)
-  1.310339 seconds (63.00 M allocations: 1.122 GB, 3.76% gc time)
-  1.309542 seconds (63.00 M allocations: 1.122 GB, 3.99% gc time)
-Splines on Discount Factors
-  0.774647 seconds (23.53 M allocations: 608.154 MB, 4.02% gc time)
-  1.629051 seconds (63.02 M allocations: 1.242 GB, 4.05% gc time)
-  1.637414 seconds (63.02 M allocations: 1.242 GB, 3.77% gc time)
-splinefit
-  0.031613 seconds (12.00 k allocations: 4.898 MB)
-splineint
-  0.117990 seconds (5.00 k allocations: 122.223 MB, 10.98% gc time)
-INFO: InterestRates tests passed
+InterestRates.Linear()
+  0.271971 seconds (5.94 M allocations: 143.522 MB, 14.92% gc time)
+  0.489632 seconds (12.93 M allocations: 261.658 MB, 3.65% gc time)
+  0.494326 seconds (12.93 M allocations: 261.658 MB, 3.63% gc time)
+InterestRates.FlatForward()
+  0.936311 seconds (19.44 M allocations: 349.487 MB, 2.40% gc time)
+  1.204097 seconds (26.43 M allocations: 467.651 MB, 2.40% gc time)
+  1.183529 seconds (26.43 M allocations: 467.651 MB, 2.18% gc time)
+InterestRates.NelsonSiegel()
+  0.159019 seconds (3.99 M allocations: 83.923 MB, 2.12% gc time)
+  0.426477 seconds (10.98 M allocations: 202.087 MB, 2.17% gc time)
+  0.416123 seconds (10.98 M allocations: 202.087 MB, 2.06% gc time)
+InterestRates.Svensson()
+  0.168187 seconds (3.99 M allocations: 83.923 MB, 2.79% gc time)
+  0.441949 seconds (10.98 M allocations: 202.087 MB, 1.93% gc time)
+  0.424156 seconds (10.98 M allocations: 202.087 MB, 1.98% gc time)
+InterestRates.CubicSplineOnRates()
+  0.165007 seconds (4.00 M allocations: 93.887 MB, 4.21% gc time)
+  0.430887 seconds (10.99 M allocations: 212.051 MB, 2.02% gc time)
+  0.423901 seconds (10.99 M allocations: 212.051 MB, 2.26% gc time)
+InterestRates.CubicSplineOnDiscountFactors()
+  0.301564 seconds (4.03 M allocations: 117.493 MB, 2.39% gc time)
+  0.563875 seconds (11.02 M allocations: 235.657 MB, 1.92% gc time)
+  0.558928 seconds (11.02 M allocations: 235.657 MB, 1.92% gc time)
+InterestRates.StepFunction()
+  0.126552 seconds (4.97 M allocations: 113.708 MB, 5.88% gc time)
+  0.391428 seconds (11.96 M allocations: 231.873 MB, 3.72% gc time)
+  0.389707 seconds (11.96 M allocations: 231.873 MB, 3.42% gc time)
+Perftests end
