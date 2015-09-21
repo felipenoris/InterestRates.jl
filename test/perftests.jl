@@ -12,11 +12,9 @@ vert_y = [0.10, 0.12, 0.20, 0.19, 0.21, 0.21, 0.22]
 NS_params = [0.1, 0.2, 0.3, 0.5]
 SVEN_params = [0.1, 0.2, 0.3, 0.4, 0.5, 0.8]
 
-mat_vec = [ Date(2015,08,08), Date(2015,08,12), Date(2015,08,17), Date(2015,08,18), Date(2015,08,19), 
-	Date(2015,08,21), Date(2015,08,22), Date(2015,08,23), Date(2015,08,25), Date(2015,08,26),
-	Date(2015,08,27), Date(2015,08,29), Date(2015,08,30), Date(2015,08,31), Date(2015,09,26)]
-
 days_vec = [Dates.Day(i) for i=1:1500]
+
+mat_vec = dt_curve + days_vec
 
 curve_linear = InterestRates.IRCurve("dummy-linear", InterestRates.Actual360(),
 	InterestRates.ExponentialCompounding(), InterestRates.Linear(), dt_curve,
@@ -63,9 +61,9 @@ InterestRates.splineint(sp, convert(Vector{Int}, 1:30))
 
 for c in c_array
 	println("$(curve_get_method(c))")
-	@time for i=1:1000 zero_rate(c, curve_get_date(c) + days_vec) end
-	@time for i=1:1000 ERF(c, curve_get_date(c) + days_vec) end
-	@time for i=1:1000 discountfactor(c, curve_get_date(c) + days_vec) end
+	@time for i=1:1000 zero_rate(c, mat_vec) end
+	@time for i=1:1000 ERF(c, mat_vec) end
+	@time for i=1:1000 discountfactor(c, mat_vec) end
 end
 
 println("Perftests end")
