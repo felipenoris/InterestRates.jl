@@ -54,7 +54,9 @@ Given a yield `r` and a maturity year fraction `t`, here's how each supported co
 
 The `date` field sets the date when the Yield Curve is observed. All zero rate calculation will be performed based on this date.
 
-The fields `dtm` and `parameters` hold the observed market data for the yield curve, as discussed on *Curve Methods* section.
+The fields `dtm` and `zero_rates` hold the observed market data for the yield curve, as discussed on *Curve Methods* section.
+
+The field `parameters` holds parameter values for term structure models, as discussed on *Curve Methods* section.
 
 `dict` is avaliable for additional parameters, and to hold pre-calculated values for optimization.
 
@@ -71,7 +73,7 @@ This package provides the following curve methods.
 * **CubicSplineOnDiscountFactors**: provides *natural cubic spline* interpolation on discount factors.
 * **CompositeInterpolation**: provides support for different interpolation methods for: (1) extrapolation before first data point (`before_first`), (2) interpolation between the first and last point (`inner`), (3) extrapolation after last data point (`after_last`).
 
-For *Interpolation Methods*, the field `dtm` holds the number of days between `date` and the maturity of the observed yield, following the curve's day count convention, which must be given in advance, when creating an instance of the curve. The field `parameters` holds the yield values for each maturity provided in `dtm`. All yields must be anual based, and must also be given in advance, when creating the instance of the curve.
+For *Interpolation Methods*, the field `dtm` holds the number of days between `date` and the maturity of the observed yield, following the curve's day count convention, which must be given in advance, when creating an instance of the curve. The field `zero_rates` holds the yield values for each maturity provided in `dtm`. All yields must be anual based, and must also be given in advance, when creating the instance of the curve.
 
 **Term Structure Models**
 
@@ -111,10 +113,6 @@ As a summary, curve methods are organized by the following hierarchy.
 	* `<<Parametric>>`
 		* `NelsonSiegel`
 		* `Svensson`
-
-## Motivation for current design
-
-By sharing the same data structure for *Interpolation Methods* and *Term Structure Models*, this package provides a *database-friendly* way to store curve data. Since only the raw curve data is stored on `IRCurve` data structure, there's a minimal storage requirement in order to track historical data about curves. For the same reason, and given Julia's high speed, it's possible to load many instances of curves on memory and perform fast valuation of Fixed Income contracts.
 
 ## Usage
 
