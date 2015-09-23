@@ -29,9 +29,9 @@ type IRCurve <: AbstractIRCurve
 	compounding::CompoundingType
 	method::CurveMethod
 	date::Date
-	dtm::Vector{Int} # stores days_to_maturity on curve's daycount convention for interpolation methods.
-	parameters::Vector{Float64} # for interpolation methods, parameters[i] stores yield for maturity dtm[i],
-								# for parametric methods, parameters stores model's constant parameters.
+	dtm::Vector{Int} # for interpolation methods, stores days_to_maturity on curve's daycount convention.
+	zero_rates::Vector{Float64} # for interpolation methods, parameters[i] stores yield for maturity dtm[i].
+	parameters::Vector{Float64} # for parametric methods, parameters stores model's constant parameters.
 	dict::Dict{Symbol, Any}		# holds pre-calculated values for optimization, or additional parameters.
 #...
 ```

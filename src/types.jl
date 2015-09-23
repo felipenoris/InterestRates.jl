@@ -44,31 +44,32 @@ type IRCurve <: AbstractIRCurve
 	method::CurveMethod
 	date::Date
 	dtm::Vector{Int} # for interpolation methods, stores days_to_maturity on curve's daycount convention.
-	parameters::Vector{Float64} # for interpolation methods, parameters[i] stores yield for maturity dtm[i],
-								# for parametric methods, parameters stores model's constant parameters.
+	zero_rates::Vector{Float64} # for interpolation methods, parameters[i] stores yield for maturity dtm[i].
+	parameters::Vector{Float64} # for parametric methods, parameters stores model's constant parameters.
 	dict::Dict{Symbol, Any}		# holds pre-calculated values for optimization, or additional parameters.
 
 	# Constructor for Interpolation methods
 	IRCurve{M<:Interpolation}(name::ASCIIString, daycount::DayCountConvention,
 		compounding::CompoundingType, method::M,
 		date::Date, dtm::Vector{Int},
-		yield_vec::Vector{Float64}, dict = Dict{Symbol, Any}()) = begin
+		zero_rates::Vector{Float64}, parameters = Array(Float64,0), dict = Dict{Symbol, Any}()) = begin
 
 		isempty(dtm) && error("Empty days-to-maturity vector")
-		isempty(yield_vec) && error("Empty yields vector")
-		(length(dtm) != length(yield_vec)) && error("dtm and yield_vec must have the same length")
+		isempty(zero_rates) && error("Empty zero_rates vector")
+		(length(dtm) != length(zero_rates)) && error("dtm and zero_rates must have the same length")
 		(!issorted(dtm)) && error("dtm should be sorted before creating IRCurve instance")
 
-		new(name, daycount, compounding, method, date, dtm, yield_vec, dict)
+		new(name, daycount, compounding, method, date, dtm, zero_rates, parameters, dict)
 	end
 
 	# Constructor for Parametric methods
 	IRCurve{M<:Parametric}(name::ASCIIString, daycount::DayCountConvention,
 		compounding::CompoundingType, method::M,
 		date::Date,
-		parameters::Vector{Float64}, dict = Dict{Symbol, Any}()) = begin
+		parameters::Vector{Float64},
+		dict = Dict{Symbol, Any}()) = begin
 		isempty(parameters) && error("Empty yields vector")
-		new(name, daycount, compounding, method, date, Array(Int,1), parameters, dict)
+		new(name, daycount, compounding, method, date, Array(Int,0), Array(Float64,0), parameters, dict)
 	end
 end
 
@@ -91,7 +92,7 @@ curve_get_compounding(curve::IRCurve) = curve.compounding
 curve_get_method(curve::IRCurve) = curve.method
 curve_get_date(curve::IRCurve) = curve.date
 curve_get_dtm(curve::IRCurve) = curve.dtm
-curve_get_zero_rates(curve::IRCurve) = curve.parameters
+curve_get_zero_rates(curve::IRCurve) = curve.zero_rates
 curve_get_model_parameters(curve::IRCurve) = curve.parameters
 curve_get_dict_parameter(curve::IRCurve, sym::Symbol) = curve.dict[sym]
 
