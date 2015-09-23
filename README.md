@@ -6,7 +6,7 @@ Tools for **Term Structure of Interest Rates** calculation, aimed at the valuati
 julia> Pkg.update()
 julia> Pkg.add("InterestRates")
 ```
-*Current version is v0.0.1*
+*Current version is v0.0.2*
 
 *Requires Julia v0.4-*
 
