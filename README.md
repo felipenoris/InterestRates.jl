@@ -8,7 +8,7 @@ julia> Pkg.add("InterestRates")
 ```
 *Current version is v0.0.2*
 
-*Requires Julia v0.4-*
+*Requires Julia v0.4*
 
 ## Concept
 
