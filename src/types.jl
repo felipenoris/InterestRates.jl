@@ -49,7 +49,7 @@ type IRCurve <: AbstractIRCurve
 	dict::Dict{Symbol, Any}		# holds pre-calculated values for optimization, or additional parameters.
 
 	# Constructor for Interpolation methods
-	IRCurve{M<:Interpolation}(name::ASCIIString, daycount::DayCountConvention,
+	IRCurve{M<:Interpolation}(name::ASCIIString, _daycount::DayCountConvention,
 		compounding::CompoundingType, method::M,
 		date::Date, dtm::Vector{Int},
 		zero_rates::Vector{Float64}, parameters = Array(Float64,0), dict = Dict{Symbol, Any}()) = begin
@@ -59,17 +59,17 @@ type IRCurve <: AbstractIRCurve
 		(length(dtm) != length(zero_rates)) && error("dtm and zero_rates must have the same length")
 		(!issorted(dtm)) && error("dtm should be sorted before creating IRCurve instance")
 
-		new(name, daycount, compounding, method, date, dtm, zero_rates, parameters, dict)
+		new(name, _daycount, compounding, method, date, dtm, zero_rates, parameters, dict)
 	end
 
 	# Constructor for Parametric methods
-	IRCurve{M<:Parametric}(name::ASCIIString, daycount::DayCountConvention,
+	IRCurve{M<:Parametric}(name::ASCIIString, _daycount::DayCountConvention,
 		compounding::CompoundingType, method::M,
 		date::Date,
 		parameters::Vector{Float64},
 		dict = Dict{Symbol, Any}()) = begin
 		isempty(parameters) && error("Empty yields vector")
-		new(name, daycount, compounding, method, date, Array(Int,0), Array(Float64,0), parameters, dict)
+		new(name, _daycount, compounding, method, date, Array(Int,0), Array(Float64,0), parameters, dict)
 	end
 end
 

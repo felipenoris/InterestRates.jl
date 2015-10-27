@@ -31,6 +31,8 @@ BusinessDays.initcache(BrazilBanking())
 curve_b252_ec_lin = InterestRates.IRCurve("dummy-linear", InterestRates.BDays252(BrazilBanking()),
 	InterestRates.ExponentialCompounding(), InterestRates.Linear(), dt_curve,
 	vert_x, vert_y)
+
+@test_throws ErrorException zero_rate(curve_b252_ec_lin, dt_curve - Dates.Day(10))
  
 @test curve_get_name(curve_b252_ec_lin) == "dummy-linear"
 @test curve_get_date(curve_b252_ec_lin) == dt_curve

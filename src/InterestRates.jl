@@ -114,7 +114,7 @@ forward_rate(curve::AbstractIRCurve, forward_date::Date, maturity::Date) = ERF_t
 function days_to_maturity(curve::AbstractIRCurve, maturity::Date)
 	const d = daycount(curve_get_daycount(curve), curve_get_date(curve), maturity)
 	if d < 0
-		error("Maturity date $(maturity) should be greater than curve observation date $(curve.dt_observation)")
+		error("Maturity date $(maturity) should be greater than curve observation date $(curve_get_date(curve))")
 	end
 	return d
 end
