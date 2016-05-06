@@ -38,7 +38,7 @@ end
 abstract AbstractIRCurve
 
 type IRCurve <: AbstractIRCurve
-	name::ASCIIString
+	name::AbstractString
 	daycount::DayCountConvention
 	compounding::CompoundingType
 	method::CurveMethod
@@ -49,7 +49,7 @@ type IRCurve <: AbstractIRCurve
 	dict::Dict{Symbol, Any}		# holds pre-calculated values for optimization, or additional parameters.
 
 	# Constructor for Interpolation methods
-	IRCurve{M<:Interpolation}(name::ASCIIString, _daycount::DayCountConvention,
+	IRCurve{M<:Interpolation}(name::AbstractString, _daycount::DayCountConvention,
 		compounding::CompoundingType, method::M,
 		date::Date, dtm::Vector{Int},
 		zero_rates::Vector{Float64}, parameters = Array(Float64,0), dict = Dict{Symbol, Any}()) = begin
@@ -63,7 +63,7 @@ type IRCurve <: AbstractIRCurve
 	end
 
 	# Constructor for Parametric methods
-	IRCurve{M<:Parametric}(name::ASCIIString, _daycount::DayCountConvention,
+	IRCurve{M<:Parametric}(name::AbstractString, _daycount::DayCountConvention,
 		compounding::CompoundingType, method::M,
 		date::Date,
 		parameters::Vector{Float64},
