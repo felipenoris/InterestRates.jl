@@ -86,7 +86,7 @@ n_curve = InterestRates.NullIRCurve()
 @test ERF(n_curve, Date(2000,1,1)) == 1.0
 @test ER(n_curve, Date(2000,1,1)) == 0.0
 @test discountfactor(n_curve, Date(2000,1,1)) == 1.0
-@test getcurvename(n_curve) == "NullCurve"
+@test curve_get_name(n_curve) == "NullCurve"
 @test isnullcurve(n_curve) == true
 @test isnullcurve(curve_ac360_cont_ff) == false
 @test forward_rate(n_curve, Date(2000,1,1), Date(2000,1,2)) == 0.0

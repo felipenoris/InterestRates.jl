@@ -9,7 +9,7 @@ export
 	DayCountConvention,
 	CompoundingType,
 	CurveMethod,
-	AbstractIRCurve, getcurvename, getcurvedate,
+	AbstractIRCurve,
 	ERF, ER, discountfactor, zero_rate, forward_rate,
 	ERF_to_rate, discountfactor_to_rate,
 	isnullcurve

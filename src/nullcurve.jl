@@ -5,8 +5,8 @@ type NullIRCurve <: AbstractIRCurve end
 ERF(curve::NullIRCurve, maturity::Date) = 1.0
 ER(curve::NullIRCurve, maturity::Date) = 0.0
 discountfactor(curve::NullIRCurve, maturity::Date) = 1.0
-getcurvename(::NullIRCurve) = "NullCurve"
-getcurvedate(::NullIRCurve) = error("Method getcurvedate not defined for NullCurve.")
+curve_get_name(::NullIRCurve) = "NullCurve"
+curve_get_date(::NullIRCurve) = error("Date for NullCurve is not defined.")
 isnullcurve(curve::NullIRCurve) = true
 isnullcurve(curve::AbstractIRCurve) = false
 forward_rate(curve::NullIRCurve, forward_date::Date, maturity::Date) = 0.0
