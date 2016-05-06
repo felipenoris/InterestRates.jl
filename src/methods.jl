@@ -85,11 +85,13 @@ function _zero_rate(::FlatForward, curve::AbstractIRCurve, maturity::Date)
 	end
 	
 	x_out = days_to_maturity(curve, maturity)
-	index_a, index_b = _interpolationpoints(curve_get_dtm(curve), x_out)
-	Xa = curve_get_dtm(curve)[index_a]
-	Ya = curve_get_zero_rates(curve)[index_a]
-	Xb = curve_get_dtm(curve)[index_b]
-	Yb = curve_get_zero_rates(curve)[index_b]
+	curve_dtm = curve_get_dtm(curve)
+	curve_zero_rates = curve_get_zero_rates(curve)
+	index_a, index_b = _interpolationpoints(curve_dtm, x_out)
+	Xa = curve_dtm[index_a]
+	Ya = curve_zero_rates[index_a]
+	Xb = curve_dtm[index_b]
+	Yb = curve_zero_rates[index_b]
 
 	_daysperyear_ = daysperyear(curve_get_daycount(curve))
 	year_fraction_a = Xa / _daysperyear_
