@@ -5,6 +5,8 @@ using Base.Test
 using BusinessDays
 using InterestRates
 
+bd = BusinessDays
+
 vert_x = [11, 15, 19, 23]
 vert_y = [0.10, 0.15, 0.20, 0.19]
 
@@ -26,9 +28,9 @@ dt_curve = Date(2015,08,03)
 @test_throws ErrorException InterestRates.IRCurve("", InterestRates.Actual365(), InterestRates.ExponentialCompounding(),
 	InterestRates.Linear(), dt_curve, Array(Int64,0) , Array(Float64,0))
 
-BusinessDays.initcache(HolidayCalendars.BrazilBanking())
+bd.initcache(bd.Brazil())
 
-curve_b252_ec_lin = InterestRates.IRCurve("dummy-linear", InterestRates.BDays252(HolidayCalendars.BrazilBanking()),
+curve_b252_ec_lin = InterestRates.IRCurve("dummy-linear", InterestRates.BDays252(bd.Brazil()),
 	InterestRates.ExponentialCompounding(), InterestRates.Linear(), dt_curve,
 	vert_x, vert_y)
 
@@ -37,16 +39,16 @@ curve_b252_ec_lin = InterestRates.IRCurve("dummy-linear", InterestRates.BDays252
 @test curve_get_name(curve_b252_ec_lin) == "dummy-linear"
 @test curve_get_date(curve_b252_ec_lin) == dt_curve
 
-maturity_2_days = advancebdays(HolidayCalendars.BrazilBanking(), dt_curve, vert_x[1] + 2)
+maturity_2_days = advancebdays(bd.Brazil(), dt_curve, vert_x[1] + 2)
 yrs = (vert_x[1] + 2) / 252.0
 zero_rate_2_days = 0.125
 disc_2_days = 1.0 / ( (1.0 + zero_rate_2_days)^yrs)
 @test_approx_eq zero_rate_2_days zero_rate(curve_b252_ec_lin, maturity_2_days) # Linear interpolation
 @test_approx_eq disc_2_days discountfactor(curve_b252_ec_lin, maturity_2_days)
-@test_approx_eq zero_rate(curve_b252_ec_lin, advancebdays(HolidayCalendars.BrazilBanking(), dt_curve, 11)) 0.10
-@test_throws ErrorException zero_rate(curve_b252_ec_lin, advancebdays(HolidayCalendars.BrazilBanking(), dt_curve, -4)) # maturity before curve date
-@test_approx_eq zero_rate(curve_b252_ec_lin, advancebdays(HolidayCalendars.BrazilBanking(), dt_curve, 11-4)) 0.05 # extrapolate before first vertice
-@test_approx_eq zero_rate(curve_b252_ec_lin, advancebdays(HolidayCalendars.BrazilBanking(), dt_curve, 23+4)) 0.18 # extrapolate after last vertice
+@test_approx_eq zero_rate(curve_b252_ec_lin, advancebdays(bd.Brazil(), dt_curve, 11)) 0.10
+@test_throws ErrorException zero_rate(curve_b252_ec_lin, advancebdays(bd.Brazil(), dt_curve, -4)) # maturity before curve date
+@test_approx_eq zero_rate(curve_b252_ec_lin, advancebdays(bd.Brazil(), dt_curve, 11-4)) 0.05 # extrapolate before first vertice
+@test_approx_eq zero_rate(curve_b252_ec_lin, advancebdays(bd.Brazil(), dt_curve, 23+4)) 0.18 # extrapolate after last vertice
 
 dt_maturity = dt_curve+Dates.Day(30)
 @test_approx_eq ERF_to_rate(curve_b252_ec_lin, ERF(curve_b252_ec_lin, dt_maturity), InterestRates.yearfraction(curve_b252_ec_lin, dt_maturity)) zero_rate(curve_b252_ec_lin, dt_maturity)
@@ -191,7 +193,7 @@ curve_spline_discount = InterestRates.IRCurve("dummy-SplineOnDiscountFactors", I
 @test_approx_eq zero_rate(curve_spline_discount, dt_curve + Dates.Day(11)) 0.1
 @test_approx_eq zero_rate(curve_spline_discount, [dt_curve+Dates.Day(11), dt_curve+Dates.Day(15)]) vert_y[1:2]
 
-@test InterestRates.advancedays(InterestRates.BDays252(HolidayCalendars.BrazilBanking()), Date(2015,9,1), [0, 1, 3, 4, 5]) == [Date(2015,9,1),Date(2015,9,2),Date(2015,9,4),Date(2015,9,8),Date(2015,9,9)]
+@test InterestRates.advancedays(InterestRates.BDays252(bd.Brazil()), Date(2015,9,1), [0, 1, 3, 4, 5]) == [Date(2015,9,1),Date(2015,9,2),Date(2015,9,4),Date(2015,9,8),Date(2015,9,9)]
 @test InterestRates.advancedays(InterestRates.Actual360(), Date(2015,9,1), [0, 1, 3, 4, 5]) == [Date(2015,9,1),Date(2015,9,2),Date(2015,9,4),Date(2015,9,5),Date(2015,9,6)]
 @test InterestRates.advancedays(InterestRates.Actual365(), Date(2015,9,1), [0, 1, 3, 4, 5]) == [Date(2015,9,1),Date(2015,9,2),Date(2015,9,4),Date(2015,9,5),Date(2015,9,6)]
 
