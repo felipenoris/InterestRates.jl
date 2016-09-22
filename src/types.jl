@@ -74,16 +74,16 @@ type IRCurve <: AbstractIRCurve
 end
 
 # Interface for concrete curve types
-function curve_get_name(curve::AbstractIRCurve) end
-function curve_get_daycount(curve::AbstractIRCurve) end
-function curve_get_compounding(curve::AbstractIRCurve) end
-function curve_get_method(curve::AbstractIRCurve) end
-function curve_get_date(curve::AbstractIRCurve) end
-function curve_get_dtm(curve::AbstractIRCurve) end
-function curve_get_zero_rates(curve::AbstractIRCurve) end
-function curve_get_model_parameters(curve::AbstractIRCurve) end
-function curve_get_dict_parameter(curve::AbstractIRCurve, sym::Symbol) end
-function curve_set_dict_parameter!(curve::AbstractIRCurve, sym::Symbol, value) end
+curve_get_name(curve::AbstractIRCurve) = error("method not defined")
+curve_get_daycount(curve::AbstractIRCurve) = error("method not defined")
+curve_get_compounding(curve::AbstractIRCurve) = error("method not defined")
+curve_get_method(curve::AbstractIRCurve) = error("method not defined")
+curve_get_date(curve::AbstractIRCurve) = error("method not defined")
+curve_get_dtm(curve::AbstractIRCurve) = error("method not defined")
+curve_get_zero_rates(curve::AbstractIRCurve) = error("method not defined")
+curve_get_model_parameters(curve::AbstractIRCurve) = error("method not defined")
+curve_get_dict_parameter(curve::AbstractIRCurve, sym::Symbol) = error("method not defined")
+curve_set_dict_parameter!(curve::AbstractIRCurve, sym::Symbol, value) = error("method not defined")
 
 # AbstractIRCurve interface implementation for IRCurve type
 curve_get_name(curve::IRCurve) = curve.name
