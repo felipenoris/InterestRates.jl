@@ -82,8 +82,6 @@ curve_get_date(curve::AbstractIRCurve) = error("method not defined")
 curve_get_dtm(curve::AbstractIRCurve) = error("method not defined")
 curve_get_zero_rates(curve::AbstractIRCurve) = error("method not defined")
 curve_get_model_parameters(curve::AbstractIRCurve) = error("method not defined")
-curve_get_dict_parameter(curve::AbstractIRCurve, sym::Symbol) = error("method not defined")
-curve_set_dict_parameter!(curve::AbstractIRCurve, sym::Symbol, value) = error("method not defined")
 
 # AbstractIRCurve interface implementation for IRCurve type
 curve_get_name(curve::IRCurve) = curve.name
