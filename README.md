@@ -19,7 +19,18 @@ It's not feasible to observe prices for each possible maturity. We can observe o
 
 ## Data Structure for Interest Rate Curve
 
-All yield curve calculation is built around a *database-friendly* data type: `IRCurve`.
+All yield curve calculation is built around `AbstractIRCurve`. The module expects that the concrete implementations of `AbstractIRCurve` provide the following methods:
+
+* `curve_get_name(curve::AbstractIRCurve) → String`
+* `curve_get_daycount(curve::AbstractIRCurve) → DayCountConvention`
+* `curve_get_compounding(curve::AbstractIRCurve) → CompoundingType`
+* `curve_get_method(curve::AbstractIRCurve) → CurveMethod`
+* `curve_get_date(curve::AbstractIRCurve) → Date`, stores the date when the curve is observed.
+* `curve_get_dtm(curve::AbstractIRCurve) → Vector{Int}`, used for interpolation methods, stores days_to_maturity on curve's daycount convention.
+* `curve_get_zero_rates(curve::AbstractIRCurve) → Vector{Float64}`, used for interpolation methods, parameters[i] stores yield for maturity dtm[i].
+* `curve_get_model_parameters(curve::AbstractIRCurve) → Vector{Float64}`, used for parametric methods, parameters stores model's constant parameters.
+
+This package provides a default implementation of `AbstractIRCurve` interface, which is a *database-friendly* data type: `IRCurve`.
 
 ```julia
 type IRCurve <: AbstractIRCurve
@@ -28,9 +39,9 @@ type IRCurve <: AbstractIRCurve
 	compounding::CompoundingType
 	method::CurveMethod
 	date::Date
-	dtm::Vector{Int} # for interpolation methods, stores days_to_maturity on curve's daycount convention.
-	zero_rates::Vector{Float64} # for interpolation methods, parameters[i] stores yield for maturity dtm[i].
-	parameters::Vector{Float64} # for parametric methods, parameters stores model's constant parameters.
+	dtm::Vector{Int}
+	zero_rates::Vector{Float64}
+	parameters::Vector{Float64}
 	dict::Dict{Symbol, Any}		# holds pre-calculated values for optimization, or additional parameters.
 #...
 ```
@@ -41,7 +52,7 @@ Given an initial date `D1` and a final date `D2`, here's how the distance betwee
 
 * *Actual360* : `(D2 - D1) / 360`
 * *Actual365* : `(D2 - D1) / 365`
-* *BDays252* : `bdays(D1, D2) / 252`, where `bdays` is the business days between `D1` and `D2` from `BusinessDays.jl` package.
+* *BDays252* : `bdays(D1, D2) / 252`, where `bdays` is the business days between `D1` and `D2` from [BusinessDays.jl package](https://github.com/felipenoris/BusinessDays.jl).
 
 The type `CompoundingType` sets the convention on how to convert a yield into an Effective Rate Factor.
 
