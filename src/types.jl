@@ -38,7 +38,7 @@ end
 abstract AbstractIRCurve
 
 type IRCurve <: AbstractIRCurve
-	name::AbstractString
+	name::String
 	daycount::DayCountConvention
 	compounding::CompoundingType
 	method::CurveMethod
@@ -59,7 +59,7 @@ type IRCurve <: AbstractIRCurve
 		(length(dtm) != length(zero_rates)) && error("dtm and zero_rates must have the same length")
 		(!issorted(dtm)) && error("dtm should be sorted before creating IRCurve instance")
 
-		new(name, _daycount, compounding, method, date, dtm, zero_rates, parameters, dict)
+		new(String(name), _daycount, compounding, method, date, dtm, zero_rates, parameters, dict)
 	end
 
 	# Constructor for Parametric methods
@@ -69,7 +69,7 @@ type IRCurve <: AbstractIRCurve
 		parameters::Vector{Float64},
 		dict = Dict{Symbol, Any}()) = begin
 		isempty(parameters) && error("Empty yields vector")
-		new(name, _daycount, compounding, method, date, Array(Int,0), Array(Float64,0), parameters, dict)
+		new(String(name), _daycount, compounding, method, date, Array(Int,0), Array(Float64,0), parameters, dict)
 	end
 end
 

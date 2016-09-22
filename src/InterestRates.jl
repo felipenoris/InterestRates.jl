@@ -1,6 +1,10 @@
-VERSION >= v"0.4.0-dev+6521" && __precompile__()
-
+__precompile__(true)
 module InterestRates
+
+# 0.5 compat
+if !isdefined(Core, :String)
+    typealias String UTF8String
+end
 
 using BusinessDays
 using Base.Dates
@@ -15,11 +19,6 @@ export
 	isnullcurve
 
 include("types.jl")
-export
-	curve_get_name, curve_get_daycount, curve_get_compounding,
-	curve_get_method, curve_get_date, curve_get_dtm,
-	curve_get_zero_rates, curve_get_model_parameters
-
 include("nullcurve.jl")
 
 ############# DAYCOUNT #################
