@@ -18,8 +18,8 @@ end
 # Returns tuple (index_a, index_b) for input vector x
 # for interpolands on linear interpolation on point x_out
 function _interpolationpoints{T}(x::Vector{T}, x_out::T)
-	index_a::Int
-	index_b::Int
+	local index_a::Int
+	local index_b::Int
 
 	if x_out <= x[1]
 		# Interpolation point is before first vertice

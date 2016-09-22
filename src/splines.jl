@@ -21,8 +21,8 @@ _base_param_index_(poly_index::Int) = (poly_index-1)*4
 
 # Performs natural cubic spline interpolation
 function splineint{T}(s::Spline{T}, x_out::T)
-	poly_index::Int = 1
-	base_idx::Int
+	local poly_index::Int = 1
+	local base_idx::Int
 
 	if x_out > s.x[end]
 		# Extrapolation after last point

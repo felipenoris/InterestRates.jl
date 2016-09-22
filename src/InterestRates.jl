@@ -100,7 +100,7 @@ for fun in (:ERF, :discountfactor)
 			_zero_rate_vec_ = zero_rate(curve, maturity_vec)
 			result = Array(Float64, l)
 			for i = 1:l
-				result[i] = $(symbol('_', fun))(curve_get_compounding(curve), curve_get_daycount(curve), _zero_rate_vec_[i], curve_get_date(curve), maturity_vec[i])
+				result[i] = $( Symbol("_" * string(fun)) )(curve_get_compounding(curve), curve_get_daycount(curve), _zero_rate_vec_[i], curve_get_date(curve), maturity_vec[i])
 			end
 			return result
 		end
