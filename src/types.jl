@@ -73,7 +73,7 @@ type IRCurve <: AbstractIRCurve
 	end
 end
 
-# methods that should be defined
+# Interface for concrete curve types
 function curve_get_name(curve::AbstractIRCurve) end
 function curve_get_daycount(curve::AbstractIRCurve) end
 function curve_get_compounding(curve::AbstractIRCurve) end
@@ -85,7 +85,7 @@ function curve_get_model_parameters(curve::AbstractIRCurve) end
 function curve_get_dict_parameter(curve::AbstractIRCurve, sym::Symbol) end
 function curve_set_dict_parameter!(curve::AbstractIRCurve, sym::Symbol, value) end
 
-# Access basic curve properties
+# AbstractIRCurve interface implementation for IRCurve type
 curve_get_name(curve::IRCurve) = curve.name
 curve_get_daycount(curve::IRCurve) = curve.daycount
 curve_get_compounding(curve::IRCurve) = curve.compounding

@@ -60,7 +60,7 @@ InterestRates.splineint(sp, convert(Vector{Int}, 1:30))
 # Perftests
 
 for c in c_array
-	println("$(curve_get_method(c))")
+	println("$(InterestRates.curve_get_method(c))")
 	@time for i=1:1000 zero_rate(c, mat_vec) end
 	@time for i=1:1000 ERF(c, mat_vec) end
 	@time for i=1:1000 discountfactor(c, mat_vec) end
