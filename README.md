@@ -25,10 +25,10 @@ All yield curve calculation is built around `AbstractIRCurve`. The module expect
 * `curve_get_daycount(curve::AbstractIRCurve) → DayCountConvention`
 * `curve_get_compounding(curve::AbstractIRCurve) → CompoundingType`
 * `curve_get_method(curve::AbstractIRCurve) → CurveMethod`
-* `curve_get_date(curve::AbstractIRCurve) → Date`, stores the date when the curve is observed.
-* `curve_get_dtm(curve::AbstractIRCurve) → Vector{Int}`, used for interpolation methods, stores days_to_maturity on curve's daycount convention.
-* `curve_get_zero_rates(curve::AbstractIRCurve) → Vector{Float64}`, used for interpolation methods, parameters[i] stores yield for maturity dtm[i].
-* `curve_get_model_parameters(curve::AbstractIRCurve) → Vector{Float64}`, used for parametric methods, parameters stores model's constant parameters.
+* `curve_get_date(curve::AbstractIRCurve) → Date`, returns the date when the curve is observed.
+* `curve_get_dtm(curve::AbstractIRCurve) → Vector{Int}`, used for interpolation methods, returns days_to_maturity on curve's daycount convention.
+* `curve_get_zero_rates(curve::AbstractIRCurve) → Vector{Float64}`, used for interpolation methods, parameters[i] returns yield for maturity dtm[i].
+* `curve_get_model_parameters(curve::AbstractIRCurve) → Vector{Float64}`, used for parametric methods, returns model's constant parameters.
 
 This package provides a default implementation of `AbstractIRCurve` interface, which is a *database-friendly* data type: `IRCurve`.
 
