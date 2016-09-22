@@ -23,7 +23,7 @@ All yield curve calculation is built around a *database-friendly* data type: `IR
 
 ```julia
 type IRCurve <: AbstractIRCurve
-	name::ASCIIString
+	name::String
 	daycount::DayCountConvention
 	compounding::CompoundingType
 	method::CurveMethod
