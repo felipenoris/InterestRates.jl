@@ -1,7 +1,7 @@
 __precompile__(true)
 module InterestRates
 
-# 0.5 compat
+# 0.4 compat
 if !isdefined(Core, :String)
     typealias String UTF8String
 end
