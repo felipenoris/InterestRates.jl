@@ -10,10 +10,6 @@ using BusinessDays
 using Base.Dates
 
 export
-	DayCountConvention,
-	CompoundingType,
-	CurveMethod,
-	AbstractIRCurve,
 	ERF, ER, discountfactor, zero_rate, forward_rate,
 	ERF_to_rate, discountfactor_to_rate,
 	isnullcurve
