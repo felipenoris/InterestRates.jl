@@ -21,13 +21,13 @@ dt_curve = Date(2015,08,03)
 	ir.Linear(), dt_curve, [1, 2, 3, 4], [.1, .1, .1])
 
 @test_throws ErrorException ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
-	ir.Linear(), dt_curve, Array(Int64,0) , [.1, .1, .1])
+	ir.Linear(), dt_curve, Array(Int,0) , [.1, .1, .1])
 
 @test_throws ErrorException ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
-	ir.Linear(), dt_curve, Array(Int64,1) , Array(Float64,0))
+	ir.Linear(), dt_curve, Array(Int,1) , Array(Float64,0))
 
 @test_throws ErrorException ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
-	ir.Linear(), dt_curve, Array(Int64,0) , Array(Float64,0))
+	ir.Linear(), dt_curve, Array(Int,0) , Array(Float64,0))
 
 bd.initcache(bd.Brazil())
 
