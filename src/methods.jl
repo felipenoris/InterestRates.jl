@@ -95,10 +95,10 @@ function _zero_rate(::FlatForward, curve::AbstractIRCurve, maturity::Date)
 
 	const _daysperyear_ = daysperyear(curve_get_daycount(curve))
 	const year_fraction_a = Xa / _daysperyear_
-	const logPa = log(_discountfactor(curve_get_compounding(curve), Ya, year_fraction_a))
+	const logPa = log(discountfactor(curve_get_compounding(curve), Ya, year_fraction_a))
 	
 	const year_fraction_b = Xb / _daysperyear_
-	const logPb = log(_discountfactor(curve_get_compounding(curve), Yb, year_fraction_b))
+	const logPb = log(discountfactor(curve_get_compounding(curve), Yb, year_fraction_b))
 	
 	const year_fraction_x = x_out / _daysperyear_
 	const logPx = _linearinterp(year_fraction_a, logPa, year_fraction_b, logPb, year_fraction_x)
@@ -170,7 +170,7 @@ function _splinefit_discountfactors(curve::AbstractIRCurve)
 
 	for i = 1:l
 		yf_vec[i] = dtm_vec[i] / daysperyear(curve_get_daycount(curve))
-		discount_vec[i] = _discountfactor(curve_get_compounding(curve), curve_rates_vec[i], yf_vec[i])
+		discount_vec[i] = discountfactor(curve_get_compounding(curve), curve_rates_vec[i], yf_vec[i])
 	end
 
 	return splinefit(yf_vec, discount_vec)

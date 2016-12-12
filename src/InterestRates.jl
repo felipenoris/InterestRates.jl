@@ -1,3 +1,4 @@
+
 __precompile__(true)
 module InterestRates
 
@@ -16,6 +17,7 @@ export
 
 include("types.jl")
 include("nullcurve.jl")
+include("composite.jl")
 
 ############# DAYCOUNT #################
 
@@ -48,19 +50,19 @@ yearfraction(curve::AbstractIRCurve, maturity::Date) = yearfraction(curve_get_da
 ######### COMPOUNDING TYPE ############
 
 # Effective Rate Factor
-_ERF(::ContinuousCompounding, r::Float64, t::Float64) = t == 0.0 ? 1.0 : exp(r*t)
-_ERF(::SimpleCompounding, r::Float64, t::Float64) = t == 0.0 ? 1.0 : 1.0 + r*t
-_ERF(::ExponentialCompounding, r::Float64, t::Float64) = t == 0.0 ? 1.0 : (1.0+r)^t
-_ERF(ct::CompoundingType, dcc::DayCountConvention, r::Float64, date_start::Date, date_end::Date) = _ERF(ct, r, yearfraction(dcc, date_start, date_end))
-ERF(curve::AbstractIRCurve, maturity::Date) = _ERF(curve_get_compounding(curve), curve_get_daycount(curve), zero_rate(curve, maturity), curve_get_date(curve), maturity)
+ERF(::ContinuousCompounding, r::Float64, t::Float64) = t == 0.0 ? 1.0 : exp(r*t)
+ERF(::SimpleCompounding, r::Float64, t::Float64) = t == 0.0 ? 1.0 : 1.0 + r*t
+ERF(::ExponentialCompounding, r::Float64, t::Float64) = t == 0.0 ? 1.0 : (1.0+r)^t
+ERF(ct::CompoundingType, dcc::DayCountConvention, r::Float64, date_start::Date, date_end::Date) = ERF(ct, r, yearfraction(dcc, date_start, date_end))
+ERF(curve::AbstractIRCurve, maturity::Date) = ERF(curve_get_compounding(curve), curve_get_daycount(curve), zero_rate(curve, maturity), curve_get_date(curve), maturity)
 ERF(curve::AbstractIRCurve, forward_date::Date, maturity::Date) = ERF(curve, maturity) / ERF(curve, forward_date)
 
-_ERF_to_rate(::ContinuousCompounding, ERF::Float64, t::Float64) = log(ERF) / t
-_ERF_to_rate(::SimpleCompounding, ERF::Float64, t::Float64) = (ERF-1.0) / t
-_ERF_to_rate(::ExponentialCompounding, ERF::Float64, t::Float64) = ERF^(1.0/t) - 1.0
-ERF_to_rate(curve::AbstractIRCurve, ERF::Float64, t::Float64) = _ERF_to_rate(curve_get_compounding(curve), ERF, t)
+ERF_to_rate(::ContinuousCompounding, ERF::Float64, t::Float64) = log(ERF) / t
+ERF_to_rate(::SimpleCompounding, ERF::Float64, t::Float64) = (ERF-1.0) / t
+ERF_to_rate(::ExponentialCompounding, ERF::Float64, t::Float64) = ERF^(1.0/t) - 1.0
+ERF_to_rate(curve::AbstractIRCurve, ERF::Float64, t::Float64) = ERF_to_rate(curve_get_compounding(curve), ERF, t)
 
-discountfactor_to_rate(c::CompoundingType, _discountfactor_::Float64, t::Float64) = _ERF_to_rate(c, 1.0 / _discountfactor_, t)
+discountfactor_to_rate(c::CompoundingType, _discountfactor_::Float64, t::Float64) = ERF_to_rate(c, 1.0 / _discountfactor_, t)
 
 function discountfactor_to_rate(c::CompoundingType, _discountfactor_vec_::Vector{Float64}, t_vec::Vector{Float64})
 	l = length(_discountfactor_vec_)
@@ -78,25 +80,25 @@ function discountfactor_to_rate(c::CompoundingType, _discountfactor_vec_::Vector
 end
 
 # Effective Rate = [Effective Rate Factor] - 1
-_ER(c::CompoundingType, r::Float64, t::Float64) = _ERF(c, r, t) - 1.0
-_ER(ct::CompoundingType, dcc::DayCountConvention, r::Float64, date_start::Date, date_end::Date) = _ER(ct, r, yearfraction(dcc, date_start, date_end))
-ER(curve::AbstractIRCurve, maturity::Date) = _ER(curve_get_compounding(curve), curve_get_daycount(curve), zero_rate(curve, maturity), curve_get_date(curve), maturity)
+ER(c::CompoundingType, r::Float64, t::Float64) = ERF(c, r, t) - 1.0
+ER(ct::CompoundingType, dcc::DayCountConvention, r::Float64, date_start::Date, date_end::Date) = ER(ct, r, yearfraction(dcc, date_start, date_end))
+ER(curve::AbstractIRCurve, maturity::Date) = ER(curve_get_compounding(curve), curve_get_daycount(curve), zero_rate(curve, maturity), curve_get_date(curve), maturity)
 ER(curve::AbstractIRCurve, forward_date::Date, maturity::Date) =  ERF(curve, forward_date, maturity) - 1.0
 
 # [Discount Factor] = 1 / [Effective Rate Factor]
-_discountfactor(ct::CompoundingType, r::Float64, t::Float64) = 1.0 / _ERF(ct, r, t)
-_discountfactor(ct::CompoundingType, dcc::DayCountConvention, r::Float64, date_start::Date, date_end::Date) = _discountfactor(ct, r, yearfraction(dcc, date_start, date_end))
-discountfactor(curve::AbstractIRCurve, maturity::Date) = _discountfactor(curve_get_compounding(curve), curve_get_daycount(curve), zero_rate(curve, maturity), curve_get_date(curve), maturity)
+discountfactor(ct::CompoundingType, r::Float64, t::Float64) = 1.0 / ERF(ct, r, t)
+discountfactor(ct::CompoundingType, dcc::DayCountConvention, r::Float64, date_start::Date, date_end::Date) = discountfactor(ct, r, yearfraction(dcc, date_start, date_end))
+discountfactor(curve::AbstractIRCurve, maturity::Date) = 1.0 / ERF(curve, maturity)
 
 # Vector function for ERF and discountfactor functions
 for fun in (:ERF, :discountfactor)
 	@eval begin
 		function ($fun)(curve::AbstractIRCurve, maturity_vec::Vector{Date})
-			l = length(maturity_vec)
+			len = length(maturity_vec)
 			_zero_rate_vec_ = zero_rate(curve, maturity_vec)
-			result = Array(Float64, l)
-			for i = 1:l
-				result[i] = $( Symbol("_" * string(fun)) )(curve_get_compounding(curve), curve_get_daycount(curve), _zero_rate_vec_[i], curve_get_date(curve), maturity_vec[i])
+			result = Vector{Float64}(len)
+			for i = 1:len
+				result[i] = $(Symbol(string(fun)))(curve, maturity_vec[i])
 			end
 			return result
 		end
@@ -117,6 +119,6 @@ end
 zero_rate(curve::AbstractIRCurve, maturity::Date) = _zero_rate(curve_get_method(curve), curve, maturity)
 zero_rate(curve::AbstractIRCurve, maturity_vec::Vector{Date}) = _zero_rate(curve_get_method(curve), curve, maturity_vec)	
 
-include("methods.jl") # implements various _zero_rate() methods for each CurveMethod
+include("methods.jl") # implements various zero_rate() methods for each CurveMethod
 
 end # module InterestRates
