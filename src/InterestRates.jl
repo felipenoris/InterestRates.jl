@@ -90,7 +90,7 @@ discountfactor(ct::CompoundingType, r::Float64, t::Float64) = 1.0 / ERF(ct, r, t
 discountfactor(ct::CompoundingType, dcc::DayCountConvention, r::Float64, date_start::Date, date_end::Date) = discountfactor(ct, r, yearfraction(dcc, date_start, date_end))
 discountfactor(curve::AbstractIRCurve, maturity::Date) = 1.0 / ERF(curve, maturity)
 
-# Vector function for ERF and discountfactor functions
+# Optimized vector functions for `ERF` and `discountfactor` functions
 for fun in (:ERF, :discountfactor)
 	@eval begin
 		function ($fun)(curve::AbstractIRCurve, maturity_vec::Vector{Date})
@@ -98,7 +98,7 @@ for fun in (:ERF, :discountfactor)
 			_zero_rate_vec_ = zero_rate(curve, maturity_vec)
 			result = Vector{Float64}(len)
 			for i = 1:len
-				result[i] = $(Symbol(string(fun)))(curve, maturity_vec[i])
+				result[i] = $(fun)(curve_get_compounding(curve), curve_get_daycount(curve), _zero_rate_vec_[i], curve_get_date(curve), maturity_vec[i])
 			end
 			return result
 		end

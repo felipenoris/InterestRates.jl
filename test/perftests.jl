@@ -3,6 +3,7 @@
 
 println("Running perftests...")
 
+using Base.Test
 using InterestRates
 
 dt_curve = Date(2015,08,08)
@@ -47,18 +48,34 @@ curve_step = InterestRates.IRCurve("dummy-step", InterestRates.Actual360(),
 c_array = [curve_linear, curve_flatforward, curve_ns, curve_sven, curve_spline_rates, curve_spline_df, curve_step]
 
 # Warm up
-
 for c in c_array
 	zero_rate(c, mat_vec)
 	ERF(c, mat_vec)
 	discountfactor(c, mat_vec)
 end
 
+# Check results
+for c in c_array
+	zr = zero_rate(c, mat_vec)
+	for i in 1:length(zr)
+		@test zr[i] == zero_rate(c, mat_vec[i])
+	end
+
+	erf = ERF(c, mat_vec)
+	for i in 1:length(erf)
+		@test erf[i] == ERF(c, mat_vec[i])
+	end
+
+	df = discountfactor(c, mat_vec)
+	for i in 1:length(df)
+		@test df[i] == discountfactor(c, mat_vec[i])
+	end
+end
+
 sp = InterestRates.splinefit(vert_x, vert_y)
 InterestRates.splineint(sp, convert(Vector{Int}, 1:30))
 
 # Perftests
-
 for c in c_array
 	println("$(InterestRates.curve_get_method(c))")
 	@time for i=1:100 zero_rate(c, mat_vec) end
