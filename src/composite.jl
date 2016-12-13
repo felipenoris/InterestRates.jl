@@ -1,19 +1,57 @@
 ### Composite Curve ###
 
 type CompositeIRCurve <: AbstractIRCurve
+	date::Date
 	list :: Vector{AbstractIRCurve}
+
+	function CompositeIRCurve(curve_tuple::AbstractIRCurve...)
+		@assert !isempty(curve_tuple) "Empty list of curves for CompositeIRCurve"
+		date = curve_get_date(curve_tuple[1])
+		len = length(curve_tuple)
+		if len > 1
+			for i in 2:len
+				@assert date == curve_get_date(curve_tuple[i]) "All curve dates should match for CompositeIRCurve"
+			end
+		end
+		
+		list = Vector{AbstractIRCurve}(len)
+		for i in 1:len
+			list[i] = curve_tuple[i]
+		end
+
+		new(date, list)
+	end
 end
 
-#=
-ERF(curve::NullIRCurve, maturity::Date) = 1.0 # implement!
-ERF_to_rate # not available
-ER(curve::NullIRCurve, maturity::Date) = 0.0
-discountfactor(curve::NullIRCurve, maturity::Date) = 1.0
-curve_get_name(::NullIRCurve) = "NullCurve"
-curve_get_date(::NullIRCurve) = error("Date for NullCurve is not defined.")
-isnullcurve(curve::NullIRCurve) = true
-isnullcurve(curve::AbstractIRCurve) = false
-forward_rate(curve::NullIRCurve, forward_date::Date, maturity::Date) = 0.0
-zero_rate(curve::NullIRCurve, maturity::Date) = 0.0
-zero_rate(curve::NullIRCurve, maturity_vec::Vector{Date}) = zeros(length(maturity_vec))
-=#
+curve_get_date(c::CompositeIRCurve) = c.date
+
+function ERF(curve::CompositeIRCurve, maturity::Date)
+	erf = 1.0
+	for c in curve.list
+		erf *= ERF(c, maturity)
+	end
+	return erf
+end
+
+# Unoptimized vector function for ERF
+function ERF(curve::CompositeIRCurve, maturity_vec::Vector{Date})
+	len = length(maturity_vec)
+	result = Vector{Float64}(len)
+	for i in 1:len
+		result[i] = ERF(curve, maturity_vec[i])
+	end
+end
+
+# Unoptimized vector function for discountfactor
+function discountfactor(curve::CompositeIRCurve, maturity_vec::Vector{Date})
+	len = length(maturity_vec)
+	result = Vector{Float64}(len)
+	for i in 1:len
+		result[i] = discountfactor(curve, maturity_vec[i])
+	end
+end
+
+ERF_to_rate(curve::CompositeIRCurve, ERF::Float64, t::Float64) = error("Function not available for CompositeIRCurve")
+forward_rate(curve::CompositeIRCurve, forward_date::Date, maturity::Date) = error("Function not available for CompositeIRCurve")
+zero_rate(curve::CompositeIRCurve, maturity::Date) = error("Function not available for CompositeIRCurve")
+zero_rate(curve::CompositeIRCurve, maturity_vec::Vector{Date}) = error("Function not available for CompositeIRCurve")

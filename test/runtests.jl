@@ -202,5 +202,12 @@ param = 10
 ir.curve_set_dict_parameter!(curve_spline_discount, :custom_parameter, param)
 @test ir.curve_get_dict_parameter(curve_spline_discount, :custom_parameter) == param
 
+# CompositeIRCurve
+composite_curve = ir.CompositeIRCurve(curve_spline_rates, curve_NS)
+@test_throws AssertionError composite_curve_2 = ir.CompositeIRCurve(curve_NS, curve_b252_ec_lin)
+@test ir.curve_get_date(composite_curve) == ir.curve_get_date(curve_NS)
+@test_approx_eq ir.discountfactor(composite_curve, Date(2015,10,1)) ir.discountfactor(curve_NS, Date(2015,10,1)) * ir.discountfactor(curve_spline_rates, Date(2015,10,1))
+@test ir.ERF(composite_curve, Date(2015,10,1)) == ir.ERF(curve_NS, Date(2015,10,1)) * ir.ERF(curve_spline_rates, Date(2015,10,1))
+
 include("usage.jl")
 include("perftests.jl")
