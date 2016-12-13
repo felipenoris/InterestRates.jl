@@ -82,7 +82,7 @@ end
 # Effective Rate = [Effective Rate Factor] - 1
 ER(c::CompoundingType, r::Float64, t::Float64) = ERF(c, r, t) - 1.0
 ER(ct::CompoundingType, dcc::DayCountConvention, r::Float64, date_start::Date, date_end::Date) = ER(ct, r, yearfraction(dcc, date_start, date_end))
-ER(curve::AbstractIRCurve, maturity::Date) = ER(curve_get_compounding(curve), curve_get_daycount(curve), zero_rate(curve, maturity), curve_get_date(curve), maturity)
+ER(curve::AbstractIRCurve, maturity::Date) = ERF(curve, maturity) - 1.0
 ER(curve::AbstractIRCurve, forward_date::Date, maturity::Date) =  ERF(curve, forward_date, maturity) - 1.0
 
 # [Discount Factor] = 1 / [Effective Rate Factor]
