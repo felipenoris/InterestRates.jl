@@ -151,7 +151,7 @@ function _zero_rate(::CubicSplineOnRates, curve::IRCurve, maturity_vec::Vector{D
 	sp = splinefit(curve_get_dtm(curve), curve_get_zero_rates(curve))
 	
 	l = length(maturity_vec)
-	rates = Array(Float64, l)
+	rates = Array{Float64}(l)
 
 	for i in 1:l
 		dtm = days_to_maturity(curve, maturity_vec[i])
@@ -165,8 +165,8 @@ function _splinefit_discountfactors(curve::AbstractIRCurve)
 	dtm_vec = curve_get_dtm(curve)
 	curve_rates_vec = curve_get_zero_rates(curve)
 	l = length(dtm_vec)
-	yf_vec = Array(Float64, l)
-	discount_vec = Array(Float64, l)
+	yf_vec = Array{Float64}(l)
+	discount_vec = Array{Float64}(l)
 
 	for i = 1:l
 		yf_vec[i] = dtm_vec[i] / daysperyear(curve_get_daycount(curve))
@@ -187,7 +187,7 @@ function _zero_rate(::CubicSplineOnDiscountFactors, curve::AbstractIRCurve, matu
 	sp = _splinefit_discountfactors(curve)
 	mat_vec_len = length(maturity_vec)
 	
-	yf_maturity_vec = Array(Float64, mat_vec_len)
+	yf_maturity_vec = Array{Float64}(mat_vec_len)
 	for i in 1:mat_vec_len
 		yf_maturity_vec[i] = yearfraction(curve_get_daycount(curve), curve_get_date(curve), maturity_vec[i])
 	end
@@ -200,7 +200,7 @@ for elty in (:FlatForward, :CompositeInterpolation, :StepFunction, :Linear, :Nel
 	@eval begin
 		function _zero_rate(m::$elty, curve::AbstractIRCurve, maturity_vec::Vector{Date})
 			l = length(maturity_vec)
-			rates = Array(Float64, l)
+			rates = Array{Float64}(l)
 			for i = 1:l
 				rates[i] = _zero_rate(m, curve, maturity_vec[i])
 			end

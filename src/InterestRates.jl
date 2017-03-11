@@ -2,11 +2,6 @@
 __precompile__(true)
 module InterestRates
 
-# 0.4 compat
-if !isdefined(Core, :String)
-    typealias String UTF8String
-end
-
 using BusinessDays
 using Base.Dates
 
@@ -21,9 +16,9 @@ include("composite.jl")
 
 ############# DAYCOUNT #################
 
-daycount(conv::BDays252, date_start::Date, date_end::Date) = Int(bdays(conv.hc, date_start, date_end))
-daycount(::Actual360, date_start::Date, date_end::Date) = Int(date_end - date_start)
-daycount(::Actual365, date_start::Date, date_end::Date) = Int(date_end - date_start)
+daycount(conv::BDays252, date_start::Date, date_end::Date) = Dates.value(bdays(conv.hc, date_start, date_end))
+daycount(::Actual360, date_start::Date, date_end::Date) = Dates.value(date_end - date_start)
+daycount(::Actual365, date_start::Date, date_end::Date) = Dates.value(date_end - date_start)
 
 advancedays(conv::BDays252, date_start::Date, daycount::Int) = advancebdays(conv.hc, date_start, daycount)
 advancedays(::Actual360, date_start::Date, daycount::Int) = date_start + Day(daycount)
@@ -31,7 +26,7 @@ advancedays(::Actual365, date_start::Date, daycount::Int) = date_start + Day(day
 
 function advancedays(conv::DayCountConvention, date_start::Date, daycount_vec::Vector{Int})
 	l = length(daycount_vec)
-	result = Array(Date, l)
+	result = Array{Date}(l)
 	for i in 1:l
 		result[i] = advancedays(conv, date_start, daycount_vec[i])
 	end
@@ -71,7 +66,7 @@ function discountfactor_to_rate(c::CompoundingType, _discountfactor_vec_::Vector
 		error("_discountfactor_vec_ and t_vec must have the same length. ($l != $(length(t_vec)))")
 	end
 
-	result = Array(Float64, l)
+	result = Array{Float64}(l)
 	for i in 1:l
 		result[i] = discountfactor_to_rate(c, _discountfactor_vec_[i], t_vec[i])
 	end

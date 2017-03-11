@@ -7,7 +7,7 @@ type Spline{T}
 	y::Vector{Float64}
 	params::Vector{Float64} # stores parameters for polynomials. [ a1, b1, c1, d1, a2, b2, c2, d2 ...]
 	
-	Spline{T}(x::Vector{T}, y::Vector{Float64}, params::Vector{Float64}) = begin
+	function Spline{T}(x::Vector{T}, y::Vector{Float64}, params::Vector{Float64})
 		polynms_count = length(x) - 1
 		if length(params) != polynms_count * 4 # each polynomial has 4 parameters
 			error("params length $(length(params)) does not conform to the expected number of polynomials ($(polynms_count))")
@@ -52,7 +52,7 @@ end
 # Performs natural cubic spline interpolation
 function splineint{T}(s::Spline{T}, x_out::Vector{T})
 	len = length(x_out)
-	y_out = Array(Float64, len)
+	y_out = Array{Float64}(len)
 	for i in 1:len
 		y_out[i] = splineint(s, x_out[i])
 	end
