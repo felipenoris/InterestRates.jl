@@ -130,7 +130,7 @@ function splinefit{T}(x_in::Vector{T}, y_in::Vector{Float64})
 		row += 1
 	end
 
-	# Conditions on natural cubic spline
+	# Conditions for natural cubic spline
 	A[row, 3] = 2.0
 	A[row, 4] = 6.0 * x_in[1]
 	
