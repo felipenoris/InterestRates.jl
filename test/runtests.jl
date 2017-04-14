@@ -14,19 +14,19 @@ vert_y = [0.10, 0.15, 0.20, 0.19]
 dt_curve = Date(2015,08,03)
 
 # Error testing
-@test_throws ErrorException ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
+@test_throws AssertionError ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
 	ir.Linear(), dt_curve, [1, 2, 6, 5], [.1, .1, .1, .1])
 
-@test_throws ErrorException ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
+@test_throws AssertionError ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
 	ir.Linear(), dt_curve, [1, 2, 3, 4], [.1, .1, .1])
 
-@test_throws ErrorException ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
+@test_throws AssertionError ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
 	ir.Linear(), dt_curve, Array{Int}(0) , [.1, .1, .1])
 
-@test_throws ErrorException ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
+@test_throws AssertionError ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
 	ir.Linear(), dt_curve, Array{Int}(1) , Array{Float64}(0))
 
-@test_throws ErrorException ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
+@test_throws AssertionError ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
 	ir.Linear(), dt_curve, Array{Int}(0) , Array{Float64}(0))
 
 bd.initcache(bd.Brazil())
@@ -35,7 +35,7 @@ curve_b252_ec_lin = ir.IRCurve("dummy-linear", ir.BDays252(bd.Brazil()),
 	ir.ExponentialCompounding(), ir.Linear(), dt_curve,
 	vert_x, vert_y)
 
-@test_throws ErrorException zero_rate(curve_b252_ec_lin, dt_curve - Dates.Day(10))
+@test_throws AssertionError zero_rate(curve_b252_ec_lin, dt_curve - Dates.Day(10))
  
 @test ir.curve_get_name(curve_b252_ec_lin) == "dummy-linear"
 @test ir.curve_get_date(curve_b252_ec_lin) == dt_curve
@@ -47,7 +47,7 @@ disc_2_days = 1.0 / ( (1.0 + zero_rate_2_days)^yrs)
 @test zero_rate_2_days ≈ zero_rate(curve_b252_ec_lin, maturity_2_days) # Linear interpolation
 @test disc_2_days ≈ discountfactor(curve_b252_ec_lin, maturity_2_days)
 @test zero_rate(curve_b252_ec_lin, advancebdays(bd.Brazil(), dt_curve, 11)) ≈ 0.10
-@test_throws ErrorException zero_rate(curve_b252_ec_lin, advancebdays(bd.Brazil(), dt_curve, -4)) # maturity before curve date
+@test_throws AssertionError zero_rate(curve_b252_ec_lin, advancebdays(bd.Brazil(), dt_curve, -4)) # maturity before curve date
 @test zero_rate(curve_b252_ec_lin, advancebdays(bd.Brazil(), dt_curve, 11-4)) ≈ 0.05 # extrapolate before first vertice
 @test zero_rate(curve_b252_ec_lin, advancebdays(bd.Brazil(), dt_curve, 23+4)) ≈ 0.18 # extrapolate after last vertice
 

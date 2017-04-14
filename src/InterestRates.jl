@@ -10,6 +10,7 @@ export
 	ERF_to_rate, discountfactor_to_rate,
 	isnullcurve
 
+include("splines.jl")
 include("types.jl")
 include("nullcurve.jl")
 include("composite.jl")
@@ -61,10 +62,7 @@ discountfactor_to_rate(c::CompoundingType, _discountfactor_::Float64, t::Float64
 
 function discountfactor_to_rate(c::CompoundingType, _discountfactor_vec_::Vector{Float64}, t_vec::Vector{Float64})
 	l = length(_discountfactor_vec_)
-
-	if l != length(t_vec)
-		error("_discountfactor_vec_ and t_vec must have the same length. ($l != $(length(t_vec)))")
-	end
+	@assert l == length(t_vec) "_discountfactor_vec_ and t_vec must have the same length. ($l != $(length(t_vec)))"
 
 	result = Array{Float64}(l)
 	for i in 1:l
@@ -104,9 +102,7 @@ forward_rate(curve::AbstractIRCurve, forward_date::Date, maturity::Date) = ERF_t
 
 function days_to_maturity(curve::AbstractIRCurve, maturity::Date)
 	const d = daycount(curve_get_daycount(curve), curve_get_date(curve), maturity)
-	if d < 0
-		error("Maturity date $(maturity) should be greater than curve observation date $(curve_get_date(curve))")
-	end
+	@assert d >= 0 "Maturity date $(maturity) should be greater than curve observation date $(curve_get_date(curve))"
 	return d
 end
 

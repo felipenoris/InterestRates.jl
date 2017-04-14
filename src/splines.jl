@@ -9,9 +9,7 @@ type Spline{T}
 	
 	function Spline{T}(x::Vector{T}, y::Vector{Float64}, params::Vector{Float64})
 		polynms_count = length(x) - 1
-		if length(params) != polynms_count * 4 # each polynomial has 4 parameters
-			error("params length $(length(params)) does not conform to the expected number of polynomials ($(polynms_count))")
-		end
+		@assert length(params) == polynms_count * 4 "params length $(length(params)) does not conform to the expected number of polynomials ($(polynms_count))" # each polynomial has 4 parameters
 		new(x, y, params)
 	end
 end
@@ -65,9 +63,7 @@ function splinefit{T}(x_in::Vector{T}, y_in::Vector{Float64})
 	# TODO: optimize. See http://www.math.ntnu.no/emner/TMA4215/2008h/cubicsplines.pdf
 	#
 	points_count = length(x_in)
-	if points_count != length(y_in)
-		error("x_in and y_in doesn't conform on sizes.")
-	end
+	@assert points_count == length(y_in) "x_in and y_in doesn't conform on sizes."
 	matrix_n = 4*(points_count-1) # the main matrix is a square matrix matrix_n by matrix_n
 
 	A = zeros(matrix_n, matrix_n)

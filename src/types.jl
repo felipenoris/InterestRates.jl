@@ -125,10 +125,10 @@ type IRCurve <: AbstractIRCurve
 		date::Date, dtm::Vector{Int},
 		zero_rates::Vector{Float64}, parameters = Array{Float64}(0), dict = Dict{Symbol, Any}())
 
-		isempty(dtm) && error("Empty days-to-maturity vector")
-		isempty(zero_rates) && error("Empty zero_rates vector")
-		(length(dtm) != length(zero_rates)) && error("dtm and zero_rates must have the same length")
-		(!issorted(dtm)) && error("dtm should be sorted before creating IRCurve instance")
+		@assert !isempty(dtm) "Empty days-to-maturity vector"
+		@assert !isempty(zero_rates) "Empty zero_rates vector"
+		@assert length(dtm) == length(zero_rates) "dtm and zero_rates must have the same length"
+		@assert issorted(dtm) "dtm should be sorted before creating IRCurve instance"
 
 		new(String(name), _daycount, compounding, method, date, dtm, zero_rates, parameters, dict)
 	end
@@ -139,7 +139,7 @@ type IRCurve <: AbstractIRCurve
 		date::Date,
 		parameters::Vector{Float64},
 		dict = Dict{Symbol, Any}())
-		isempty(parameters) && error("Empty yields vector")
+		@assert !isempty(parameters) "Empty yields vector"
 		new(String(name), _daycount, compounding, method, date, Array{Int}(0), Array{Float64}(0), parameters, dict)
 	end
 end

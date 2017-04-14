@@ -140,8 +140,6 @@ function _zero_rate(::Svensson, curve::AbstractIRCurve, maturity::Date)
 			param[4]*( (1.0 - _exp_lambda2_t_)/(param[6]*t) - _exp_lambda2_t_)
 end
 
-include("splines.jl")
-
 function _zero_rate(::CubicSplineOnRates, x::Vector{Int}, y::Vector{Float64}, x_out::Int)
 	sp = splinefit(x, y)
 	return splineint(sp, x_out)
