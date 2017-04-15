@@ -106,7 +106,31 @@ type CompositeInterpolation <: Interpolation
 	after_last::Interpolation # Interpolation method to be applied after the last point
 end
 
+is_cubic_spline_on_rates(m::CurveMethod) = false
+is_cubic_spline_on_rates(m::CubicSplineOnRates) = true
+is_cubic_spline_on_rates(m::CompositeInterpolation) = is_cubic_spline_on_rates(m.before_first) || is_cubic_spline_on_rates(m.inner) || is_cubic_spline_on_rates(m.after_last)
+
+is_cubic_spline_on_discount_factors(m::CurveMethod) = false
+is_cubic_spline_on_discount_factors(m::CubicSplineOnDiscountFactors) = true
+is_cubic_spline_on_discount_factors(m::CompositeInterpolation) = is_cubic_spline_on_discount_factors(m.before_first) || is_cubic_spline_on_discount_factors(m.inner) || is_cubic_spline_on_discount_factors(m.after_last)
+
 abstract AbstractIRCurve
+
+# Aux function for _zero_rate(::CubicSplinesOnDiscountFactors, ...) methods
+function _splinefit_discountfactors(curve::AbstractIRCurve)
+	dtm_vec = curve_get_dtm(curve)
+	curve_rates_vec = curve_get_zero_rates(curve)
+	l = length(dtm_vec)
+	yf_vec = Array{Float64}(l)
+	discount_vec = Array{Float64}(l)
+
+	for i = 1:l
+		yf_vec[i] = dtm_vec[i] / daysperyear(curve_get_daycount(curve))
+		discount_vec[i] = discountfactor(curve_get_compounding(curve), curve_rates_vec[i], yf_vec[i])
+	end
+
+	return splinefit(yf_vec, discount_vec)
+end
 
 type IRCurve <: AbstractIRCurve
 	name::String
@@ -130,7 +154,19 @@ type IRCurve <: AbstractIRCurve
 		@assert length(dtm) == length(zero_rates) "dtm and zero_rates must have the same length"
 		@assert issorted(dtm) "dtm should be sorted before creating IRCurve instance"
 
-		new(String(name), _daycount, compounding, method, date, dtm, zero_rates, parameters, dict)
+		new_curve = new(String(name), _daycount, compounding, method, date, dtm, zero_rates, parameters, dict)
+
+		if is_cubic_spline_on_rates(method)
+			sp = splinefit(curve_get_dtm(new_curve), curve_get_zero_rates(new_curve))
+			curve_set_dict_parameter!(new_curve, :spline_fit_on_rates, sp)
+		end
+
+		if is_cubic_spline_on_discount_factors(method)
+			sp = _splinefit_discountfactors(new_curve)
+			curve_set_dict_parameter!(new_curve, :spline_fit_on_discount_factors, sp)
+		end
+
+		return new_curve
 	end
 
 	# Constructor for Parametric methods
@@ -214,4 +250,14 @@ curve_get_dict_parameter(curve::IRCurve, sym::Symbol) = curve.dict[sym]
 
 function curve_set_dict_parameter!(curve::IRCurve, sym::Symbol, value)
 	curve.dict[sym] = value
+end
+
+function curve_get_spline_fit_on_rates(curve::IRCurve) :: Spline
+	@assert is_cubic_spline_on_rates(curve_get_method(curve)) "Curve $(curve_get_name(curve)) with method $(curve_get_method(curve)) does not hold a spline_fit_on_rates result."
+	return curve_get_dict_parameter(curve, :spline_fit_on_rates)
+end
+
+function curve_get_spline_fit_on_discount_factors(curve::IRCurve) :: Spline
+	@assert is_cubic_spline_on_discount_factors(curve_get_method(curve)) "Curve $(curve_get_name(curve)) with method $(curve_get_method(curve)) does not hold a spline_fit_on_discount_factors result."
+	return curve_get_dict_parameter(curve, :spline_fit_on_discount_factors)
 end

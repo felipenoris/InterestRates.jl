@@ -6,6 +6,8 @@ using BusinessDays
 using InterestRates
 
 bd = BusinessDays
+bd.initcache(bd.Brazil())
+
 ir = InterestRates
 
 vert_x = [11, 15, 19, 23]
@@ -28,8 +30,6 @@ dt_curve = Date(2015,08,03)
 
 @test_throws AssertionError ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
 	ir.Linear(), dt_curve, Array{Int}(0) , Array{Float64}(0))
-
-bd.initcache(bd.Brazil())
 
 curve_b252_ec_lin = ir.IRCurve("dummy-linear", ir.BDays252(bd.Brazil()),
 	ir.ExponentialCompounding(), ir.Linear(), dt_curve,

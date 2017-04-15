@@ -140,13 +140,13 @@ function _zero_rate(::Svensson, curve::AbstractIRCurve, maturity::Date)
 			param[4]*( (1.0 - _exp_lambda2_t_)/(param[6]*t) - _exp_lambda2_t_)
 end
 
-function _zero_rate(::CubicSplineOnRates, x::Vector{Int}, y::Vector{Float64}, x_out::Int)
-	sp = splinefit(x, y)
-	return splineint(sp, x_out)
+function _zero_rate(method::CubicSplineOnRates, curve::IRCurve, maturity::Date)
+	sp = curve_get_spline_fit_on_rates(curve)
+	return splineint(sp, days_to_maturity(curve, maturity))
 end
 
 function _zero_rate(::CubicSplineOnRates, curve::IRCurve, maturity_vec::Vector{Date})
-	sp = splinefit(curve_get_dtm(curve), curve_get_zero_rates(curve))
+	sp = curve_get_spline_fit_on_rates(curve)
 	
 	l = length(maturity_vec)
 	rates = Array{Float64}(l)
@@ -158,31 +158,15 @@ function _zero_rate(::CubicSplineOnRates, curve::IRCurve, maturity_vec::Vector{D
 	return rates
 end
 
-# Aux function for _zero_rate(::CubicSplinesOnDiscountFactors, ...) methods
-function _splinefit_discountfactors(curve::AbstractIRCurve)
-	dtm_vec = curve_get_dtm(curve)
-	curve_rates_vec = curve_get_zero_rates(curve)
-	l = length(dtm_vec)
-	yf_vec = Array{Float64}(l)
-	discount_vec = Array{Float64}(l)
-
-	for i = 1:l
-		yf_vec[i] = dtm_vec[i] / daysperyear(curve_get_daycount(curve))
-		discount_vec[i] = discountfactor(curve_get_compounding(curve), curve_rates_vec[i], yf_vec[i])
-	end
-
-	return splinefit(yf_vec, discount_vec)
-end
-
-function _zero_rate(::CubicSplineOnDiscountFactors, curve::AbstractIRCurve, maturity::Date)
-	sp = _splinefit_discountfactors(curve)
+function _zero_rate(::CubicSplineOnDiscountFactors, curve::IRCurve, maturity::Date)
+	sp = curve_get_spline_fit_on_discount_factors(curve)
 	yf_maturity = yearfraction(curve_get_daycount(curve), curve_get_date(curve), maturity)
 	result_discount_factor = splineint(sp, yf_maturity)
 	return discountfactor_to_rate(curve_get_compounding(curve), result_discount_factor, yf_maturity)
 end
 
-function _zero_rate(::CubicSplineOnDiscountFactors, curve::AbstractIRCurve, maturity_vec::Vector{Date})
-	sp = _splinefit_discountfactors(curve)
+function _zero_rate(::CubicSplineOnDiscountFactors, curve::IRCurve, maturity_vec::Vector{Date})
+	sp = curve_get_spline_fit_on_discount_factors(curve)
 	mat_vec_len = length(maturity_vec)
 	
 	yf_maturity_vec = Array{Float64}(mat_vec_len)
