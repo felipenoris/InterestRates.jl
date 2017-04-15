@@ -106,17 +106,17 @@ type CompositeInterpolation <: Interpolation
 	after_last::Interpolation # Interpolation method to be applied after the last point
 end
 
+# Helper functions to identify cubic spline method
 is_cubic_spline_on_rates(m::CurveMethod) = false
 is_cubic_spline_on_rates(m::CubicSplineOnRates) = true
 is_cubic_spline_on_rates(m::CompositeInterpolation) = is_cubic_spline_on_rates(m.before_first) || is_cubic_spline_on_rates(m.inner) || is_cubic_spline_on_rates(m.after_last)
-
 is_cubic_spline_on_discount_factors(m::CurveMethod) = false
 is_cubic_spline_on_discount_factors(m::CubicSplineOnDiscountFactors) = true
 is_cubic_spline_on_discount_factors(m::CompositeInterpolation) = is_cubic_spline_on_discount_factors(m.before_first) || is_cubic_spline_on_discount_factors(m.inner) || is_cubic_spline_on_discount_factors(m.after_last)
 
 abstract AbstractIRCurve
 
-# Aux function for _zero_rate(::CubicSplinesOnDiscountFactors, ...) methods
+# Helper function to create splinefit results for method CubicSplineOnDiscountFactors
 function _splinefit_discountfactors(curve::AbstractIRCurve)
 	dtm_vec = curve_get_dtm(curve)
 	curve_rates_vec = curve_get_zero_rates(curve)
@@ -156,6 +156,7 @@ type IRCurve <: AbstractIRCurve
 
 		new_curve = new(String(name), _daycount, compounding, method, date, dtm, zero_rates, parameters, dict)
 
+		# Stores splinefit results for Cubic Spline methods
 		if is_cubic_spline_on_rates(method)
 			sp = splinefit(curve_get_dtm(new_curve), curve_get_zero_rates(new_curve))
 			curve_set_dict_parameter!(new_curve, :spline_fit_on_rates, sp)
