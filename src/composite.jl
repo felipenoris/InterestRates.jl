@@ -26,11 +26,11 @@ end
 curve_get_date(c::CompositeIRCurve) = c.date
 
 function ERF(curve::CompositeIRCurve, maturity::Date)
-	erf = 1.0
+	local _erf::Float64 = 1.0
 	for c in curve.list
-		erf *= ERF(c, maturity)
+		_erf *= ERF(c, maturity)
 	end
-	return erf
+	return _erf
 end
 
 # Unoptimized vector function for ERF
