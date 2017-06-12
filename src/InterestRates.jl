@@ -17,9 +17,9 @@ include("composite.jl")
 
 ############# DAYCOUNT #################
 
-daycount(conv::BDays252, date_start::Date, date_end::Date) = Dates.value(bdays(conv.hc, date_start, date_end))
-daycount(::Actual360, date_start::Date, date_end::Date) = Dates.value(date_end - date_start)
-daycount(::Actual365, date_start::Date, date_end::Date) = Dates.value(date_end - date_start)
+daycount(conv::BDays252, date_start::Date, date_end::Date) = Int(Dates.value(bdays(conv.hc, date_start, date_end)))
+daycount(::Actual360, date_start::Date, date_end::Date) = Int(Dates.value(date_end - date_start))
+daycount(::Actual365, date_start::Date, date_end::Date) = Int(Dates.value(date_end - date_start))
 
 advancedays(conv::BDays252, date_start::Date, daycount::Int) = advancebdays(conv.hc, date_start, daycount)
 advancedays(::Actual360, date_start::Date, daycount::Int) = date_start + Day(daycount)
