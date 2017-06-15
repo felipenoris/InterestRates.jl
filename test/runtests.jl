@@ -209,5 +209,34 @@ composite_curve = ir.CompositeIRCurve(curve_spline_rates, curve_NS)
 @test ir.discountfactor(composite_curve, Date(2015,10,1)) ≈ ir.discountfactor(curve_NS, Date(2015,10,1)) * ir.discountfactor(curve_spline_rates, Date(2015,10,1))
 @test ir.ERF(composite_curve, Date(2015,10,1)) == ir.ERF(curve_NS, Date(2015,10,1)) * ir.ERF(curve_spline_rates, Date(2015,10,1))
 
+# BufferedIRCurve
+buffered_curve_ac360_cont_ff = ir.BufferedIRCurve(curve_ac360_cont_ff)
+dt_curve = ir.curve_get_date(buffered_curve_ac360_cont_ff)
+
+@test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(11)) ≈ 0.1
+@test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(15)) ≈ 0.15
+@test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(19)) ≈ 0.20
+@test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(23)) ≈ 0.19
+@test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(16)) > 0.15
+@test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(17)) < 0.20
+@test forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(11), dt_curve + Dates.Day(15)) ≈ 0.2875 # forward_rate calculation on vertices
+@test forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(11), dt_curve + Dates.Day(13)) ≈ 0.2875 # forward_rate calculation on interpolated maturity
+@test ERF(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(13)) ≈ 1.00466361875533 # ffwd interp on ERF
+
+dt_maturity = dt_curve+Dates.Day(30)
+@test ERF_to_rate(buffered_curve_ac360_cont_ff, ERF(buffered_curve_ac360_cont_ff, dt_maturity), ir.yearfraction(buffered_curve_ac360_cont_ff, dt_maturity)) ≈ zero_rate(buffered_curve_ac360_cont_ff, dt_maturity)
+@test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(13)) ≈ 0.128846153846152 # ffwd interp as zero_rate
+@test ERF(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ 1.00158458746737
+@test forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ 0.1425000000000040
+@test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(30)) ≈ 0.1789166666666680 # ffwd extrap after last vertice
+@test forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(50), dt_curve + Dates.Day(51))
+@test forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(50), dt_curve + Dates.Day(100))
+
+@test forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(11), dt_curve + Dates.Day(15)) ≈ 0.2875
+@test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(9)) ≈ 0.05833333333333 # ffwd extrap before first vertice
+
+@test discountfactor(buffered_curve_ac360_cont_ff, dt_curve) == 1
+@test isnan(ERF_to_rate(buffered_curve_ac360_cont_ff, 1.0, 0.0))
+
 include("usage.jl")
 include("perftests.jl")
