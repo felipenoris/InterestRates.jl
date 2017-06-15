@@ -140,12 +140,12 @@ function _zero_rate(::Svensson, curve::AbstractIRCurve, maturity::Date)
 			param[4]*( (1.0 - _exp_lambda2_t_)/(param[6]*t) - _exp_lambda2_t_)
 end
 
-function _zero_rate(method::CubicSplineOnRates, curve::IRCurve, maturity::Date)
+function _zero_rate(method::CubicSplineOnRates, curve::AbstractIRCurve, maturity::Date)
 	sp = curve_get_spline_fit_on_rates(curve)
 	return splineint(sp, days_to_maturity(curve, maturity))
 end
 
-function _zero_rate(::CubicSplineOnRates, curve::IRCurve, maturity_vec::Vector{Date})
+function _zero_rate(::CubicSplineOnRates, curve::AbstractIRCurve, maturity_vec::Vector{Date})
 	sp = curve_get_spline_fit_on_rates(curve)
 	
 	l = length(maturity_vec)
@@ -158,14 +158,14 @@ function _zero_rate(::CubicSplineOnRates, curve::IRCurve, maturity_vec::Vector{D
 	return rates
 end
 
-function _zero_rate(::CubicSplineOnDiscountFactors, curve::IRCurve, maturity::Date)
+function _zero_rate(::CubicSplineOnDiscountFactors, curve::AbstractIRCurve, maturity::Date)
 	sp = curve_get_spline_fit_on_discount_factors(curve)
 	yf_maturity = yearfraction(curve_get_daycount(curve), curve_get_date(curve), maturity)
 	result_discount_factor = splineint(sp, yf_maturity)
 	return discountfactor_to_rate(curve_get_compounding(curve), result_discount_factor, yf_maturity)
 end
 
-function _zero_rate(::CubicSplineOnDiscountFactors, curve::IRCurve, maturity_vec::Vector{Date})
+function _zero_rate(::CubicSplineOnDiscountFactors, curve::AbstractIRCurve, maturity_vec::Vector{Date})
 	sp = curve_get_spline_fit_on_discount_factors(curve)
 	mat_vec_len = length(maturity_vec)
 	
