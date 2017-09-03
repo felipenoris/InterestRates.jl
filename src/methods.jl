@@ -84,24 +84,24 @@ function _zero_rate(::FlatForward, curve::AbstractIRCurve, maturity::Date)
 		return curve_get_zero_rates(curve)[1]
 	end
 	
-	const x_out = days_to_maturity(curve, maturity)
-	const curve_dtm = curve_get_dtm(curve)
-	const curve_zero_rates = curve_get_zero_rates(curve)
+	x_out = days_to_maturity(curve, maturity)
+	curve_dtm = curve_get_dtm(curve)
+	curve_zero_rates = curve_get_zero_rates(curve)
 	index_a, index_b = _interpolationpoints(curve_dtm, x_out)
-	const Xa = curve_dtm[index_a]
-	const Ya = curve_zero_rates[index_a]
-	const Xb = curve_dtm[index_b]
-	const Yb = curve_zero_rates[index_b]
+	Xa = curve_dtm[index_a]
+	Ya = curve_zero_rates[index_a]
+	Xb = curve_dtm[index_b]
+	Yb = curve_zero_rates[index_b]
 
-	const _daysperyear_ = daysperyear(curve_get_daycount(curve))
-	const year_fraction_a = Xa / _daysperyear_
-	const logPa = log(discountfactor(curve_get_compounding(curve), Ya, year_fraction_a))
+	_daysperyear_ = daysperyear(curve_get_daycount(curve))
+	year_fraction_a = Xa / _daysperyear_
+	logPa = log(discountfactor(curve_get_compounding(curve), Ya, year_fraction_a))
 	
-	const year_fraction_b = Xb / _daysperyear_
-	const logPb = log(discountfactor(curve_get_compounding(curve), Yb, year_fraction_b))
+	year_fraction_b = Xb / _daysperyear_
+	logPb = log(discountfactor(curve_get_compounding(curve), Yb, year_fraction_b))
 	
-	const year_fraction_x = x_out / _daysperyear_
-	const logPx = _linearinterp(year_fraction_a, logPa, year_fraction_b, logPb, year_fraction_x)
+	year_fraction_x = x_out / _daysperyear_
+	logPx = _linearinterp(year_fraction_a, logPa, year_fraction_b, logPb, year_fraction_x)
 
 	return discountfactor_to_rate(curve_get_compounding(curve), exp(logPx), year_fraction_x)
 end
@@ -114,9 +114,9 @@ function _zero_rate(::NelsonSiegel, curve::AbstractIRCurve, maturity::Date)
 	# lambda = param[4]
 
 	param = curve_get_model_parameters(curve)
-	const t = yearfraction(curve, maturity)
-	const _exp_lambda_t_ = exp(-param[4]*t)
-	const F_beta2 = (1.0 - _exp_lambda_t_) / (param[4]*t)
+	t = yearfraction(curve, maturity)
+	_exp_lambda_t_ = exp(-param[4]*t)
+	F_beta2 = (1.0 - _exp_lambda_t_) / (param[4]*t)
 	
 	return param[1] + param[2]*F_beta2 + param[3]*(F_beta2 - _exp_lambda_t_)
 end
@@ -131,10 +131,10 @@ function _zero_rate(::Svensson, curve::AbstractIRCurve, maturity::Date)
 	# lambda2 = param[6]
 
 	param = curve_get_model_parameters(curve)
-	const t = yearfraction(curve, maturity)
-	const _exp_lambda1_t_ = exp(-param[5]*t)
-	const _exp_lambda2_t_ = exp(-param[6]*t)
-	const F_beta2 = (1.0 - _exp_lambda1_t_) / (param[5]*t)
+	t = yearfraction(curve, maturity)
+	_exp_lambda1_t_ = exp(-param[5]*t)
+	_exp_lambda2_t_ = exp(-param[6]*t)
+	F_beta2 = (1.0 - _exp_lambda1_t_) / (param[5]*t)
 	
 	return param[1] + param[2]*F_beta2 + param[3]*(F_beta2 - _exp_lambda1_t_) + 
 			param[4]*( (1.0 - _exp_lambda2_t_)/(param[6]*t) - _exp_lambda2_t_)

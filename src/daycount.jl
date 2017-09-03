@@ -26,7 +26,7 @@ yearfraction(conv::DayCountConvention, date_start::Date, date_end::Date) = dayco
 yearfraction(curve::AbstractIRCurve, maturity::Date) = yearfraction(curve_get_daycount(curve), curve_get_date(curve), maturity)
 
 function days_to_maturity(curve::AbstractIRCurve, maturity::Date)
-	const d = daycount(curve_get_daycount(curve), curve_get_date(curve), maturity)
+	d = daycount(curve_get_daycount(curve), curve_get_date(curve), maturity)
 	@assert d >= 0 "Maturity date $(maturity) should be greater than curve observation date $(curve_get_date(curve))"
 	return d
 end
