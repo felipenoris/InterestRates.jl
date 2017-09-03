@@ -174,7 +174,7 @@ The first time you ask for a rate, discount factor or effetive factor for a give
 it will apply the source curve computation method. The second time you ask for any of these information
 for the same maturity, it will use the cached value.
 
-**Example:***
+**Example:**
 
 ```julia
 using InterestRates, BusinessDays
