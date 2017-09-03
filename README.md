@@ -165,13 +165,13 @@ See `runtests.jl` for more examples.
 
 ## Buffered Curve
 
-A `BufferedIRCurve` stores the results of interest rates interpolations for each date.
+A `BufferedIRCurve` stores results of interest rates interpolations for each date.
 
-You can create it using `InterestRates.BufferedIRCurve(source_curve)` constructor,
+You can create it by using `InterestRates.BufferedIRCurve(source_curve)` constructor,
 where `source_courve` is a given `AbstractIRCurve`.
 
 The first time you ask for a rate, discount factor or effetive factor for a given maturity,
-it will apply the source curve computation method. The second time you ask for any of these information
+it will apply the source curve computation method. The second time you ask for any information
 for the same maturity, it will use the cached value.
 
 **Example:**
@@ -199,14 +199,13 @@ curve_brl = ir.IRCurve("Curve BRL", # name
     rates);
 
 fixed_maturity = Date(2018,5,3)
-discountfactor(curve_brl, fixed_maturity) # JIT
 @elapsed discountfactor(curve_brl, fixed_maturity)
-# 0.000136807
+# 0.178632414
 
 buffered_curve_brl = ir.BufferedIRCurve(curve_brl)
 discountfactor(buffered_curve_brl, fixed_maturity) # stores in cache
 @elapsed discountfactor(buffered_curve_brl, fixed_maturity) # retrieves stored value in cache
-# 4.4936e-5
+# 3.683e-5
 ```
 
 ## Composite Curves
