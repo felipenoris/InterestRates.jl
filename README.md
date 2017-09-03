@@ -163,6 +163,52 @@ er = ER(mycurve, Date(2015,10,10))
 
 See `runtests.jl` for more examples.
 
+## Buffered Curve
+
+A `BufferedIRCurve` stores the results of interest rates interpolations for each date.
+
+You can create it using `InterestRates.BufferedIRCurve(source_curve)` constructor,
+where `source_courve` is a given `AbstractIRCurve`.
+
+The first time you ask for a rate, discount factor or effetive factor for a given maturity,
+it will apply the source curve computation method. The second time you ask for any of these information
+for the same maturity, it will use the cached value.
+
+**Example:***
+
+```julia
+using InterestRates, BusinessDays
+const ir = InterestRates
+
+curve_date = Date(2017,3,2)
+days_to_maturity = [ 1, 22, 83, 147, 208, 269,
+                     332, 396, 458, 519, 581, 711, 834]
+rates = [ 0.1213, 0.121875, 0.11359 , 0.10714 , 0.10255 , 0.100527,
+0.09935 , 0.09859 , 0.098407, 0.098737, 0.099036, 0.099909, 0.101135]
+
+method = ir.CompositeInterpolation(ir.StepFunction(), # before-first
+                                   ir.CubicSplineOnRates(), #inner
+                                   ir.FlatForward()) # after-last
+
+curve_brl = ir.IRCurve("Curve BRL", # name
+    ir.BDays252(:Brazil), # DayCountConvention
+    ir.ExponentialCompounding(), # CompoundingType
+    method, # interpolation method
+    curve_date, # base date
+    days_to_maturity,
+    rates);
+
+fixed_maturity = Date(2018,5,3)
+discountfactor(curve_brl, fixed_maturity) # JIT
+@elapsed discountfactor(curve_brl, fixed_maturity)
+# 0.000136807
+
+buffered_curve_brl = ir.BufferedIRCurve(curve_brl)
+discountfactor(buffered_curve_brl, fixed_maturity) # stores in cache
+@elapsed discountfactor(buffered_curve_brl, fixed_maturity) # retrieves stored value in cache
+# 4.4936e-5
+```
+
 ## Composite Curves
 
 *Warning: This is an experimental feature. The API may change in the future.*
