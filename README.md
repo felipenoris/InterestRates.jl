@@ -165,7 +165,7 @@ See `runtests.jl` for more examples.
 
 ## Buffered Curve
 
-A `BufferedIRCurve` stores results of interest rates interpolations for each date.
+A `BufferedIRCurve` buffers results of interest rate interpolations.
 
 You can create it by using `InterestRates.BufferedIRCurve(source_curve)` constructor,
 where `source_courve` is a given `AbstractIRCurve`.
