@@ -18,6 +18,16 @@ type BDays252 <: DayCountConvention
 	hc::HolidayCalendar
 end
 
+# Thirty360 types adapted from QuantLib.jl
+abstract Thirty360 <: DayCountConvention
+
+type BondThirty360 <: Thirty360 end
+type EuroBondThirty360 <: Thirty360 end
+type ItalianThirty360 <: Thirty360 end
+
+const USAThirty360 = BondThirty360
+const EuroThirty360 = EuroBondThirty360
+
 """
 The type `CompoundingType` sets the convention on how to convert a yield into an Effective Rate Factor.
 
