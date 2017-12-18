@@ -1,5 +1,5 @@
 
-type BufferedIRCurve <: AbstractIRCurve
+mutable struct BufferedIRCurve <: AbstractIRCurve
 	buffer :: Dict{Date, Float64}
 	curve :: AbstractIRCurve
 end

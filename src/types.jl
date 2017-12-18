@@ -10,11 +10,11 @@ Given an initial date `D1` and a final date `D2`, here's how the distance betwee
 * *Actual365* : `(D2 - D1) / 365`
 * *BDays252* : `bdays(D1, D2) / 252`, where `bdays` is the business days between `D1` and `D2` from [BusinessDays.jl package](https://github.com/felipenoris/BusinessDays.jl).
 """
-abstract DayCountConvention
-type Actual360 <: DayCountConvention end
-type Actual365 <: DayCountConvention end
+abstract type DayCountConvention end
+struct Actual360 <: DayCountConvention end
+struct Actual365 <: DayCountConvention end
 
-type BDays252 <: DayCountConvention
+mutable struct BDays252 <: DayCountConvention
 	hc::HolidayCalendar
 end
 
@@ -27,10 +27,10 @@ Given a yield `r` and a maturity year fraction `t`, here's how each supported co
 * *SimpleCompounding* : `(1+r*t)`
 * *ExponentialCompounding* : `(1+r)^t`
 """
-abstract CompoundingType
-type ContinuousCompounding <: CompoundingType end   # exp(r*t)
-type SimpleCompounding <: CompoundingType end       # (1+r*t)
-type ExponentialCompounding <: CompoundingType end  # (1+r)^t
+abstract type CompoundingType end
+struct ContinuousCompounding <: CompoundingType end   # exp(r*t)
+struct SimpleCompounding <: CompoundingType end       # (1+r*t)
+struct ExponentialCompounding <: CompoundingType end  # (1+r)^t
 
 """
 This package provides the following curve methods.
@@ -85,22 +85,22 @@ As a summary, curve methods are organized by the following hierarchy.
 		* `NelsonSiegel`
 		* `Svensson`
 """
-abstract CurveMethod
-abstract Parametric <: CurveMethod
-abstract Interpolation <: CurveMethod
+abstract type CurveMethod end
+abstract type Parametric <: CurveMethod end
+abstract type Interpolation <: CurveMethod end
 
-abstract DiscountFactorInterpolation <: Interpolation
-abstract RateInterpolation <: Interpolation
+abstract type DiscountFactorInterpolation <: Interpolation end
+abstract type RateInterpolation <: Interpolation end
 
-type CubicSplineOnRates <: RateInterpolation end
-type CubicSplineOnDiscountFactors <: DiscountFactorInterpolation end
-type FlatForward <: DiscountFactorInterpolation end
-type Linear <: RateInterpolation end
-type NelsonSiegel <: Parametric end
-type Svensson <: Parametric end
-type StepFunction <: RateInterpolation end
+struct CubicSplineOnRates <: RateInterpolation end
+struct CubicSplineOnDiscountFactors <: DiscountFactorInterpolation end
+struct FlatForward <: DiscountFactorInterpolation end
+struct Linear <: RateInterpolation end
+struct NelsonSiegel <: Parametric end
+struct Svensson <: Parametric end
+struct StepFunction <: RateInterpolation end
 
-type CompositeInterpolation <: Interpolation
+mutable struct CompositeInterpolation <: Interpolation
 	before_first::Interpolation # Interpolation method to be applied before the first point
 	inner::Interpolation
 	after_last::Interpolation # Interpolation method to be applied after the last point
@@ -114,7 +114,7 @@ is_cubic_spline_on_discount_factors(m::CurveMethod) = false
 is_cubic_spline_on_discount_factors(m::CubicSplineOnDiscountFactors) = true
 is_cubic_spline_on_discount_factors(m::CompositeInterpolation) = is_cubic_spline_on_discount_factors(m.before_first) || is_cubic_spline_on_discount_factors(m.inner) || is_cubic_spline_on_discount_factors(m.after_last)
 
-abstract AbstractIRCurve
+abstract type AbstractIRCurve end
 
 # Helper function to create splinefit results for method CubicSplineOnDiscountFactors
 function _splinefit_discountfactors(curve::AbstractIRCurve)
@@ -132,7 +132,7 @@ function _splinefit_discountfactors(curve::AbstractIRCurve)
 	return splinefit(yf_vec, discount_vec)
 end
 
-type IRCurve <: AbstractIRCurve
+mutable struct IRCurve <: AbstractIRCurve
 	name::String
 	daycount::DayCountConvention
 	compounding::CompoundingType
@@ -144,10 +144,10 @@ type IRCurve <: AbstractIRCurve
 	dict::Dict{Symbol, Any}		# holds pre-calculated values for optimization, or additional parameters.
 
 	# Constructor for Interpolation methods
-	function IRCurve{M<:Interpolation}(name::AbstractString, _daycount::DayCountConvention,
+	function IRCurve(name::AbstractString, _daycount::DayCountConvention,
 		compounding::CompoundingType, method::M,
 		date::Date, dtm::Vector{Int},
-		zero_rates::Vector{Float64}, parameters = Array{Float64}(0), dict = Dict{Symbol, Any}())
+		zero_rates::Vector{Float64}, parameters = Array{Float64}(0), dict = Dict{Symbol, Any}()) where {M<:Interpolation}
 
 		@assert !isempty(dtm) "Empty days-to-maturity vector"
 		@assert !isempty(zero_rates) "Empty zero_rates vector"
@@ -171,11 +171,12 @@ type IRCurve <: AbstractIRCurve
 	end
 
 	# Constructor for Parametric methods
-	function IRCurve{M<:Parametric}(name::AbstractString, _daycount::DayCountConvention,
+	function IRCurve(name::AbstractString, _daycount::DayCountConvention,
 		compounding::CompoundingType, method::M,
 		date::Date,
 		parameters::Vector{Float64},
-		dict = Dict{Symbol, Any}())
+		dict = Dict{Symbol, Any}()) where {M<:Parametric}
+
 		@assert !isempty(parameters) "Empty yields vector"
 		new(String(name), _daycount, compounding, method, date, Array{Int}(0), Array{Float64}(0), parameters, dict)
 	end

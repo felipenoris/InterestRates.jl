@@ -1,7 +1,7 @@
 
 # Curve methods implementation
 
-_zero_rate{METHOD<:RateInterpolation}(method::METHOD, curve::AbstractIRCurve, maturity::Date) = _zero_rate(method, curve_get_dtm(curve), curve_get_zero_rates(curve), days_to_maturity(curve, maturity))
+_zero_rate(method::METHOD, curve::AbstractIRCurve, maturity::Date) where {METHOD<:RateInterpolation} = _zero_rate(method, curve_get_dtm(curve), curve_get_zero_rates(curve), days_to_maturity(curve, maturity))
 
 function _zero_rate(comp::CompositeInterpolation, curve::AbstractIRCurve, maturity::Date)
 	dtm = days_to_maturity(curve, maturity)
@@ -17,7 +17,7 @@ end
 
 # Returns tuple (index_a, index_b) for input vector x
 # for interpolands on linear interpolation on point x_out
-function _interpolationpoints{T}(x::Vector{T}, x_out::T)
+function _interpolationpoints(x::Vector{T}, x_out::T) where {T}
 	local index_a::Int
 	local index_b::Int
 
@@ -42,7 +42,7 @@ end
 
 # Perform Linear interpolation. Slope is determined by points (Xa, Ya) and (Xb, Yb).
 # Interpolation occurs on point (x_out, returnvalue)
-_linearinterp{TX, TY}(Xa::TX, Ya::TY, Xb::TX, Yb::TY, x_out::TX) = (x_out - Xa) * (Yb - Ya) / (Xb - Xa) + Ya
+_linearinterp(Xa::TX, Ya::TY, Xb::TX, Yb::TY, x_out::TX) where {TX, TY} = (x_out - Xa) * (Yb - Ya) / (Xb - Xa) + Ya
 
 # Linear interpolation of zero_rates
 function _zero_rate(::Linear, x::Vector{Int}, y::Vector{Float64}, x_out::Int)
