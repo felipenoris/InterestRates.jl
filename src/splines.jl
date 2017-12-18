@@ -7,7 +7,7 @@ mutable struct Spline{T}
 	y::Vector{Float64}
 	params::Vector{Float64} # stores parameters for polynomials. [ a1, b1, c1, d1, a2, b2, c2, d2 ...]
 	
-	function Spline(x::Vector{T}, y::Vector{Float64}, params::Vector{Float64}) where {T}
+	function Spline{T}(x::Vector{T}, y::Vector{Float64}, params::Vector{Float64}) where {T}
 		polynms_count = length(x) - 1
 		@assert length(params) == polynms_count * 4 "params length $(length(params)) does not conform to the expected number of polynomials ($(polynms_count))" # each polynomial has 4 parameters
 		new(x, y, params)
