@@ -2,7 +2,7 @@
 # Auxiliary functions for natural cubic spline interpolation
 
 # Stores parameters for fitted spline polynomials
-type Spline{T}
+mutable struct Spline{T}
 	x::Vector{T} # (x, y) are the original points
 	y::Vector{Float64}
 	params::Vector{Float64} # stores parameters for polynomials. [ a1, b1, c1, d1, a2, b2, c2, d2 ...]
