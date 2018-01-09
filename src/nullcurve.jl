@@ -1,6 +1,6 @@
 ### Null curve ###
 
-type NullIRCurve <: AbstractIRCurve end
+struct NullIRCurve <: AbstractIRCurve end
 
 ERF(curve::NullIRCurve, maturity::Date) = 1.0
 ER(curve::NullIRCurve, maturity::Date) = 0.0

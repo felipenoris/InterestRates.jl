@@ -38,7 +38,7 @@ All yield curve calculation is built around `AbstractIRCurve`. The module expect
 This package provides a default implementation of `AbstractIRCurve` interface, which is a *database-friendly* data type: `IRCurve`.
 
 ```julia
-type IRCurve <: AbstractIRCurve
+mutable struct IRCurve <: AbstractIRCurve
 	name::String
 	daycount::DayCountConvention
 	compounding::CompoundingType
