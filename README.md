@@ -4,7 +4,6 @@
 [![Build Status](https://travis-ci.org/felipenoris/InterestRates.jl.svg?branch=master)](https://travis-ci.org/felipenoris/InterestRates.jl)
 [![Coverage Status](https://coveralls.io/repos/felipenoris/InterestRates.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/felipenoris/InterestRates.jl?branch=master)
 [![codecov.io](http://codecov.io/github/felipenoris/InterestRates.jl/coverage.svg?branch=master)](http://codecov.io/github/felipenoris/InterestRates.jl?branch=master)
-[![InterestRates](http://pkg.julialang.org/badges/InterestRates_0.5.svg)](http://pkg.julialang.org/?pkg=InterestRates&ver=0.5)
 [![InterestRates](http://pkg.julialang.org/badges/InterestRates_0.6.svg)](http://pkg.julialang.org/?pkg=InterestRates&ver=0.6)
 
 Tools for **Term Structure of Interest Rates** calculation, aimed at the valuation of financial contracts, specially *Fixed Income* instruments.
