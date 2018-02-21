@@ -1,5 +1,5 @@
 
-daycount(conv::BDays252, date_start::Date, date_end::Date) = Int(Dates.value(bdays(conv.hc, date_start, date_end)))
+daycount(conv::BDays252, date_start::Date, date_end::Date) = bdayscount(conv.hc, date_start, date_end)
 daycount(::Actual360, date_start::Date, date_end::Date) = Int(Dates.value(date_end - date_start))
 daycount(::Actual365, date_start::Date, date_end::Date) = Int(Dates.value(date_end - date_start))
 
