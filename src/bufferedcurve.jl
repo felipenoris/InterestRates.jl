@@ -27,4 +27,5 @@ function zero_rate(curve::BufferedIRCurve, maturity_vec::Vector{Date})
 	for i in 1:n
 		result[i] = zero_rate(curve, maturity_vec[i])
 	end
+        return result
 end
