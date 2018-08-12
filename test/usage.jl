@@ -8,8 +8,8 @@ vert_y = [0.10, 0.15, 0.14, 0.17] # yield values
 dt_curve = Date(2015,08,03)
 
 mycurve = InterestRates.IRCurve("dummy-simple-linear", InterestRates.Actual365(),
-	InterestRates.SimpleCompounding(), InterestRates.Linear(), dt_curve,
-	vert_x, vert_y)
+    InterestRates.SimpleCompounding(), InterestRates.Linear(), dt_curve,
+    vert_x, vert_y)
 
 # yield for a given maturity date
 y = zero_rate(mycurve, Date(2015,08,25))

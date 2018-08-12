@@ -121,12 +121,12 @@ function _splinefit_discountfactors(curve::AbstractIRCurve)
 	dtm_vec = curve_get_dtm(curve)
 	curve_rates_vec = curve_get_zero_rates(curve)
 	l = length(dtm_vec)
-	yf_vec = Array{Float64}(l)
-	discount_vec = Array{Float64}(l)
+	yf_vec = Vector{Float64}(undef, l)
+	discount_vec = Vector{Float64}(undef, l)
 
 	for i = 1:l
-		yf_vec[i] = dtm_vec[i] / daysperyear(curve_get_daycount(curve))
-		discount_vec[i] = discountfactor(curve_get_compounding(curve), curve_rates_vec[i], yf_vec[i])
+		@inbounds yf_vec[i] = dtm_vec[i] / daysperyear(curve_get_daycount(curve))
+		@inbounds discount_vec[i] = discountfactor(curve_get_compounding(curve), curve_rates_vec[i], yf_vec[i])
 	end
 
 	return splinefit(yf_vec, discount_vec)
@@ -147,7 +147,7 @@ mutable struct IRCurve <: AbstractIRCurve
 	function IRCurve(name::AbstractString, _daycount::DayCountConvention,
 		compounding::CompoundingType, method::M,
 		date::Date, dtm::Vector{Int},
-		zero_rates::Vector{Float64}, parameters = Array{Float64}(0), dict = Dict{Symbol, Any}()) where {M<:Interpolation}
+		zero_rates::Vector{Float64}, parameters = Vector{Float64}(), dict = Dict{Symbol, Any}()) where {M<:Interpolation}
 
 		@assert !isempty(dtm) "Empty days-to-maturity vector"
 		@assert !isempty(zero_rates) "Empty zero_rates vector"
@@ -178,7 +178,7 @@ mutable struct IRCurve <: AbstractIRCurve
 		dict = Dict{Symbol, Any}()) where {M<:Parametric}
 
 		@assert !isempty(parameters) "Empty yields vector"
-		new(String(name), _daycount, compounding, method, date, Array{Int}(0), Array{Float64}(0), parameters, dict)
+		new(String(name), _daycount, compounding, method, date, Vector{Int}(), Vector{Float64}(), parameters, dict)
 	end
 end
 
