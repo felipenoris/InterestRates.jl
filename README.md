@@ -2,28 +2,35 @@
 # InterestRates.jl
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 [![Build Status](https://travis-ci.org/felipenoris/InterestRates.jl.svg?branch=master)](https://travis-ci.org/felipenoris/InterestRates.jl)
-[![Coverage Status](https://coveralls.io/repos/felipenoris/InterestRates.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/felipenoris/InterestRates.jl?branch=master)
 [![codecov.io](http://codecov.io/github/felipenoris/InterestRates.jl/coverage.svg?branch=master)](http://codecov.io/github/felipenoris/InterestRates.jl?branch=master)
-[![InterestRates](http://pkg.julialang.org/badges/InterestRates_0.6.svg)](http://pkg.julialang.org/?pkg=InterestRates&ver=0.6)
+[![InterestRates](http://pkg.julialang.org/badges/InterestRates_0.7.svg)](http://pkg.julialang.org/?pkg=InterestRates&ver=0.7)
 
-Tools for **Term Structure of Interest Rates** calculation, aimed at the valuation of financial contracts, specially *Fixed Income* instruments.
+Tools for **Term Structure of Interest Rates** calculation, aimed at the valuation of financial contracts,
+specially *Fixed Income* instruments.
 
-**Installation**: 
+**Installation**:
 ```julia
 julia> Pkg.add("InterestRates")
 ```
 
 ## Concept
 
-A Term Structure of Interest Rates, also known as *zero-coupon curve*, is a function `f(t) → y` that maps a given maturity `t` onto the yield `y` of a bond that matures at `t` and pays no coupons (*zero-coupon bond*).
+A Term Structure of Interest Rates, also known as *zero-coupon curve*,
+is a function `f(t) → y` that maps a given maturity `t` onto the yield `y` of a bond
+that matures at `t` and pays no coupons (*zero-coupon bond*).
 
-For instance, say the current price of a bond that pays exactly `10` in `1 year` is `9.25`. If one buys that bond for the current price and holds it until the maturity of the contract, that investor will gain `0.75`, which represents `8.11%` of the original price. That means that the bond is currently priced with a yield of `8.11%` *per year*.
+For instance, say the current price of a bond that pays exactly `10` in `1 year` is
+`9.25`. If one buys that bond for the current price and holds it until the maturity
+of the contract, that investor will gain `0.75`, which represents `8.11%` of the original price. That means that the bond is currently priced with a yield of `8.11%` *per year*.
 
-It's not feasible to observe prices for each possible maturity. We can observe only a set of discrete data points of the yield curve. Therefore, in order to determine the entire term structure, one must choose an interpolation method, or a term structure model.
+It's not feasible to observe prices for each possible maturity. We can observe only
+a set of discrete data points of the yield curve. Therefore, in order to determine
+the entire term structure, one must choose an interpolation method, or a term structure model.
 
 ## Data Structure for Interest Rate Curve
 
-All yield curve calculation is built around `AbstractIRCurve`. The module expects that the concrete implementations of `AbstractIRCurve` provide the following methods:
+All yield curve calculation is built around `AbstractIRCurve`. The module expects
+that the concrete implementations of `AbstractIRCurve` provide the following methods:
 
 * `curve_get_name(curve::AbstractIRCurve) → String`
 * `curve_get_daycount(curve::AbstractIRCurve) → DayCountConvention`
@@ -34,7 +41,8 @@ All yield curve calculation is built around `AbstractIRCurve`. The module expect
 * `curve_get_zero_rates(curve::AbstractIRCurve) → Vector{Float64}`, used for interpolation methods, parameters[i] returns yield for maturity dtm[i].
 * `curve_get_model_parameters(curve::AbstractIRCurve) → Vector{Float64}`, used for parametric methods, returns model's constant parameters.
 
-This package provides a default implementation of `AbstractIRCurve` interface, which is a *database-friendly* data type: `IRCurve`.
+This package provides a default implementation of `AbstractIRCurve` interface,
+which is a *database-friendly* data type: `IRCurve`.
 
 ```julia
 mutable struct IRCurve <: AbstractIRCurve
@@ -50,27 +58,34 @@ mutable struct IRCurve <: AbstractIRCurve
 #...
 ```
 
-The type `DayCountConvention` sets the convention on how to count the number of days between dates, and also how to convert that number of days into a year fraction.
+The type `DayCountConvention` sets the convention on how to count the number of days between dates,
+and also how to convert that number of days into a year fraction.
 
-Given an initial date `D1` and a final date `D2`, here's how the distance between `D1` and `D2` are mapped into a year fraction for each supported day count convention:
+Given an initial date `D1` and a final date `D2`, here's how the distance
+between `D1` and `D2` are mapped into a year fraction for each supported day count convention:
 
 * *Actual360* : `(D2 - D1) / 360`
 * *Actual365* : `(D2 - D1) / 365`
-* *BDays252* : `bdays(D1, D2) / 252`, where `bdays` is the business days between `D1` and `D2` from [BusinessDays.jl package](https://github.com/felipenoris/BusinessDays.jl).
+* *BDays252* : `bdays(D1, D2) / 252`, where `bdays` is the business days
+between `D1` and `D2` from [BusinessDays.jl package](https://github.com/felipenoris/BusinessDays.jl).
 
 The type `CompoundingType` sets the convention on how to convert a yield into an Effective Rate Factor.
 
-Given a yield `r` and a maturity year fraction `t`, here's how each supported compounding type maps the yield to Effective Rate Factors:
+Given a yield `r` and a maturity year fraction `t`, here's how each supported compounding
+type maps the yield to Effective Rate Factors:
 
 * *ContinuousCompounding* : `exp(r*t)`
 * *SimpleCompounding* : `(1+r*t)`
 * *ExponentialCompounding* : `(1+r)^t`
 
-The `date` field sets the date when the Yield Curve is observed. All zero rate calculation will be performed based on this date.
+The `date` field sets the date when the Yield Curve is observed. All zero rate calculation
+will be performed based on this date.
 
-The fields `dtm` and `zero_rates` hold the observed market data for the yield curve, as discussed on *Curve Methods* section.
+The fields `dtm` and `zero_rates` hold the observed market data for the yield curve,
+as discussed on *Curve Methods* section.
 
-The field `parameters` holds parameter values for term structure models, as discussed on *Curve Methods* section.
+The field `parameters` holds parameter values for term structure models, as discussed
+on *Curve Methods* section.
 
 `dict` is avaliable for additional parameters, and to hold pre-calculated values for optimization.
 
@@ -94,7 +109,8 @@ For *Interpolation Methods*, the field `dtm` holds the number of days between `d
 * **NelsonSiegel**: term structure model based on *Nelson, C.R., and A.F. Siegel (1987), Parsimonious Modeling of Yield Curve, The Journal of Business, 60, 473-489*.
 * **Svensson**: term structure model based on *Svensson, L.E. (1994), Estimating and Interpreting Forward Interest Rates: Sweden 1992-1994, IMF Working Paper, WP/94/114*.
 
-For *Term Structure Models*, the field `parameters` holds the constants defined by each model, as described below. They must be given in advance, when creating the instance of the curve.
+For *Term Structure Models*, the field `parameters` holds the constants defined by each model,
+as described below. They must be given in advance, when creating the instance of the curve.
 
 For **NelsonSiegel** method, the array `parameters` holds the following parameters from the model:
 * **beta1** = parameters[1]
