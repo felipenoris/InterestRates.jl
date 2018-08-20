@@ -36,9 +36,20 @@ curve_b252_ec_lin = ir.IRCurve("dummy-linear", ir.BDays252(bd.Brazil()),
 	vert_x, vert_y)
 
 @test_throws AssertionError zero_rate(curve_b252_ec_lin, dt_curve - Dates.Day(10))
- 
+
 @test ir.curve_get_name(curve_b252_ec_lin) == "dummy-linear"
 @test ir.curve_get_date(curve_b252_ec_lin) == dt_curve
+
+# daycount equality
+let
+	x = InterestRates.BDays252(BusinessDays.Brazil())
+	y = InterestRates.BDays252(BusinessDays.Brazil())
+	@test x == y
+
+	z = InterestRates.Actual360()
+	@test x != z
+	@test y != z
+end
 
 maturity_2_days = advancebdays(bd.Brazil(), dt_curve, vert_x[1] + 2)
 yrs = (vert_x[1] + 2) / 252.0
