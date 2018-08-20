@@ -15,15 +15,15 @@ ERF_to_rate(curve::AbstractIRCurve, ERF::Float64, t::Float64) = ERF_to_rate(curv
 discountfactor_to_rate(c::CompoundingType, _discountfactor_::Float64, t::Float64) = ERF_to_rate(c, 1.0 / _discountfactor_, t)
 
 function discountfactor_to_rate(c::CompoundingType, _discountfactor_vec_::Vector{Float64}, t_vec::Vector{Float64})
-	l = length(_discountfactor_vec_)
-	@assert l == length(t_vec) "_discountfactor_vec_ and t_vec must have the same length. ($l != $(length(t_vec)))"
+    l = length(_discountfactor_vec_)
+    @assert l == length(t_vec) "_discountfactor_vec_ and t_vec must have the same length. ($l != $(length(t_vec)))"
 
-	result = Array{Float64}(l)
-	for i in 1:l
-		result[i] = discountfactor_to_rate(c, _discountfactor_vec_[i], t_vec[i])
-	end
+    result = Array{Float64}(l)
+    for i in 1:l
+        result[i] = discountfactor_to_rate(c, _discountfactor_vec_[i], t_vec[i])
+    end
 
-	return result
+    return result
 end
 
 # Effective Rate = [Effective Rate Factor] - 1
@@ -39,15 +39,15 @@ discountfactor(curve::AbstractIRCurve, maturity::Date) = 1.0 / ERF(curve, maturi
 
 # Optimized vector functions for `ERF` and `discountfactor` functions
 for fun in (:ERF, :discountfactor)
-	@eval begin
-		function ($fun)(curve::AbstractIRCurve, maturity_vec::Vector{Date})
-			len = length(maturity_vec)
-			_zero_rate_vec_ = zero_rate(curve, maturity_vec)
-			result = Vector{Float64}(len)
-			for i = 1:len
-				result[i] = $(fun)(curve_get_compounding(curve), curve_get_daycount(curve), _zero_rate_vec_[i], curve_get_date(curve), maturity_vec[i])
-			end
-			return result
-		end
-	end
+    @eval begin
+        function ($fun)(curve::AbstractIRCurve, maturity_vec::Vector{Date})
+            len = length(maturity_vec)
+            _zero_rate_vec_ = zero_rate(curve, maturity_vec)
+            result = Vector{Float64}(len)
+            for i = 1:len
+                result[i] = $(fun)(curve_get_compounding(curve), curve_get_daycount(curve), _zero_rate_vec_[i], curve_get_date(curve), maturity_vec[i])
+            end
+            return result
+        end
+    end
 end

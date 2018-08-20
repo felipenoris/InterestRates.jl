@@ -1,6 +1,6 @@
 
 function Base.:(==)(d1::BDays252, d2::BDays252)
-	return d1.hc == d2.hc
+    return d1.hc == d2.hc
 end
 
 Base.hash(d::BDays252) = 1 + hash(d.hc)
@@ -14,12 +14,12 @@ advancedays(::Actual360, date_start::Date, daycount::Int) = date_start + Day(day
 advancedays(::Actual365, date_start::Date, daycount::Int) = date_start + Day(daycount)
 
 function advancedays(conv::DayCountConvention, date_start::Date, daycount_vec::Vector{Int})
-	l = length(daycount_vec)
-	result = Array{Date}(l)
-	for i in 1:l
-		result[i] = advancedays(conv, date_start, daycount_vec[i])
-	end
-	return result
+    l = length(daycount_vec)
+    result = Array{Date}(l)
+    for i in 1:l
+        result[i] = advancedays(conv, date_start, daycount_vec[i])
+    end
+    return result
 end
 
 advancedays(curve::AbstractIRCurve, daycount) = advancedays(curve_get_daycount(curve), curve_get_date(curve), daycount)
@@ -32,7 +32,7 @@ yearfraction(conv::DayCountConvention, date_start::Date, date_end::Date) = dayco
 yearfraction(curve::AbstractIRCurve, maturity::Date) = yearfraction(curve_get_daycount(curve), curve_get_date(curve), maturity)
 
 function days_to_maturity(curve::AbstractIRCurve, maturity::Date)
-	d = daycount(curve_get_daycount(curve), curve_get_date(curve), maturity)
-	@assert d >= 0 "Maturity date $(maturity) should be greater than curve observation date $(curve_get_date(curve))"
-	return d
+    d = daycount(curve_get_daycount(curve), curve_get_date(curve), maturity)
+    @assert d >= 0 "Maturity date $(maturity) should be greater than curve observation date $(curve_get_date(curve))"
+    return d
 end

@@ -17,23 +17,23 @@ dt_curve = Date(2015,08,03)
 
 # Error testing
 @test_throws AssertionError ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
-	ir.Linear(), dt_curve, [1, 2, 6, 5], [.1, .1, .1, .1])
+    ir.Linear(), dt_curve, [1, 2, 6, 5], [.1, .1, .1, .1])
 
 @test_throws AssertionError ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
-	ir.Linear(), dt_curve, [1, 2, 3, 4], [.1, .1, .1])
+    ir.Linear(), dt_curve, [1, 2, 3, 4], [.1, .1, .1])
 
 @test_throws AssertionError ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
-	ir.Linear(), dt_curve, Array{Int}(0) , [.1, .1, .1])
+    ir.Linear(), dt_curve, Array{Int}(0) , [.1, .1, .1])
 
 @test_throws AssertionError ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
-	ir.Linear(), dt_curve, Array{Int}(1) , Array{Float64}(0))
+    ir.Linear(), dt_curve, Array{Int}(1) , Array{Float64}(0))
 
 @test_throws AssertionError ir.IRCurve("", ir.Actual365(), ir.ExponentialCompounding(),
-	ir.Linear(), dt_curve, Array{Int}(0) , Array{Float64}(0))
+    ir.Linear(), dt_curve, Array{Int}(0) , Array{Float64}(0))
 
 curve_b252_ec_lin = ir.IRCurve("dummy-linear", ir.BDays252(bd.Brazil()),
-	ir.ExponentialCompounding(), ir.Linear(), dt_curve,
-	vert_x, vert_y)
+    ir.ExponentialCompounding(), ir.Linear(), dt_curve,
+    vert_x, vert_y)
 
 @test_throws AssertionError zero_rate(curve_b252_ec_lin, dt_curve - Dates.Day(10))
 
@@ -42,13 +42,13 @@ curve_b252_ec_lin = ir.IRCurve("dummy-linear", ir.BDays252(bd.Brazil()),
 
 # daycount equality
 let
-	x = InterestRates.BDays252(BusinessDays.Brazil())
-	y = InterestRates.BDays252(BusinessDays.Brazil())
-	@test x == y
+    x = InterestRates.BDays252(BusinessDays.Brazil())
+    y = InterestRates.BDays252(BusinessDays.Brazil())
+    @test x == y
 
-	z = InterestRates.Actual360()
-	@test x != z
-	@test y != z
+    z = InterestRates.Actual360()
+    @test x != z
+    @test y != z
 end
 
 maturity_2_days = advancebdays(bd.Brazil(), dt_curve, vert_x[1] + 2)
@@ -66,8 +66,8 @@ dt_maturity = dt_curve+Dates.Day(30)
 @test ERF_to_rate(curve_b252_ec_lin, ERF(curve_b252_ec_lin, dt_maturity), ir.yearfraction(curve_b252_ec_lin, dt_maturity)) ≈ zero_rate(curve_b252_ec_lin, dt_maturity)
 
 curve_ac360_cont_ff = ir.IRCurve("dummy-cont-flatforward", ir.Actual360(),
-	ir.ContinuousCompounding(), ir.FlatForward(), dt_curve,
-	vert_x, vert_y)
+    ir.ContinuousCompounding(), ir.FlatForward(), dt_curve,
+    vert_x, vert_y)
 
 @test zero_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(11)) ≈ 0.1
 @test zero_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(15)) ≈ 0.15
@@ -110,8 +110,8 @@ n_curve = ir.NullIRCurve()
 # Tests for vector functions
 dt_curve = Date(2015, 08, 07)
 curve_ac365_simple_linear = ir.IRCurve("dummy-simple-linear", ir.Actual365(),
-	ir.SimpleCompounding(), ir.Linear(), dt_curve,
-	vert_x, vert_y)
+    ir.SimpleCompounding(), ir.Linear(), dt_curve,
+    vert_x, vert_y)
 mat_vec = [ Date(2015,08,17), Date(2015,08,18), Date(2015,08,19), Date(2015,08,20), Date(2015,08,21), Date(2015,08,22)]
 @test zero_rate(curve_ac365_simple_linear, mat_vec) ≈ [0.0875,0.1,0.1125,0.1250,0.1375,0.15]
 @test ERF(curve_ac365_simple_linear, mat_vec) ≈ [1.00239726027397, 1.00301369863014, 1.00369863013699, 1.00445205479452, 1.00527397260274, 1.00616438356164]
@@ -122,17 +122,17 @@ dt_maturity = dt_curve+Dates.Day(30)
 
 comp = ir.CompositeInterpolation(ir.StepFunction(), ir.Linear(), ir.StepFunction())
 curve_ac365_simple_comp = ir.IRCurve("dummy-simple-linear", ir.Actual365(),
-	ir.SimpleCompounding(), comp, dt_curve,
-	vert_x, vert_y)
+    ir.SimpleCompounding(), comp, dt_curve,
+    vert_x, vert_y)
 @test zero_rate(curve_ac365_simple_comp, mat_vec) ≈ [0.1,0.1,0.1125,0.1250,0.1375,0.15]
 @test zero_rate(curve_ac365_simple_comp, Date(2100,2,2)) ≈ 0.19
 
 curve_step = ir.IRCurve("step-curve", ir.Actual365(), 
-	ir.SimpleCompounding(), ir.StepFunction(), dt_curve,
-	vert_x, vert_y)
+    ir.SimpleCompounding(), ir.StepFunction(), dt_curve,
+    vert_x, vert_y)
 mat_vec = [ Date(2015,08,08), Date(2015,08,12), Date(2015,08,17), Date(2015,08,18), Date(2015,08,19), 
-	Date(2015,08,21), Date(2015,08,22), Date(2015,08,23), Date(2015,08,25), Date(2015,08,26),
-	Date(2015,08,27), Date(2015,08,29), Date(2015,08,30), Date(2015,08,31), Date(2015,09,26)]
+    Date(2015,08,21), Date(2015,08,22), Date(2015,08,23), Date(2015,08,25), Date(2015,08,26),
+    Date(2015,08,27), Date(2015,08,29), Date(2015,08,30), Date(2015,08,31), Date(2015,09,26)]
 
 @test zero_rate(curve_step, mat_vec) ≈ [0.10, 0.10, 0.10, 0.10, 0.10, 0.10, 0.15, 0.15, 0.15, 0.20, 0.20, 0.20, 0.19, 0.19, 0.19]
 
@@ -142,8 +142,8 @@ dt_maturity = dt_curve+Dates.Day(30)
 # Nelson Siegel
 dt_curve = Date(2015, 08, 11)
 curve_NS = ir.IRCurve("dummy-continuous-nelsonsiegel", ir.Actual360(),
-	ir.ContinuousCompounding(), ir.NelsonSiegel(), dt_curve,
-	[0.1, 0.2, 0.3, 0.5])
+    ir.ContinuousCompounding(), ir.NelsonSiegel(), dt_curve,
+    [0.1, 0.2, 0.3, 0.5])
 
 mat_vec = [Date(2015,8,12), Date(2016,8,12)]
 @test zero_rate(curve_NS, mat_vec) ≈ [0.300069315921728, 0.311522078457982]
@@ -155,8 +155,8 @@ dt_maturity = dt_curve+Dates.Day(30)
 # Svensson
 dt_curve = Date(2015, 08, 11)
 curve_sven = ir.IRCurve("dummy-continuous-svensson", ir.Actual360(),
-	ir.ContinuousCompounding(), ir.Svensson(), dt_curve,
-	[0.1, 0.2, 0.3, 0.4, 0.5, 0.8])
+    ir.ContinuousCompounding(), ir.Svensson(), dt_curve,
+    [0.1, 0.2, 0.3, 0.4, 0.5, 0.8])
 
 mat_vec = [Date(2015,8,12), Date(2016,8,12)]
 @test zero_rate(curve_sven, mat_vec) ≈ [0.300513102478340, 0.408050168725566]
@@ -186,8 +186,8 @@ y_benchmark = [0.09756098, 0.09780488, 0.09804878, 0.09829268, 0.09853659, 0.098
 @test isapprox(y, y_benchmark; atol=5e-9)
 
 curve_spline_rates = ir.IRCurve("dummy-SplineOnRates", ir.Actual360(),
-	ir.ContinuousCompounding(), ir.CubicSplineOnRates(), dt_curve,
-	vert_x, vert_y)
+    ir.ContinuousCompounding(), ir.CubicSplineOnRates(), dt_curve,
+    vert_x, vert_y)
 
 @test zero_rate(curve_spline_rates, dt_curve + Dates.Day(11)) ≈ 0.1
 @test zero_rate(curve_spline_rates, [dt_curve+Dates.Day(11), dt_curve+Dates.Day(15)]) ≈ vert_y[1:2]
@@ -199,8 +199,8 @@ mat_vec = [ Dates.Day(i) for i in 1:30 ] + dt_curve
 @test zero_rate(curve_spline_rates, mat_vec) ≈ y
 
 curve_spline_discount = ir.IRCurve("dummy-SplineOnDiscountFactors", ir.Actual360(),
-	ir.ContinuousCompounding(), ir.CubicSplineOnDiscountFactors(), dt_curve,
-	vert_x, vert_y)
+    ir.ContinuousCompounding(), ir.CubicSplineOnDiscountFactors(), dt_curve,
+    vert_x, vert_y)
 
 @test zero_rate(curve_spline_discount, dt_curve + Dates.Day(11)) ≈ 0.1
 @test zero_rate(curve_spline_discount, [dt_curve+Dates.Day(11), dt_curve+Dates.Day(15)]) ≈ vert_y[1:2]
