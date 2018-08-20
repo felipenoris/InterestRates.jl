@@ -1,4 +1,11 @@
 
+function Base.:(==)(d1::BDays252, d2::BDays252)
+	println("this is true")
+    return d1.hc == d2.hc
+end
+
+Base.hash(d::BDays252) = 1 + hash(d.hc)
+
 daycount(conv::BDays252, date_start::Date, date_end::Date) = bdayscount(conv.hc, date_start, date_end)
 daycount(::Actual360, date_start::Date, date_end::Date) = Int(Dates.value(date_end - date_start))
 daycount(::Actual365, date_start::Date, date_end::Date) = Int(Dates.value(date_end - date_start))

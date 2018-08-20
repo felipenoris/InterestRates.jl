@@ -38,6 +38,21 @@ curve_b252_ec_lin = InterestRates.IRCurve("dummy-linear", InterestRates.BDays252
 @test InterestRates.curve_get_name(curve_b252_ec_lin) == "dummy-linear"
 @test InterestRates.curve_get_date(curve_b252_ec_lin) == dt_curve
 
+# daycount equality
+let
+    x = InterestRates.BDays252(BusinessDays.Brazil())
+    y = InterestRates.BDays252(BusinessDays.Brazil())
+    @test x == y
+
+    z = InterestRates.Actual360()
+    @test x != z
+    @test y != z
+
+    @test hash(x) == hash(y)
+    @test hash(x) != hash(z)
+    @test hash(y) != hash(z)
+end
+
 maturity_2_days = advancebdays(BusinessDays.Brazil(), dt_curve, vert_x[1] + 2)
 yrs = (vert_x[1] + 2) / 252.0
 zero_rate_2_days = 0.125
