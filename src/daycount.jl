@@ -1,9 +1,5 @@
 
-function Base.:(==)(d1::BDays252, d2::BDays252)
-	println("this is true")
-    return d1.hc == d2.hc
-end
-
+Base.:(==)(d1::BDays252, d2::BDays252) = d1.hc == d2.hc
 Base.hash(d::BDays252) = 1 + hash(d.hc)
 
 daycount(conv::BDays252, date_start::Date, date_end::Date) = bdayscount(conv.hc, date_start, date_end)
