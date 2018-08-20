@@ -49,6 +49,10 @@ let
     z = InterestRates.Actual360()
     @test x != z
     @test y != z
+
+    @test hash(x) == hash(y)
+    @test hash(x) != hash(z)
+    @test hash(y) != hash(z)
 end
 
 maturity_2_days = advancebdays(bd.Brazil(), dt_curve, vert_x[1] + 2)
