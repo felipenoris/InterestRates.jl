@@ -1,4 +1,7 @@
 
+Base.:(==)(i1::CompositeInterpolation, i2::CompositeInterpolation) = i1.before_first == i2.before_first && i1.inner == i2.inner && i1.after_last == i2.after_last
+Base.hash(i::CompositeInterpolation) = 1 + hash(i.before_first) + hash(i.inner) + hash(i.after_last)
+
 # Curve methods implementation
 
 _zero_rate(method::METHOD, curve::AbstractIRCurve, maturity::Date) where {METHOD<:RateInterpolation} = _zero_rate(method, curve_get_dtm(curve), curve_get_zero_rates(curve), days_to_maturity(curve, maturity))
