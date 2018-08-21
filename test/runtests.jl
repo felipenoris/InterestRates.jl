@@ -53,6 +53,21 @@ let
     @test hash(y) != hash(z)
 end
 
+# method equality
+let
+    @test InterestRates.Linear() == InterestRates.Linear()
+    @test InterestRates.Linear() != InterestRates.FlatForward()
+    @test InterestRates.CompositeInterpolation(InterestRates.StepFunction(), InterestRates.Linear(), InterestRates.FlatForward()) == InterestRates.CompositeInterpolation(InterestRates.StepFunction(), InterestRates.Linear(), InterestRates.FlatForward())
+    @test InterestRates.CompositeInterpolation(InterestRates.StepFunction(), InterestRates.Linear(), InterestRates.FlatForward()) != InterestRates.CompositeInterpolation(InterestRates.StepFunction(), InterestRates.Linear(), InterestRates.StepFunction())
+    @test InterestRates.CompositeInterpolation(InterestRates.StepFunction(), InterestRates.Linear(), InterestRates.FlatForward()) != InterestRates.Linear()
+
+    @test hash(InterestRates.Linear()) == hash(InterestRates.Linear())
+    @test hash(InterestRates.Linear()) != hash(InterestRates.FlatForward())
+    @test hash(InterestRates.CompositeInterpolation(InterestRates.StepFunction(), InterestRates.Linear(), InterestRates.FlatForward())) == hash(InterestRates.CompositeInterpolation(InterestRates.StepFunction(), InterestRates.Linear(), InterestRates.FlatForward()))
+    @test hash(InterestRates.CompositeInterpolation(InterestRates.StepFunction(), InterestRates.Linear(), InterestRates.FlatForward())) != hash(InterestRates.CompositeInterpolation(InterestRates.StepFunction(), InterestRates.Linear(), InterestRates.StepFunction()))
+    @test hash(InterestRates.CompositeInterpolation(InterestRates.StepFunction(), InterestRates.Linear(), InterestRates.FlatForward())) != hash(InterestRates.Linear())
+end
+
 maturity_2_days = advancebdays(BusinessDays.Brazil(), dt_curve, vert_x[1] + 2)
 yrs = (vert_x[1] + 2) / 252.0
 zero_rate_2_days = 0.125
