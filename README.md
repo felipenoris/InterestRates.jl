@@ -3,7 +3,6 @@
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 [![Build Status](https://travis-ci.org/felipenoris/InterestRates.jl.svg?branch=master)](https://travis-ci.org/felipenoris/InterestRates.jl)
 [![codecov.io](http://codecov.io/github/felipenoris/InterestRates.jl/coverage.svg?branch=master)](http://codecov.io/github/felipenoris/InterestRates.jl?branch=master)
-[![InterestRates](http://pkg.julialang.org/badges/InterestRates_0.7.svg)](http://pkg.julialang.org/?pkg=InterestRates&ver=0.7)
 
 Tools for **Term Structure of Interest Rates** calculation, aimed at the valuation of financial contracts,
 specially *Fixed Income* instruments.
