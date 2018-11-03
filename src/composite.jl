@@ -40,6 +40,7 @@ function ERF(curve::CompositeIRCurve, maturity_vec::Vector{Date})
     for i in 1:len
         @inbounds result[i] = ERF(curve, maturity_vec[i])
     end
+    return result
 end
 
 # Unoptimized vector function for discountfactor
@@ -49,6 +50,7 @@ function discountfactor(curve::CompositeIRCurve, maturity_vec::Vector{Date})
     for i in 1:len
         @inbounds result[i] = discountfactor(curve, maturity_vec[i])
     end
+    return result
 end
 
 ERF_to_rate(curve::CompositeIRCurve, ERF::Float64, t::Float64) = error("Function not available for CompositeIRCurve")
