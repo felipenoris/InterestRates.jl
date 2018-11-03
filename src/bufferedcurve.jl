@@ -1,7 +1,7 @@
 
-mutable struct BufferedIRCurve <: AbstractIRCurve
+mutable struct BufferedIRCurve{C<:AbstractIRCurve} <: AbstractIRCurve
     buffer :: Dict{Date, Float64}
-    curve :: AbstractIRCurve
+    curve :: C
 end
 
 BufferedIRCurve(curve::AbstractIRCurve) = BufferedIRCurve(Dict{Date, Float64}(), curve)
