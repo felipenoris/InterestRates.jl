@@ -2,7 +2,7 @@
 
 mutable struct CompositeIRCurve <: AbstractIRCurve
     date::Date
-    list :: Vector{AbstractIRCurve}
+    list::Vector{AbstractIRCurve}
 
     function CompositeIRCurve(curve_tuple::AbstractIRCurve...)
         @assert !isempty(curve_tuple) "Empty list of curves for CompositeIRCurve"

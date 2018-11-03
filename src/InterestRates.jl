@@ -22,7 +22,7 @@ forward_rate(curve::AbstractIRCurve, forward_date::Date, maturity::Date) = ERF_t
 
 # Let's use the curve's method to multiple-dispatch. Ugly methods _zero_rate are not exported.
 zero_rate(curve::AbstractIRCurve, maturity::Date) = _zero_rate(curve_get_method(curve), curve, maturity)
-zero_rate(curve::AbstractIRCurve, maturity_vec::Vector{Date}) = _zero_rate(curve_get_method(curve), curve, maturity_vec)    
+zero_rate(curve::AbstractIRCurve, maturity_vec::Vector{Date}) = _zero_rate(curve_get_method(curve), curve, maturity_vec)
 
 include("methods.jl") # implements various zero_rate() methods for each CurveMethod
 

@@ -15,7 +15,7 @@ struct Actual360 <: DayCountConvention end
 struct Actual365 <: DayCountConvention end
 
 mutable struct BDays252 <: DayCountConvention
-	hc::HolidayCalendar
+    hc::HolidayCalendar
 end
 
 """
@@ -72,18 +72,18 @@ For **Svensson** method, the array `parameters` hold the following parameters fr
 As a summary, curve methods are organized by the following hierarchy.
 
 * `<<CurveMethod>>`
-	* `<<Interpolation>>`
-		* `<<DiscountFactorInterpolation>>`
-			* `CubicSplineOnDiscountFactors`
-			* `FlatForward`
-		* `<<RateInterpolation>>`
-			* `CubicSplineOnRates`
-			* `Linear`
-			* `StepFunction`
-		* `CompositeInterpolation`
-	* `<<Parametric>>`
-		* `NelsonSiegel`
-		* `Svensson`
+    * `<<Interpolation>>`
+        * `<<DiscountFactorInterpolation>>`
+            * `CubicSplineOnDiscountFactors`
+            * `FlatForward`
+        * `<<RateInterpolation>>`
+            * `CubicSplineOnRates`
+            * `Linear`
+            * `StepFunction`
+        * `CompositeInterpolation`
+    * `<<Parametric>>`
+        * `NelsonSiegel`
+        * `Svensson`
 """
 abstract type CurveMethod end
 abstract type Parametric <: CurveMethod end
@@ -101,9 +101,9 @@ struct Svensson <: Parametric end
 struct StepFunction <: RateInterpolation end
 
 mutable struct CompositeInterpolation <: Interpolation
-	before_first::Interpolation # Interpolation method to be applied before the first point
-	inner::Interpolation
-	after_last::Interpolation # Interpolation method to be applied after the last point
+    before_first::Interpolation # Interpolation method to be applied before the first point
+    inner::Interpolation
+    after_last::Interpolation # Interpolation method to be applied after the last point
 end
 
 # Helper functions to identify cubic spline method
@@ -118,122 +118,122 @@ abstract type AbstractIRCurve end
 
 # Helper function to create splinefit results for method CubicSplineOnDiscountFactors
 function _splinefit_discountfactors(curve::AbstractIRCurve)
-	dtm_vec = curve_get_dtm(curve)
-	curve_rates_vec = curve_get_zero_rates(curve)
-	l = length(dtm_vec)
-	yf_vec = Vector{Float64}(undef, l)
-	discount_vec = Vector{Float64}(undef, l)
+    dtm_vec = curve_get_dtm(curve)
+    curve_rates_vec = curve_get_zero_rates(curve)
+    l = length(dtm_vec)
+    yf_vec = Vector{Float64}(undef, l)
+    discount_vec = Vector{Float64}(undef, l)
 
-	for i = 1:l
-		@inbounds yf_vec[i] = dtm_vec[i] / daysperyear(curve_get_daycount(curve))
-		@inbounds discount_vec[i] = discountfactor(curve_get_compounding(curve), curve_rates_vec[i], yf_vec[i])
-	end
+    for i = 1:l
+        @inbounds yf_vec[i] = dtm_vec[i] / daysperyear(curve_get_daycount(curve))
+        @inbounds discount_vec[i] = discountfactor(curve_get_compounding(curve), curve_rates_vec[i], yf_vec[i])
+    end
 
-	return splinefit(yf_vec, discount_vec)
+    return splinefit(yf_vec, discount_vec)
 end
 
 mutable struct IRCurve <: AbstractIRCurve
-	name::String
-	daycount::DayCountConvention
-	compounding::CompoundingType
-	method::CurveMethod
-	date::Date
-	dtm::Vector{Int} # for interpolation methods, stores days_to_maturity on curve's daycount convention.
-	zero_rates::Vector{Float64} # for interpolation methods, parameters[i] stores yield for maturity dtm[i].
-	parameters::Vector{Float64} # for parametric methods, parameters stores model's constant parameters.
-	dict::Dict{Symbol, Any}		# holds pre-calculated values for optimization, or additional parameters.
+    name::String
+    daycount::DayCountConvention
+    compounding::CompoundingType
+    method::CurveMethod
+    date::Date
+    dtm::Vector{Int} # for interpolation methods, stores days_to_maturity on curve's daycount convention.
+    zero_rates::Vector{Float64} # for interpolation methods, parameters[i] stores yield for maturity dtm[i].
+    parameters::Vector{Float64} # for parametric methods, parameters stores model's constant parameters.
+    dict::Dict{Symbol, Any}     # holds pre-calculated values for optimization, or additional parameters.
 
-	# Constructor for Interpolation methods
-	function IRCurve(name::AbstractString, _daycount::DayCountConvention,
-		compounding::CompoundingType, method::M,
-		date::Date, dtm::Vector{Int},
-		zero_rates::Vector{Float64}, parameters = Vector{Float64}(), dict = Dict{Symbol, Any}()) where {M<:Interpolation}
+    # Constructor for Interpolation methods
+    function IRCurve(name::AbstractString, _daycount::DayCountConvention,
+        compounding::CompoundingType, method::M,
+        date::Date, dtm::Vector{Int},
+        zero_rates::Vector{Float64}, parameters = Vector{Float64}(), dict = Dict{Symbol, Any}()) where {M<:Interpolation}
 
-		@assert !isempty(dtm) "Empty days-to-maturity vector"
-		@assert !isempty(zero_rates) "Empty zero_rates vector"
-		@assert length(dtm) == length(zero_rates) "dtm and zero_rates must have the same length"
-		@assert issorted(dtm) "dtm should be sorted before creating IRCurve instance"
+        @assert !isempty(dtm) "Empty days-to-maturity vector"
+        @assert !isempty(zero_rates) "Empty zero_rates vector"
+        @assert length(dtm) == length(zero_rates) "dtm and zero_rates must have the same length"
+        @assert issorted(dtm) "dtm should be sorted before creating IRCurve instance"
 
-		new_curve = new(String(name), _daycount, compounding, method, date, dtm, zero_rates, parameters, dict)
+        new_curve = new(String(name), _daycount, compounding, method, date, dtm, zero_rates, parameters, dict)
 
-		# Stores splinefit results for Cubic Spline methods
-		if is_cubic_spline_on_rates(method)
-			sp = splinefit(curve_get_dtm(new_curve), curve_get_zero_rates(new_curve))
-			curve_set_dict_parameter!(new_curve, :spline_fit_on_rates, sp)
-		end
+        # Stores splinefit results for Cubic Spline methods
+        if is_cubic_spline_on_rates(method)
+            sp = splinefit(curve_get_dtm(new_curve), curve_get_zero_rates(new_curve))
+            curve_set_dict_parameter!(new_curve, :spline_fit_on_rates, sp)
+        end
 
-		if is_cubic_spline_on_discount_factors(method)
-			sp = _splinefit_discountfactors(new_curve)
-			curve_set_dict_parameter!(new_curve, :spline_fit_on_discount_factors, sp)
-		end
+        if is_cubic_spline_on_discount_factors(method)
+            sp = _splinefit_discountfactors(new_curve)
+            curve_set_dict_parameter!(new_curve, :spline_fit_on_discount_factors, sp)
+        end
 
-		return new_curve
-	end
+        return new_curve
+    end
 
-	# Constructor for Parametric methods
-	function IRCurve(name::AbstractString, _daycount::DayCountConvention,
-		compounding::CompoundingType, method::M,
-		date::Date,
-		parameters::Vector{Float64},
-		dict = Dict{Symbol, Any}()) where {M<:Parametric}
+    # Constructor for Parametric methods
+    function IRCurve(name::AbstractString, _daycount::DayCountConvention,
+        compounding::CompoundingType, method::M,
+        date::Date,
+        parameters::Vector{Float64},
+        dict = Dict{Symbol, Any}()) where {M<:Parametric}
 
-		@assert !isempty(parameters) "Empty yields vector"
-		new(String(name), _daycount, compounding, method, date, Vector{Int}(), Vector{Float64}(), parameters, dict)
-	end
+        @assert !isempty(parameters) "Empty yields vector"
+        new(String(name), _daycount, compounding, method, date, Vector{Int}(), Vector{Float64}(), parameters, dict)
+    end
 end
 
 # Interface for curve types
 """
-	curve_get_name(curve::AbstractIRCurve) → String
+    curve_get_name(curve::AbstractIRCurve) → String
 
 Returns the name of the curve.
 """
 curve_get_name(curve::AbstractIRCurve) = error("method not defined")
 
 """
-	curve_get_daycount(curve::AbstractIRCurve) → DayCountConvention
+    curve_get_daycount(curve::AbstractIRCurve) → DayCountConvention
 
 Returns the DayCountConvention used by the curve. See DayCountConvention documentation.
 """
 curve_get_daycount(curve::AbstractIRCurve) = error("method not defined")
 
 """
-	curve_get_compounding(curve::AbstractIRCurve) → CompoundingType
+    curve_get_compounding(curve::AbstractIRCurve) → CompoundingType
 
 Returns the CompoundingType used by the curve. See CompoundingType documentation.
 """
 curve_get_compounding(curve::AbstractIRCurve) = error("method not defined")
 
 """
-	curve_get_method(curve::AbstractIRCurve) → CurveMethod
+    curve_get_method(curve::AbstractIRCurve) → CurveMethod
 
 Returns the CurveMethod used by the curve. See CurveMethod documentation.
 """
 curve_get_method(curve::AbstractIRCurve) = error("method not defined")
 
 """
-	curve_get_date(curve::AbstractIRCurve) → Date
+    curve_get_date(curve::AbstractIRCurve) → Date
 
 Returns the date when the curve is observed. All zero rate calculation will be performed based on this date.
 """
 curve_get_date(curve::AbstractIRCurve) = error("method not defined")
 
 """
-	curve_get_dtm(curve::AbstractIRCurve) → Vector{Int}
+    curve_get_dtm(curve::AbstractIRCurve) → Vector{Int}
 
 Used for interpolation methods, returns `days_to_maturity` on curve's daycount convention.
 """
 curve_get_dtm(curve::AbstractIRCurve) = error("method not defined")
 
 """
-	curve_get_zero_rates(curve::AbstractIRCurve) → Vector{Float64}
+    curve_get_zero_rates(curve::AbstractIRCurve) → Vector{Float64}
 
 Used for interpolation methods, parameters[i] returns yield for maturity dtm[i].
 """
 curve_get_zero_rates(curve::AbstractIRCurve) = error("method not defined")
 
 """
-	curve_get_model_parameters(curve::AbstractIRCurve) → Vector{Float64}
+    curve_get_model_parameters(curve::AbstractIRCurve) → Vector{Float64}
 
 Used for parametric methods, returns model's constant parameters.
 """
@@ -251,15 +251,15 @@ curve_get_model_parameters(curve::IRCurve) = curve.parameters
 curve_get_dict_parameter(curve::IRCurve, sym::Symbol) = curve.dict[sym]
 
 function curve_set_dict_parameter!(curve::IRCurve, sym::Symbol, value)
-	curve.dict[sym] = value
+    curve.dict[sym] = value
 end
 
 function curve_get_spline_fit_on_rates(curve::IRCurve) :: Spline
-	@assert is_cubic_spline_on_rates(curve_get_method(curve)) "Curve $(curve_get_name(curve)) with method $(curve_get_method(curve)) does not hold a spline_fit_on_rates result."
-	return curve_get_dict_parameter(curve, :spline_fit_on_rates)
+    @assert is_cubic_spline_on_rates(curve_get_method(curve)) "Curve $(curve_get_name(curve)) with method $(curve_get_method(curve)) does not hold a spline_fit_on_rates result."
+    return curve_get_dict_parameter(curve, :spline_fit_on_rates)
 end
 
 function curve_get_spline_fit_on_discount_factors(curve::IRCurve) :: Spline
-	@assert is_cubic_spline_on_discount_factors(curve_get_method(curve)) "Curve $(curve_get_name(curve)) with method $(curve_get_method(curve)) does not hold a spline_fit_on_discount_factors result."
-	return curve_get_dict_parameter(curve, :spline_fit_on_discount_factors)
+    @assert is_cubic_spline_on_discount_factors(curve_get_method(curve)) "Curve $(curve_get_name(curve)) with method $(curve_get_method(curve)) does not hold a spline_fit_on_discount_factors result."
+    return curve_get_dict_parameter(curve, :spline_fit_on_discount_factors)
 end

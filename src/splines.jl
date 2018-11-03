@@ -42,7 +42,7 @@ function splineint(s::Spline{T}, x_out::T) where {T}
         #P1                       P2                    P3                     ...
         #1   2    3      4        5   6    7      8     9   10   11     12
         #a + bx + cx^2 + dx^3     a + bx + cx^2 + dx^3  a + bx + cx^2 + dx^3   ...
-        return s.params[base_idx + 1] + s.params[base_idx + 2]*x_out + 
+        return s.params[base_idx + 1] + s.params[base_idx + 2]*x_out +
             s.params[base_idx + 3]*(x_out^2) + s.params[base_idx + 4]*(x_out^3)
     end
 end

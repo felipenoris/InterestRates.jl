@@ -1,7 +1,7 @@
 
 mutable struct BufferedIRCurve{C<:AbstractIRCurve} <: AbstractIRCurve
-    buffer :: Dict{Date, Float64}
-    curve :: C
+    buffer::Dict{Date, Float64}
+    curve::C
 end
 
 BufferedIRCurve(curve::AbstractIRCurve) = BufferedIRCurve(Dict{Date, Float64}(), curve)
@@ -27,5 +27,5 @@ function zero_rate(curve::BufferedIRCurve, maturity_vec::Vector{Date})
     for i in 1:n
         @inbounds result[i] = zero_rate(curve, maturity_vec[i])
     end
-        return result
+    return result
 end
