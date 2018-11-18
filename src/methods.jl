@@ -177,7 +177,7 @@ function _zero_rate(::CubicSplineOnDiscountFactors, curve::AbstractIRCurve, matu
         @inbounds yf_maturity_vec[i] = yearfraction(curve_get_daycount(curve), curve_get_date(curve), maturity_vec[i])
     end
 
-    return discountfactor_to_rate(curve.compounding, splineint(sp, yf_maturity_vec), yf_maturity_vec)
+    return discountfactor_to_rate(curve_get_compounding(curve), splineint(sp, yf_maturity_vec), yf_maturity_vec)
 end
 
 # Generate vector functions
