@@ -1,5 +1,4 @@
 
-__precompile__(true)
 module InterestRates
 
 using BusinessDays
