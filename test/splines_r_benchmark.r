@@ -1,3 +1,4 @@
+
 library(splines)
 
 x_in = c(11, 15, 19, 23, 25)

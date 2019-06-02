@@ -1,3 +1,4 @@
+
 ### Composite Curve ###
 
 mutable struct CompositeIRCurve <: AbstractIRCurve

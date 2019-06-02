@@ -1,5 +1,6 @@
 
 # InterestRates.jl
+
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 [![Build Status](https://travis-ci.org/felipenoris/InterestRates.jl.svg?branch=master)](https://travis-ci.org/felipenoris/InterestRates.jl)
 [![codecov.io](http://codecov.io/github/felipenoris/InterestRates.jl/coverage.svg?branch=master)](http://codecov.io/github/felipenoris/InterestRates.jl?branch=master)
@@ -7,7 +8,8 @@
 Tools for **Term Structure of Interest Rates** calculation, aimed at the valuation of financial contracts,
 specially *Fixed Income* instruments.
 
-**Installation**:
+## Installation
+
 ```julia
 julia> Pkg.add("InterestRates")
 ```
