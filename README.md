@@ -191,7 +191,7 @@ A `BufferedIRCurve` buffers results of interest rate interpolations.
 You can create it by using `InterestRates.BufferedIRCurve(source_curve)` constructor,
 where `source_courve` is a given `AbstractIRCurve`.
 
-The first time you ask for a rate, discount factor or effetive factor for a given maturity,
+The first time you ask for a rate, discount factor or effective factor for a given maturity,
 it will apply the source curve computation method. The second time you ask for any information
 for the same maturity, it will use the cached value.
 
