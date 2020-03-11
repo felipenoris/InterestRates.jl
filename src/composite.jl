@@ -1,7 +1,7 @@
 
 ### Composite Curve ###
 
-mutable struct CompositeIRCurve <: AbstractIRCurve
+mutable struct CompositeIRCurve <: AbstractIRCurve{NullMethod}
     date::Date
     list::Vector{AbstractIRCurve}
 

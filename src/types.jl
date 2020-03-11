@@ -88,6 +88,7 @@ As a summary, curve methods are organized by the following hierarchy.
 abstract type CurveMethod end
 abstract type Parametric <: CurveMethod end
 abstract type Interpolation <: CurveMethod end
+abstract type NullMethod <: CurveMethod end
 
 abstract type DiscountFactorInterpolation <: Interpolation end
 abstract type RateInterpolation <: Interpolation end
@@ -114,7 +115,7 @@ is_cubic_spline_on_discount_factors(m::CurveMethod) = false
 is_cubic_spline_on_discount_factors(m::CubicSplineOnDiscountFactors) = true
 is_cubic_spline_on_discount_factors(m::CompositeInterpolation) = is_cubic_spline_on_discount_factors(m.before_first) || is_cubic_spline_on_discount_factors(m.inner) || is_cubic_spline_on_discount_factors(m.after_last)
 
-abstract type AbstractIRCurve end
+abstract type AbstractIRCurve{M<:CurveMethod} end
 
 # Helper function to create splinefit results for method CubicSplineOnDiscountFactors
 function _splinefit_discountfactors(curve::AbstractIRCurve)
@@ -132,11 +133,11 @@ function _splinefit_discountfactors(curve::AbstractIRCurve)
     return splinefit(yf_vec, discount_vec)
 end
 
-mutable struct IRCurve <: AbstractIRCurve
+mutable struct IRCurve{M} <: AbstractIRCurve{M}
     name::String
     daycount::DayCountConvention
     compounding::CompoundingType
-    method::CurveMethod
+    method::M
     date::Date
     dtm::Vector{Int} # for interpolation methods, stores days_to_maturity on curve's daycount convention.
     zero_rates::Vector{Float64} # for interpolation methods, parameters[i] stores yield for maturity dtm[i].
@@ -154,7 +155,7 @@ mutable struct IRCurve <: AbstractIRCurve
         @assert length(dtm) == length(zero_rates) "dtm and zero_rates must have the same length"
         @assert issorted(dtm) "dtm should be sorted before creating IRCurve instance"
 
-        new_curve = new(String(name), _daycount, compounding, method, date, dtm, zero_rates, parameters, dict)
+        new_curve = new{M}(String(name), _daycount, compounding, method, date, dtm, zero_rates, parameters, dict)
 
         # Stores splinefit results for Cubic Spline methods
         if is_cubic_spline_on_rates(method)
@@ -178,7 +179,7 @@ mutable struct IRCurve <: AbstractIRCurve
         dict = Dict{Symbol, Any}()) where {M<:Parametric}
 
         @assert !isempty(parameters) "Empty yields vector"
-        new(String(name), _daycount, compounding, method, date, Vector{Int}(), Vector{Float64}(), parameters, dict)
+        new{M}(String(name), _daycount, compounding, method, date, Vector{Int}(), Vector{Float64}(), parameters, dict)
     end
 end
 
