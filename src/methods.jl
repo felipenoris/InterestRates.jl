@@ -4,9 +4,11 @@ Base.hash(i::CompositeInterpolation) = 1 + hash(i.before_first) + hash(i.inner) 
 
 # Curve methods implementation
 
-_zero_rate(method::METHOD, curve::AbstractIRCurve, maturity::Date) where {METHOD<:RateInterpolation} = _zero_rate(method, curve_get_dtm(curve), curve_get_zero_rates(curve), days_to_maturity(curve, maturity))
+function _zero_rate(method::METHOD, curve::AbstractIRCurve, maturity::T) where {METHOD<:RateInterpolation, T<:Union{Date, YearFraction}}
+    _zero_rate(method, curve_get_dtm(curve), curve_get_zero_rates(curve), days_to_maturity(curve, maturity))
+end
 
-function _zero_rate(comp::CompositeInterpolation, curve::AbstractIRCurve, maturity::Date)
+function _zero_rate(comp::CompositeInterpolation, curve::AbstractIRCurve, maturity::T) where {T<:Union{Date, YearFraction}}
     dtm = days_to_maturity(curve, maturity)
 
     if dtm < curve_get_dtm(curve)[1]
@@ -20,7 +22,7 @@ end
 
 # Returns tuple (index_a, index_b) for input vector x
 # for interpolands on linear interpolation on point x_out
-function _interpolationpoints(x::Vector{T}, x_out::T) where {T}
+function _interpolationpoints(x::Vector{T}, x_out::Number) where {T<:Number}
     local index_a::Int
     local index_b::Int
 
@@ -45,10 +47,10 @@ end
 
 # Perform Linear interpolation. Slope is determined by points (Xa, Ya) and (Xb, Yb).
 # Interpolation occurs on point (x_out, returnvalue)
-_linearinterp(Xa::TX, Ya::TY, Xb::TX, Yb::TY, x_out::TX) where {TX, TY} = (x_out - Xa) * (Yb - Ya) / (Xb - Xa) + Ya
+_linearinterp(Xa::Number, Ya::Number, Xb::Number, Yb::Number, x_out::Number) = (x_out - Xa) * (Yb - Ya) / (Xb - Xa) + Ya
 
 # Linear interpolation of zero_rates
-function _zero_rate(::Linear, x::Vector{Int}, y::Vector{Float64}, x_out::Int)
+function _zero_rate(::Linear, x::Vector{N1}, y::Vector{N2}, x_out::Number) where {N1<:Number, N2<:Number}
     # If this curve has only 1 vertice, this will be a flat curve
     if length(x) == 1
         return y[1]
@@ -59,7 +61,7 @@ function _zero_rate(::Linear, x::Vector{Int}, y::Vector{Float64}, x_out::Int)
 end
 
 # Step Function
-function _zero_rate(::StepFunction, x::Vector{Int}, y::Vector{Float64}, x_out::Int)
+function _zero_rate(::StepFunction, x::Vector{N1}, y::Vector{N2}, x_out::Number) where {N1<:Number, N2<:Number}
     # If this curve has only 1 vertice, this will be a flat curve
     if length(x) == 1
         return y[1]
@@ -81,7 +83,8 @@ end
 
 # Flat Forward is linear interpolation on the log of discountfactors
 # Maybe not useful for SimpleCompounding curves.
-function _zero_rate(::FlatForward, curve::AbstractIRCurve, maturity::Date)
+function _zero_rate(::FlatForward, curve::AbstractIRCurve, maturity::T) where {T<:Union{Date, YearFraction}}
+
     # If this curve has only 1 vertice, this will be a flat curve
     if length(curve_get_zero_rates(curve)) == 1
         return curve_get_zero_rates(curve)[1]
@@ -96,20 +99,19 @@ function _zero_rate(::FlatForward, curve::AbstractIRCurve, maturity::Date)
     Xb = curve_dtm[index_b]
     Yb = curve_zero_rates[index_b]
 
-    _daysperyear_ = daysperyear(curve_get_daycount(curve))
-    year_fraction_a = Xa / _daysperyear_
+    year_fraction_a = yearfraction(curve_get_daycount(curve), Xa)
     logPa = log(discountfactor(curve_get_compounding(curve), Ya, year_fraction_a))
 
-    year_fraction_b = Xb / _daysperyear_
+    year_fraction_b = yearfraction(curve_get_daycount(curve), Xb)
     logPb = log(discountfactor(curve_get_compounding(curve), Yb, year_fraction_b))
 
-    year_fraction_x = x_out / _daysperyear_
-    logPx = _linearinterp(year_fraction_a, logPa, year_fraction_b, logPb, year_fraction_x)
+    year_fraction_x = yearfraction(curve_get_daycount(curve), x_out)
+    logPx = _linearinterp(value(year_fraction_a), logPa, value(year_fraction_b), logPb, value(year_fraction_x))
 
     return discountfactor_to_rate(curve_get_compounding(curve), exp(logPx), year_fraction_x)
 end
 
-function _zero_rate(::NelsonSiegel, curve::AbstractIRCurve, maturity::Date)
+function _zero_rate(::NelsonSiegel, curve::AbstractIRCurve, maturity::YearFraction)
 
     # beta1 = param[1]
     # beta2 = param[2]
@@ -117,14 +119,16 @@ function _zero_rate(::NelsonSiegel, curve::AbstractIRCurve, maturity::Date)
     # lambda = param[4]
 
     param = curve_get_model_parameters(curve)
-    t = yearfraction(curve, maturity)
+    t = value(maturity)
     _exp_lambda_t_ = exp(-param[4]*t)
     F_beta2 = (1.0 - _exp_lambda_t_) / (param[4]*t)
 
     return param[1] + param[2]*F_beta2 + param[3]*(F_beta2 - _exp_lambda_t_)
 end
 
-function _zero_rate(::Svensson, curve::AbstractIRCurve, maturity::Date)
+_zero_rate(method::NelsonSiegel, curve::AbstractIRCurve, maturity::Date) = _zero_rate(method, curve, yearfraction(curve, maturity))
+
+function _zero_rate(::Svensson, curve::AbstractIRCurve, maturity::YearFraction)
 
     # beta1 = param[1]
     # beta2 = param[2]
@@ -134,7 +138,7 @@ function _zero_rate(::Svensson, curve::AbstractIRCurve, maturity::Date)
     # lambda2 = param[6]
 
     param = curve_get_model_parameters(curve)
-    t = yearfraction(curve, maturity)
+    t = value(maturity)
     _exp_lambda1_t_ = exp(-param[5]*t)
     _exp_lambda2_t_ = exp(-param[6]*t)
     F_beta2 = (1.0 - _exp_lambda1_t_) / (param[5]*t)
@@ -143,7 +147,9 @@ function _zero_rate(::Svensson, curve::AbstractIRCurve, maturity::Date)
             param[4]*( (1.0 - _exp_lambda2_t_)/(param[6]*t) - _exp_lambda2_t_)
 end
 
-function _zero_rate(method::CubicSplineOnRates, curve::AbstractIRCurve, maturity::Date)
+_zero_rate(method::Svensson, curve::AbstractIRCurve, maturity::Date) = _zero_rate(method, curve, yearfraction(curve, maturity))
+
+function _zero_rate(method::CubicSplineOnRates, curve::AbstractIRCurve, maturity::T) where {T<:Union{Date, YearFraction}}
     sp = curve_get_spline_fit_on_rates(curve)
     return splineint(sp, days_to_maturity(curve, maturity))
 end
@@ -161,18 +167,26 @@ function _zero_rate(::CubicSplineOnRates, curve::AbstractIRCurve, maturity_vec::
     return rates
 end
 
-function _zero_rate(::CubicSplineOnDiscountFactors, curve::AbstractIRCurve, maturity::Date)
+function _zero_rate(::CubicSplineOnDiscountFactors, curve::AbstractIRCurve, maturity::YearFraction)
     sp = curve_get_spline_fit_on_discount_factors(curve)
-    yf_maturity = yearfraction(curve_get_daycount(curve), curve_get_date(curve), maturity)
-    result_discount_factor = splineint(sp, yf_maturity)
-    return discountfactor_to_rate(curve_get_compounding(curve), result_discount_factor, yf_maturity)
+    result_discount_factor = splineint(sp, value(maturity))
+    return discountfactor_to_rate(curve_get_compounding(curve), result_discount_factor, maturity)
+end
+
+function _zero_rate(method::CubicSplineOnDiscountFactors, curve::AbstractIRCurve, maturity::Date)
+    return _zero_rate(method, curve, yearfraction(curve, maturity))
+end
+
+# to make splineint work in the following method _zero_rate(::CubicSplineOnDiscountFactors, ::AbstractIRCurve, ::Vector{Date})
+function splineint(s::Spline{T1}, x_out::YearFraction{T2}) where {T1<:Number, T2<:Number}
+    splineint(s, value(x_out))
 end
 
 function _zero_rate(::CubicSplineOnDiscountFactors, curve::AbstractIRCurve, maturity_vec::Vector{Date})
     sp = curve_get_spline_fit_on_discount_factors(curve)
     mat_vec_len = length(maturity_vec)
 
-    yf_maturity_vec = Vector{Float64}(undef, mat_vec_len)
+    yf_maturity_vec = Vector{YearFraction}(undef, mat_vec_len)
     for i in 1:mat_vec_len
         @inbounds yf_maturity_vec[i] = yearfraction(curve_get_daycount(curve), curve_get_date(curve), maturity_vec[i])
     end

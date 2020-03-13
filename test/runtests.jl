@@ -27,6 +27,15 @@ BusinessDays.initcache(BusinessDays.Brazil())
         InterestRates.Linear(), dt_curve, Vector{Int}() , Vector{Float64}())
 end
 
+@testset "YearFraction API" begin
+    yf = InterestRates.YearFraction(1)
+    @test iszero(InterestRates.YearFraction(0))
+    @test iszero(InterestRates.YearFraction(0.0))
+    @test zero(yf) == InterestRates.YearFraction(0)
+    @test zero(yf) == InterestRates.YearFraction(0.0)
+    @test iszero(zero(yf))
+end
+
 @testset "daycount equality" begin
     x = InterestRates.BDays252(BusinessDays.Brazil())
     y = InterestRates.BDays252(BusinessDays.Brazil())
@@ -120,7 +129,7 @@ end
     @test zero_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(9)) ≈ 0.05833333333333 # ffwd extrap before first vertice
 
     @test discountfactor(curve_ac360_cont_ff, dt_curve) == 1
-    @test isnan(ERF_to_rate(curve_ac360_cont_ff, 1.0, 0.0))
+    @test isnan(ERF_to_rate(curve_ac360_cont_ff, 1.0, InterestRates.YearFraction(0.0)))
     @test isnullcurve(curve_ac360_cont_ff) == false
 end
 
@@ -323,7 +332,127 @@ end
     @test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(9)) ≈ 0.05833333333333 # ffwd extrap before first vertice
 
     @test discountfactor(buffered_curve_ac360_cont_ff, dt_curve) == 1
-    @test isnan(ERF_to_rate(buffered_curve_ac360_cont_ff, 1.0, 0.0))
+    @test isnan(ERF_to_rate(buffered_curve_ac360_cont_ff, 1.0, InterestRates.YearFraction(0.0)))
+end
+
+@testset "maturity in years" begin
+    vert_x = [1, 11, 15, 19, 23, 2520]
+    vert_y = [0.13, 0.14, 0.15, 0.20, 0.19, 0.25 ]
+
+    dt_curve = Date(2015,08,03)
+
+    curve_b252_ec_lin = InterestRates.IRCurve("dummy-linear", InterestRates.BDays252(BusinessDays.Brazil()),
+        InterestRates.ExponentialCompounding(), InterestRates.Linear(), dt_curve,
+        vert_x, vert_y)
+
+    half_a_day = InterestRates.YearFraction(1 // 504)
+    one_day_and_a_half = InterestRates.YearFraction(3 // 504)
+    a_float = InterestRates.YearFraction(0.001)
+    an_int = InterestRates.YearFraction(1)
+
+    @test InterestRates.days_to_maturity(curve_b252_ec_lin, an_int) == InterestRates.value(an_int) * 252
+    @test InterestRates.days_to_maturity(curve_b252_ec_lin, a_float) == InterestRates.value(a_float) * 252
+    @test InterestRates.days_to_maturity(curve_b252_ec_lin, half_a_day) == InterestRates.value(half_a_day) * 252
+    @test InterestRates.days_to_maturity(curve_b252_ec_lin, one_day_and_a_half) == InterestRates.value(one_day_and_a_half) * 252
+
+    dt_maturity_1_day = BusinessDays.advancebdays(BusinessDays.Brazil(), dt_curve, 1)
+    dt_maturity_2_days = BusinessDays.advancebdays(BusinessDays.Brazil(), dt_curve, 2)
+    dt_maturity_1_year = BusinessDays.advancebdays(BusinessDays.Brazil(), dt_curve, 252)
+
+    @testset "Linear" begin
+        curve = curve_b252_ec_lin
+        @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
+        @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
+    end
+
+    @testset "FlatForward" begin
+        curve = InterestRates.IRCurve("dummy-cont-flatforward", InterestRates.BDays252(BusinessDays.Brazil()),
+            InterestRates.ContinuousCompounding(), InterestRates.FlatForward(), dt_curve,
+            vert_x, vert_y)
+
+        @test discountfactor(curve, one_day_and_a_half) ≈ exp(-InterestRates.zero_rate(curve, one_day_and_a_half) * 3 / 504)
+        @test discountfactor(curve, InterestRates.YearFraction(2 / 252)) ≈ exp(-InterestRates.zero_rate(curve, dt_maturity_2_days) * 2 / 252)
+        @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
+        @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
+    end
+
+    @testset "CubicSplineOnRates" begin
+        curve = InterestRates.IRCurve("dummy-cont-flatforward", InterestRates.BDays252(BusinessDays.Brazil()),
+            InterestRates.ExponentialCompounding(), InterestRates.CubicSplineOnRates(), dt_curve,
+            vert_x, vert_y)
+
+        @test discountfactor(curve, one_day_and_a_half) ≈ 1.0 / (( 1 + InterestRates.zero_rate(curve, one_day_and_a_half))^( 3 / 504))
+        @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
+        @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
+    end
+
+    @testset "CubicSplineOnDiscountFactors" begin
+        curve = InterestRates.IRCurve("dummy-cont-flatforward", InterestRates.BDays252(BusinessDays.Brazil()),
+            InterestRates.ExponentialCompounding(), InterestRates.CubicSplineOnDiscountFactors(), dt_curve,
+            vert_x, vert_y)
+
+        @test discountfactor(curve, one_day_and_a_half) ≈ 1.0 / (( 1 + InterestRates.zero_rate(curve, one_day_and_a_half))^( 3 / 504))
+        @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
+        @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
+    end
+
+    @testset "Svensson" begin
+        curve = InterestRates.IRCurve("dummy-continuous-svensson", InterestRates.BDays252(BusinessDays.Brazil()),
+            InterestRates.ExponentialCompounding(), InterestRates.Svensson(), dt_curve,
+            [0.1, 0.2, 0.3, 0.4, 0.5, 0.8])
+
+        @test discountfactor(curve, one_day_and_a_half) ≈ 1.0 / (( 1 + InterestRates.zero_rate(curve, one_day_and_a_half))^( 3 / 504))
+        @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
+        @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
+    end
+
+    @testset "NelsonSiegel" begin
+        curve = InterestRates.IRCurve("dummy-continuous-nelsonsiegel", InterestRates.BDays252(BusinessDays.Brazil()),
+            InterestRates.ExponentialCompounding(), InterestRates.NelsonSiegel(), dt_curve,
+            [0.1, 0.2, 0.3, 0.5])
+
+        @test discountfactor(curve, one_day_and_a_half) ≈ 1.0 / (( 1 + InterestRates.zero_rate(curve, one_day_and_a_half))^( 3 / 504))
+        @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
+        @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
+    end
+
+    @testset "StepFunction" begin
+        curve = InterestRates.IRCurve("step-curve", InterestRates.BDays252(BusinessDays.Brazil()),
+            InterestRates.ExponentialCompounding(), InterestRates.StepFunction(), dt_curve,
+            vert_x, vert_y)
+
+        @test discountfactor(curve, one_day_and_a_half) ≈ 1.0 / (( 1 + InterestRates.zero_rate(curve, one_day_and_a_half))^( 3 / 504))
+        @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
+        @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
+    end
+
+    @testset "CompositeInterpolation" begin
+        comp = InterestRates.CompositeInterpolation(InterestRates.StepFunction(), InterestRates.Linear(), InterestRates.StepFunction())
+
+        curve = InterestRates.IRCurve("dummy-simple-linear", InterestRates.BDays252(BusinessDays.Brazil()),
+            InterestRates.ExponentialCompounding(), comp, dt_curve,
+            vert_x, vert_y)
+
+        @test discountfactor(curve, one_day_and_a_half) ≈ 1.0 / (( 1 + InterestRates.zero_rate(curve, one_day_and_a_half))^( 3 / 504))
+        @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
+        @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
+    end
 end
 
 @testset "Usage" begin

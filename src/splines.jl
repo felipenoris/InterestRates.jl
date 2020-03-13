@@ -18,7 +18,7 @@ end
 _base_param_index_(poly_index::Int) = (poly_index-1)*4
 
 # Performs natural cubic spline interpolation
-function splineint(s::Spline{T}, x_out::T) where {T}
+function splineint(s::Spline{T}, x_out::Number) where {T<:Number}
     local poly_index::Int = 1
     local base_idx::Int
 
@@ -48,7 +48,7 @@ function splineint(s::Spline{T}, x_out::T) where {T}
 end
 
 # Performs natural cubic spline interpolation
-function splineint(s::Spline{T}, x_out::Vector{T}) :: Vector{Float64} where {T}
+function splineint(s::Spline{T1}, x_out::Vector{T2}) :: Vector{Float64} where {T1, T2}
     len = length(x_out)
     y_out = Vector{Float64}(undef, len)
     for i in 1:len

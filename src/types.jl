@@ -1,6 +1,10 @@
 
 # Types for module InterestRates
 
+struct YearFraction{N<:Number} <: Number
+    val::N
+end
+
 """
 The type `DayCountConvention` sets the convention on how to count the number of days between dates, and also how to convert that number of days into a year fraction.
 
@@ -126,8 +130,8 @@ function _splinefit_discountfactors(curve::AbstractIRCurve)
     discount_vec = Vector{Float64}(undef, l)
 
     for i = 1:l
-        @inbounds yf_vec[i] = dtm_vec[i] / daysperyear(curve_get_daycount(curve))
-        @inbounds discount_vec[i] = discountfactor(curve_get_compounding(curve), curve_rates_vec[i], yf_vec[i])
+        @inbounds yf_vec[i] = value(yearfraction(curve_get_daycount(curve), dtm_vec[i]))
+        @inbounds discount_vec[i] = discountfactor(curve_get_compounding(curve), curve_rates_vec[i], YearFraction(yf_vec[i]))
     end
 
     return splinefit(yf_vec, discount_vec)
