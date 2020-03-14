@@ -9,6 +9,7 @@ export
     ERF_to_rate, discountfactor_to_rate,
     isnullcurve
 
+include("api.jl")
 include("splines.jl")
 include("types.jl")
 include("nullcurve.jl")
