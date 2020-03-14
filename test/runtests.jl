@@ -347,7 +347,7 @@ end
 
     half_a_day = InterestRates.YearFraction(1 // 504)
     one_day_and_a_half = InterestRates.YearFraction(3 // 504)
-    a_float = InterestRates.YearFraction(0.001)
+    a_float = InterestRates.YearFraction(1.75 / 252)
     an_int = InterestRates.YearFraction(1)
 
     @test InterestRates.days_to_maturity(curve_b252_ec_lin, an_int) == InterestRates.value(an_int) * 252
@@ -363,7 +363,8 @@ end
         curve = curve_b252_ec_lin
         @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
         @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
-        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, a_float)
+        @test discountfactor(curve, a_float) > discountfactor(curve, dt_maturity_2_days)
         @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
     end
 
@@ -376,7 +377,8 @@ end
         @test discountfactor(curve, InterestRates.YearFraction(2 / 252)) ≈ exp(-InterestRates.zero_rate(curve, dt_maturity_2_days) * 2 / 252)
         @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
         @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
-        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, a_float)
+        @test discountfactor(curve, a_float) > discountfactor(curve, dt_maturity_2_days)
         @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
     end
 
@@ -388,7 +390,8 @@ end
         @test discountfactor(curve, one_day_and_a_half) ≈ 1.0 / (( 1 + InterestRates.zero_rate(curve, one_day_and_a_half))^( 3 / 504))
         @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
         @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
-        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, a_float)
+        @test discountfactor(curve, a_float) > discountfactor(curve, dt_maturity_2_days)
         @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
     end
 
@@ -400,7 +403,8 @@ end
         @test discountfactor(curve, one_day_and_a_half) ≈ 1.0 / (( 1 + InterestRates.zero_rate(curve, one_day_and_a_half))^( 3 / 504))
         @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
         @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
-        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, a_float)
+        @test discountfactor(curve, a_float) > discountfactor(curve, dt_maturity_2_days)
         @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
     end
 
@@ -412,7 +416,8 @@ end
         @test discountfactor(curve, one_day_and_a_half) ≈ 1.0 / (( 1 + InterestRates.zero_rate(curve, one_day_and_a_half))^( 3 / 504))
         @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
         @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
-        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, a_float)
+        @test discountfactor(curve, a_float) > discountfactor(curve, dt_maturity_2_days)
         @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
     end
 
@@ -424,7 +429,8 @@ end
         @test discountfactor(curve, one_day_and_a_half) ≈ 1.0 / (( 1 + InterestRates.zero_rate(curve, one_day_and_a_half))^( 3 / 504))
         @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
         @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
-        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, a_float)
+        @test discountfactor(curve, a_float) > discountfactor(curve, dt_maturity_2_days)
         @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
     end
 
@@ -436,7 +442,8 @@ end
         @test discountfactor(curve, one_day_and_a_half) ≈ 1.0 / (( 1 + InterestRates.zero_rate(curve, one_day_and_a_half))^( 3 / 504))
         @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
         @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
-        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, a_float)
+        @test discountfactor(curve, a_float) > discountfactor(curve, dt_maturity_2_days)
         @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
     end
 
@@ -450,7 +457,24 @@ end
         @test discountfactor(curve, one_day_and_a_half) ≈ 1.0 / (( 1 + InterestRates.zero_rate(curve, one_day_and_a_half))^( 3 / 504))
         @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
         @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
-        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, a_float)
+        @test discountfactor(curve, a_float) > discountfactor(curve, dt_maturity_2_days)
+        @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
+    end
+
+    @testset "BufferedIRCurve" begin
+        curve = InterestRates.IRCurve("dummy-cont-flatforward", InterestRates.BDays252(BusinessDays.Brazil()),
+            InterestRates.ContinuousCompounding(), InterestRates.FlatForward(), dt_curve,
+            vert_x, vert_y)
+
+        curve = InterestRates.BufferedIRCurve(curve)
+
+        @test discountfactor(curve, one_day_and_a_half) ≈ exp(-InterestRates.zero_rate(curve, one_day_and_a_half) * 3 / 504)
+        @test discountfactor(curve, InterestRates.YearFraction(2 / 252)) ≈ exp(-InterestRates.zero_rate(curve, dt_maturity_2_days) * 2 / 252)
+        @test discountfactor(curve, half_a_day) > discountfactor(curve, dt_maturity_1_day)
+        @test discountfactor(curve, dt_maturity_1_day) > discountfactor(curve, one_day_and_a_half)
+        @test discountfactor(curve, one_day_and_a_half) > discountfactor(curve, a_float)
+        @test discountfactor(curve, a_float) > discountfactor(curve, dt_maturity_2_days)
         @test discountfactor(curve, an_int) ≈ discountfactor(curve, dt_maturity_1_year)
     end
 end
