@@ -3,7 +3,7 @@ uuid = "09453d48-b9e1-5bf0-a018-8d5c65f8cb56"
 license = "MIT"
 authors = ["Felipe Noronha <felipenoris@gmail.com>"]
 repo = "https://github.com/felipenoris/InterestRates.jl.git"
-version = "0.4.1"
+version = "0.4.2-dev"
 
 [deps]
 BusinessDays = "4f18b42c-503e-5345-9536-bb0f25fc7038"
