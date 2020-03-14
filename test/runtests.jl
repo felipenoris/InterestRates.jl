@@ -27,15 +27,6 @@ BusinessDays.initcache(BusinessDays.Brazil())
         InterestRates.Linear(), dt_curve, Vector{Int}() , Vector{Float64}())
 end
 
-@testset "YearFraction API" begin
-    yf = InterestRates.YearFraction(1)
-    @test iszero(InterestRates.YearFraction(0))
-    @test iszero(InterestRates.YearFraction(0.0))
-    @test zero(yf) == InterestRates.YearFraction(0)
-    @test zero(yf) == InterestRates.YearFraction(0.0)
-    @test iszero(zero(yf))
-end
-
 @testset "daycount equality" begin
     x = InterestRates.BDays252(BusinessDays.Brazil())
     y = InterestRates.BDays252(BusinessDays.Brazil())
@@ -337,14 +328,23 @@ end
     @test isnan(ERF_to_rate(buffered_curve_ac360_cont_ff, 1.0, InterestRates.YearFraction(0.0)))
 end
 
-@testset "maturity in years" begin
+@testset "YearFraction" begin
+
+    @testset "YearFraction API" begin
+        yf = InterestRates.YearFraction(1)
+        @test iszero(InterestRates.YearFraction(0))
+        @test iszero(InterestRates.YearFraction(0.0))
+        @test zero(yf) == InterestRates.YearFraction(0)
+        @test zero(yf) == InterestRates.YearFraction(0.0)
+        @test iszero(zero(yf))
+    end
     vert_x = [1, 11, 15, 19, 23, 2520]
     vert_y = [0.13, 0.14, 0.15, 0.20, 0.19, 0.25 ]
 
     dt_curve = Date(2015,08,03)
 
     curve_b252_ec_lin = InterestRates.IRCurve("dummy-linear", InterestRates.BDays252(BusinessDays.Brazil()),
-        InterestRates.ExponentialCompounding(), InterestRates.Linear(), dt_curve,
+        InterestRates.SimpleCompounding(), InterestRates.Linear(), dt_curve,
         vert_x, vert_y)
 
     half_a_day = InterestRates.YearFraction(1 // 504)
@@ -374,6 +374,13 @@ end
         @test discountfactor(curve, yf_2_days) ≈ discountfactor(curve, dt_maturity_2_days)
         @test discountfactor(curve, yf_1_day, yf_2_days) ≈ discountfactor(curve, dt_maturity_1_day, dt_maturity_2_days)
         @test discountfactor(curve, half_a_day, one_day_and_a_half) ≈ discountfactor(curve, one_day_and_a_half) / discountfactor(curve, half_a_day)
+
+        let
+            yf_diff = InterestRates.value(one_day_and_a_half) - InterestRates.value(half_a_day)
+            df = discountfactor(curve, half_a_day, one_day_and_a_half)
+            fwd_rate = ((1/df) - 1)/yf_diff
+            @test forward_rate(curve, half_a_day, one_day_and_a_half) ≈ fwd_rate
+        end
     end
 
     @testset "FlatForward" begin
@@ -392,6 +399,13 @@ end
         @test discountfactor(curve, yf_2_days) ≈ discountfactor(curve, dt_maturity_2_days)
         @test discountfactor(curve, yf_1_day, yf_2_days) ≈ discountfactor(curve, dt_maturity_1_day, dt_maturity_2_days)
         @test discountfactor(curve, half_a_day, one_day_and_a_half) ≈ discountfactor(curve, one_day_and_a_half) / discountfactor(curve, half_a_day)
+
+        let
+            yf_diff = InterestRates.value(one_day_and_a_half) - InterestRates.value(half_a_day)
+            df = discountfactor(curve, half_a_day, one_day_and_a_half)
+            fwd_rate = -log(df)/yf_diff
+            @test forward_rate(curve, half_a_day, one_day_and_a_half) ≈ fwd_rate
+        end
     end
 
     @testset "CubicSplineOnRates" begin

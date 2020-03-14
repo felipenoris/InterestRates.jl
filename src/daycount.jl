@@ -12,6 +12,7 @@ function Base.zero(yf::YearFraction{T}) where {T}
 end
 
 Base.:(==)(y1::YearFraction, y2::YearFraction) = value(y1) == value(y2)
+Base.isless(y1::YearFraction, y2::YearFraction) = value(y1) < value(y2)
 
 # DayCountConvention
 

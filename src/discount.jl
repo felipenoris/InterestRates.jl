@@ -6,10 +6,19 @@ ERF(::ExponentialCompounding, r::Float64, t::YearFraction) = iszero(t) ? 1.0 : (
 ERF(ct::CompoundingType, dcc::DayCountConvention, r::Float64, date_start::Date, date_end::Date) = ERF(ct, r, yearfraction(dcc, date_start, date_end))
 ERF(curve::AbstractIRCurve, maturity::Date) = ERF(curve_get_compounding(curve), curve_get_daycount(curve), zero_rate(curve, maturity), curve_get_date(curve), maturity)
 ERF(curve::AbstractIRCurve, maturity::YearFraction) = ERF(curve_get_compounding(curve), zero_rate(curve, maturity), maturity)
-ERF(curve::AbstractIRCurve, forward_date::Date, maturity::Date) = ERF(curve, maturity) / ERF(curve, forward_date)
+
+function ERF(curve::AbstractIRCurve, forward_date::Date, maturity::Date)
+    @assert forward_date <= maturity "maturity $maturity should follow the forward date $forward_date."
+    ERF(curve, maturity) / ERF(curve, forward_date)
+end
+
+function ERF(curve::AbstractIRCurve, forward_date::YearFraction, maturity::YearFraction)
+    @assert forward_date <= maturity "maturity $maturity should follow the forward date $forward_date."
+    ERF(curve, maturity) / ERF(curve, forward_date)
+end
 
 ERF_to_rate(::ContinuousCompounding, ERF::Float64, t::YearFraction) = log(ERF) / value(t)
-ERF_to_rate(::SimpleCompounding, ERF::Float64, t::YearFraction) = (ERF-1.0) / value(t)
+ERF_to_rate(::SimpleCompounding, ERF::Float64, t::YearFraction) = (ERF - 1.0) / value(t)
 ERF_to_rate(::ExponentialCompounding, ERF::Float64, t::YearFraction) = ERF^(1.0/value(t)) - 1.0
 ERF_to_rate(curve::AbstractIRCurve, ERF::Float64, t::YearFraction) = ERF_to_rate(curve_get_compounding(curve), ERF, t)
 
@@ -43,7 +52,7 @@ function discountfactor(curve::AbstractIRCurve, maturity::T) where {T<:Union{Dat
 end
 
 function discountfactor(curve::AbstractIRCurve, forward_date::T1, maturity::T2) where {T1<:Union{Date, YearFraction}, T2<:Union{Date, YearFraction}}
-    return discountfactor(curve, maturity) / discountfactor(curve, forward_date)
+    1.0 / ERF(curve, forward_date, maturity)
 end
 
 # Optimized vector functions for `ERF` and `discountfactor` functions
