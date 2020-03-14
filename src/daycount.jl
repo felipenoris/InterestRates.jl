@@ -2,10 +2,12 @@
 # YearFraction API
 
 @inline value(yf::YearFraction) = yf.val
-yearfractionvalue(yf::YearFraction) = value(yf)
 yearfraction(conv::DayCountConvention, day_count::Number) = YearFraction(day_count / daysperyear(conv))
 yearfraction(conv::DayCountConvention, date_start::Date, date_end::Date) = yearfraction(conv, daycount(conv, date_start, date_end))
 yearfraction(curve::AbstractIRCurve, maturity::Date) = yearfraction(curve_get_daycount(curve), curve_get_date(curve), maturity)
+
+yearfractionvalue(yf::YearFraction) = value(yf)
+yearfractionvalue(args...) = value(yearfraction(args...)) # old yearfraction behavior
 
 function Base.zero(yf::YearFraction{T}) where {T}
     YearFraction(zero(T))

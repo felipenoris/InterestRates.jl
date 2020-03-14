@@ -337,6 +337,9 @@ end
         @test zero(yf) == InterestRates.YearFraction(0)
         @test zero(yf) == InterestRates.YearFraction(0.0)
         @test iszero(zero(yf))
+
+        InterestRates.yearfractionvalue(InterestRates.Actual360(), 10) == 10 / 360
+        InterestRates.yearfractionvalue(InterestRates.Actual360(), Date(2020, 2, 1), Date(2020, 2, 11)) == 10 / 360
     end
     vert_x = [1, 11, 15, 19, 23, 2520]
     vert_y = [0.13, 0.14, 0.15, 0.20, 0.19, 0.25 ]
@@ -362,6 +365,8 @@ end
     dt_maturity_1_day = BusinessDays.advancebdays(BusinessDays.Brazil(), dt_curve, 1)
     dt_maturity_2_days = BusinessDays.advancebdays(BusinessDays.Brazil(), dt_curve, 2)
     dt_maturity_1_year = BusinessDays.advancebdays(BusinessDays.Brazil(), dt_curve, 252)
+
+    @test InterestRates.yearfractionvalue(curve_b252_ec_lin, dt_maturity_2_days) == 2 / 252
 
     @testset "Linear" begin
         curve = curve_b252_ec_lin
