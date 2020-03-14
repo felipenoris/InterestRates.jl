@@ -42,6 +42,10 @@ function discountfactor(curve::AbstractIRCurve, maturity::T) where {T<:Union{Dat
     1.0 / ERF(curve, maturity)
 end
 
+function discountfactor(curve::AbstractIRCurve, forward_date::T1, maturity::T2) where {T1<:Union{Date, YearFraction}, T2<:Union{Date, YearFraction}}
+    return discountfactor(curve, maturity) / discountfactor(curve, forward_date)
+end
+
 # Optimized vector functions for `ERF` and `discountfactor` functions
 for fun in (:ERF, :discountfactor)
     @eval begin
