@@ -149,6 +149,12 @@ As a summary, curve methods are organized by the following hierarchy.
     * `NelsonSiegel`
     * `Svensson`
 
+## Yield Values
+
+This package uses regular real numbers to represent yield values, without transformations.
+
+For instance, a yield of `1%` is represented by the number `0.01`.
+
 ## Usage
 
 ```julia
@@ -157,7 +163,7 @@ using InterestRates
 # First, create a curve instance.
 
 vert_x = [11, 15, 50, 80] # for interpolation methods, represents the days to maturity
-vert_y = [0.10, 0.15, 0.14, 0.17] # yield values
+vert_y = [0.10, 0.15, 0.14, 0.17] # yield values: 10%, 15%, 14%, 17%
 
 dt_curve = Date(2015,08,03)
 
