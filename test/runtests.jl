@@ -108,6 +108,7 @@ end
     @test forward_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(11), dt_curve + Dates.Day(15)) ≈ 0.2875 # forward_rate calculation on vertices
     @test forward_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(11), dt_curve + Dates.Day(13)) ≈ 0.2875 # forward_rate calculation on interpolated maturity
     @test ERF(curve_ac360_cont_ff, dt_curve + Dates.Day(13)) ≈ 1.00466361875533 # ffwd interp on ERF
+    @test discountfactor(curve_ac360_cont_ff, dt_curve + Dates.Day(20)) ≈ 0.9891083592630893
 
     dt_maturity = dt_curve+Dates.Day(30)
     @test ERF_to_rate(curve_ac360_cont_ff, ERF(curve_ac360_cont_ff, dt_maturity), InterestRates.yearfraction(curve_ac360_cont_ff, dt_maturity)) ≈ zero_rate(curve_ac360_cont_ff, dt_maturity)
@@ -536,6 +537,47 @@ end
         @test discountfactor(curve, yf_1_day, yf_2_days) ≈ discountfactor(curve, dt_maturity_1_day, dt_maturity_2_days)
         @test discountfactor(curve, half_a_day, one_day_and_a_half) ≈ discountfactor(curve, one_day_and_a_half) / discountfactor(curve, half_a_day)
     end
+end
+
+@testset "CurveMap" begin
+    vert_x = [11, 15, 19, 23]
+    vert_y = [0.09, 0.14, 0.19, 0.18]
+
+    # parallel shock of 1%
+    map_parallel_1pct = r -> r + 0.01
+
+    dt_curve = Date(2015,08,03)
+
+    curve_map = InterestRates.CurveMap(map_parallel_1pct, InterestRates.IRCurve("dummy-cont-flatforward", InterestRates.Actual360(),
+        InterestRates.ContinuousCompounding(), InterestRates.FlatForward(), dt_curve,
+        vert_x, vert_y))
+
+    @test zero_rate(curve_map, dt_curve + Dates.Day(11)) ≈ 0.1
+    @test zero_rate(curve_map, dt_curve + Dates.Day(15)) ≈ 0.15
+    @test zero_rate(curve_map, dt_curve + Dates.Day(19)) ≈ 0.20
+    @test zero_rate(curve_map, dt_curve + Dates.Day(23)) ≈ 0.19
+    @test zero_rate(curve_map, dt_curve + Dates.Day(16)) > 0.15
+    @test zero_rate(curve_map, dt_curve + Dates.Day(17)) < 0.20
+    @test forward_rate(curve_map, dt_curve + Dates.Day(11), dt_curve + Dates.Day(15)) ≈ 0.2875 # forward_rate calculation on vertices
+    @test forward_rate(curve_map, dt_curve + Dates.Day(11), dt_curve + Dates.Day(13)) ≈ 0.2875 # forward_rate calculation on interpolated maturity
+    @test ERF(curve_map, dt_curve + Dates.Day(13)) ≈ 1.00466361875533 # ffwd interp on ERF
+    @test discountfactor(curve_map, dt_curve + Dates.Day(20)) ≈ 0.9891083592630893
+
+    dt_maturity = dt_curve+Dates.Day(30)
+    @test ERF_to_rate(curve_map, ERF(curve_map, dt_maturity), InterestRates.yearfraction(curve_map, dt_maturity)) ≈ zero_rate(curve_map, dt_maturity)
+    @test zero_rate(curve_map, dt_curve + Dates.Day(13)) ≈ 0.128846153846152 # ffwd interp as zero_rate
+    @test ERF(curve_map, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ 1.00158458746737
+    @test forward_rate(curve_map, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ 0.1425000000000040
+    @test zero_rate(curve_map, dt_curve + Dates.Day(30)) ≈ 0.1789166666666680 # ffwd extrap after last vertice
+    @test forward_rate(curve_map, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ forward_rate(curve_map, dt_curve + Dates.Day(50), dt_curve + Dates.Day(51))
+    @test forward_rate(curve_map, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ forward_rate(curve_map, dt_curve + Dates.Day(50), dt_curve + Dates.Day(100))
+
+    @test forward_rate(curve_map, dt_curve + Dates.Day(11), dt_curve + Dates.Day(15)) ≈ 0.2875
+    @test zero_rate(curve_map, dt_curve + Dates.Day(9)) ≈ 0.05833333333333 # ffwd extrap before first vertice
+
+    @test discountfactor(curve_map, dt_curve) == 1
+    @test isnan(ERF_to_rate(curve_map, 1.0, InterestRates.YearFraction(0.0)))
+    @test isnullcurve(curve_map) == false
 end
 
 @testset "Usage" begin

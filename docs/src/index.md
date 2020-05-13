@@ -194,6 +194,12 @@ er = ER(mycurve, Date(2015,10,10))
 
 See `runtests.jl` for more examples.
 
+## Curve Map
+
+```@docs
+InterestRates.CurveMap
+```
+
 ## Buffered Curve
 
 A `BufferedIRCurve` buffers results of interest rate interpolations.

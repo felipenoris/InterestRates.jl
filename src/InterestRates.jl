@@ -17,6 +17,7 @@ include("composite.jl")
 include("daycount.jl")
 include("discount.jl")
 include("bufferedcurve.jl")
+include("curvemap.jl")
 
 forward_rate(curve::AbstractIRCurve, forward_date::Date, maturity::Date) = ERF_to_rate(curve, ERF(curve, forward_date, maturity), yearfraction(curve_get_daycount(curve), forward_date, maturity))
 forward_rate(curve::AbstractIRCurve, forward_date::YearFraction, maturity::YearFraction) = ERF_to_rate(curve, ERF(curve, forward_date, maturity), YearFraction(value(maturity) - value(forward_date)))
