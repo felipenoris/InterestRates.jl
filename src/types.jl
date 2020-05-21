@@ -30,6 +30,12 @@ according to the `DayCountConvention`.
 
 `startdate` and `enddate` are always ordered. If `isascending` is false,
 the iterator uses `enddate` as the first date in the iteration.
+
+# Constructor
+
+```julia
+DailyDatesRange(startdate::Date, _enddate::Date, conv::DayCountConvention, ascending::Bool=true)
+```
 """
 struct DailyDatesRange{A, T<:DayCountConvention} <: AbstractRange{Dates.Date}
     startdate::Date
