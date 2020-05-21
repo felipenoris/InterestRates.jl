@@ -580,6 +580,84 @@ end
     @test isnullcurve(curve_map) == false
 end
 
+@testset "DailyDatesRange" begin
+    @testset "bdays252" begin
+        dd = InterestRates.DailyDatesRange(Date(2020, 4, 29), Date(2020, 5, 6), InterestRates.BDays252(BusinessDays.BRSettlement()))
+        result_dates = [ Date(2020, 4, 29), Date(2020, 4, 30), Date(2020, 5, 4), Date(2020, 5, 5), Date(2020, 5, 6) ]
+        @test firstindex(dd) == 1
+        @test !isempty(dd)
+        @test eltype(dd) == Date
+        @test length(dd) == length(result_dates)
+        @test lastindex(dd) == lastindex(result_dates)
+        @test issorted(dd)
+        @test InterestRates.yearfractionvalue(dd) == 1 / 252
+        @test minimum(dd) == Date(2020, 4, 29)
+        @test maximum(dd) == Date(2020, 5, 6)
+
+        for dt in result_dates
+            @test dt ∈ dd
+        end
+
+        @test !in(Date(2020, 4, 28), dd)
+        @test !in(Date(2020, 5, 1), dd)
+        @test !in(Date(2020, 5, 2), dd)
+        @test !in(Date(2020, 5, 7), dd)
+
+        let
+            i = 1
+
+            for dt in dd
+                @test dt == result_dates[i]
+                i += 1
+            end
+
+            @test i == length(result_dates) + 1
+        end
+
+        for i in eachindex(dd)
+            @test dd[i] == result_dates[i]
+        end
+
+        for (i, dt) in enumerate(dd)
+            @test dt == result_dates[i]
+        end
+
+        @test collect(dd) == result_dates
+
+        reversed_dd = reverse(dd)
+        @test isa(reversed_dd, InterestRates.DailyDatesRange)
+        @test !issorted(reversed_dd)
+        @test collect(reversed_dd) == reverse(result_dates)
+        @test minimum(reversed_dd) == Date(2020, 4, 29)
+        @test maximum(reversed_dd) == Date(2020, 5, 6)
+
+        let
+            i = length(result_dates)
+
+            for dt in reversed_dd
+                @test dt == result_dates[i]
+                i -= 1
+            end
+
+            @test i == 0
+        end
+    end
+
+    @testset "Actual360" begin
+        dd = InterestRates.DailyDatesRange(Date(2020, 4, 29), Date(2020, 5, 6), InterestRates.Actual360())
+        @test !isempty(dd)
+        result_dates = collect(Date(2020, 4, 29):Dates.Day(1):Date(2020, 5, 6))
+        @test collect(dd) == result_dates
+
+        for dt in result_dates
+            @test dt ∈ dd
+        end
+
+        @test !in(Date(2020, 4, 28), dd)
+        @test !in(Date(2020, 5, 7), dd)
+    end
+end
+
 @testset "Usage" begin
     include("usage.jl")
 end

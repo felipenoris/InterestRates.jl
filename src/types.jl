@@ -23,6 +23,33 @@ mutable struct BDays252 <: DayCountConvention
 end
 
 """
+    DailyDatesRange{isascending, DayCountConvention} <: AbstractRange{Dates.Date}
+
+Represents the range of dates between `startdate` and `enddate`, using a timestep of 1 Day
+according to the `DayCountConvention`.
+
+`startdate` and `enddate` are always ordered. If `isascending` is false,
+the iterator uses `enddate` as the first date in the iteration.
+"""
+struct DailyDatesRange{A, T<:DayCountConvention} <: AbstractRange{Dates.Date}
+    startdate::Date
+    enddate::Date
+    daycountconvention::T
+
+    function DailyDatesRange(startdate::Date, _enddate::Date, conv::BDays252, ascending::Bool=true)
+        @assert startdate <= _enddate "startdate and enddate should be sorted."
+        @assert BusinessDays.isbday(conv.hc, startdate) "startdate $stardate must be a valid business day."
+        @assert BusinessDays.isbday(conv.hc, _enddate) "enddate $(_enddate) must be a valid business day."
+        return new{ascending, typeof(conv)}(startdate, _enddate, conv)
+    end
+
+    function DailyDatesRange(startdate::Date, _enddate::Date, conv::DayCountConvention, ascending::Bool=true)
+        @assert startdate <= _enddate "startdate and enddate should be sorted."
+        return new{ascending, typeof(conv)}(startdate, _enddate, conv)
+    end
+end
+
+"""
 The type `CompoundingType` sets the convention on how to convert a yield into an Effective Rate Factor.
 
 Given a yield `r` and a maturity year fraction `t`, here's how each supported compounding type maps the yield to Effective Rate Factors:
