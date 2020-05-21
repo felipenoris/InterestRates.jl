@@ -19,7 +19,7 @@ struct Actual360 <: DayCountConvention end
 struct Actual365 <: DayCountConvention end
 
 mutable struct BDays252 <: DayCountConvention
-    hc::HolidayCalendar
+    hc::BusinessDays.HolidayCalendar
 end
 
 """
