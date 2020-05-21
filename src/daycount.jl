@@ -21,11 +21,11 @@ Base.isless(y1::YearFraction, y2::YearFraction) = value(y1) < value(y2)
 Base.:(==)(d1::BDays252, d2::BDays252) = d1.hc == d2.hc
 Base.hash(d::BDays252) = 1 + hash(d.hc)
 
-daycount(conv::BDays252, date_start::Date, date_end::Date) = bdayscount(conv.hc, date_start, date_end)
+daycount(conv::BDays252, date_start::Date, date_end::Date) = BusinessDays.bdayscount(conv.hc, date_start, date_end)
 daycount(::Actual360, date_start::Date, date_end::Date) = Int(Dates.value(date_end - date_start))
 daycount(::Actual365, date_start::Date, date_end::Date) = Int(Dates.value(date_end - date_start))
 
-advancedays(conv::BDays252, date_start::Date, daycount::Int) = advancebdays(conv.hc, date_start, daycount)
+advancedays(conv::BDays252, date_start::Date, daycount::Int) = BusinessDays.advancebdays(conv.hc, date_start, daycount)
 advancedays(::Actual360, date_start::Date, daycount::Int) = date_start + Day(daycount)
 advancedays(::Actual365, date_start::Date, daycount::Int) = date_start + Day(daycount)
 

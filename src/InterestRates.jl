@@ -1,7 +1,7 @@
 
 module InterestRates
 
-using BusinessDays
+import BusinessDays
 using Dates
 
 export
