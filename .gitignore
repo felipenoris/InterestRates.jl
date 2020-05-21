@@ -2,3 +2,4 @@
 *.jl.mem
 .Rhistory
 Manifest.toml
+.DS_Store
