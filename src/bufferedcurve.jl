@@ -3,10 +3,10 @@ mutable struct BufferedIRCurve{M, C<:AbstractIRCurve{M}} <: AbstractIRCurve{M}
     dates_buffer::Dict{Date, Float64}
     yf_buffer::Dict{Rational, Float64}
     curve::C
-    lock::ReentrantLock
+    lock::Base.Threads.SpinLock
 end
 
-BufferedIRCurve(curve::AbstractIRCurve) = BufferedIRCurve(Dict{Date, Float64}(), Dict{Rational, Float64}(), curve, ReentrantLock())
+BufferedIRCurve(curve::AbstractIRCurve) = BufferedIRCurve(Dict{Date, Float64}(), Dict{Rational, Float64}(), curve, Base.Threads.SpinLock())
 
 for fun in (:curve_get_name, :curve_get_daycount, :curve_get_compounding, :curve_get_method, :curve_get_date, :curve_get_dtm, :curve_get_zero_rates, :curve_get_model_parameters, :curve_get_spline_fit_on_rates, :curve_get_spline_fit_on_discount_factors)
     @eval begin
