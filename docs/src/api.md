@@ -13,7 +13,7 @@ InterestRates.AbstractIRCurve
 
 ## AbstractIRCurve API
 
-```
+```@docs
 InterestRates.curve_get_name
 InterestRates.curve_get_dtm
 InterestRates.curve_get_zero_rates
