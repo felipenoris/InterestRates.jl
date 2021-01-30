@@ -26,7 +26,7 @@ end
     DailyDatesRange{isascending, DayCountConvention} <: AbstractRange{Dates.Date}
 
 Represents the range of dates between `startdate` and `enddate`, using a timestep of 1 Day
-according to the `DayCountConvention`.
+according to the [`DayCountConvention`](@ref).
 
 `startdate` and `enddate` are always ordered. If `isascending` is false,
 the iterator uses `enddate` as the first date in the iteration.
@@ -232,21 +232,21 @@ curve_get_name(curve::AbstractIRCurve) = error("method not defined")
 """
     curve_get_daycount(curve::AbstractIRCurve) → DayCountConvention
 
-Returns the DayCountConvention used by the curve. See DayCountConvention documentation.
+Returns the DayCountConvention used by the curve. See [`DayCountConvention`](@ref).
 """
 curve_get_daycount(curve::AbstractIRCurve) = error("method not defined")
 
 """
     curve_get_compounding(curve::AbstractIRCurve) → CompoundingType
 
-Returns the CompoundingType used by the curve. See CompoundingType documentation.
+Returns the CompoundingType used by the curve. See [`CompoundingType`](@ref).
 """
 curve_get_compounding(curve::AbstractIRCurve) = error("method not defined")
 
 """
     curve_get_method(curve::AbstractIRCurve) → CurveMethod
 
-Returns the CurveMethod used by the curve. See CurveMethod documentation.
+Returns the CurveMethod used by the curve. See [`CurveMethod`](@ref).
 """
 curve_get_method(curve::AbstractIRCurve) = error("method not defined")
 
@@ -267,7 +267,8 @@ curve_get_dtm(curve::AbstractIRCurve) = error("method not defined")
 """
     curve_get_zero_rates(curve::AbstractIRCurve) → Vector{Float64}
 
-Used for interpolation methods, parameters[i] returns yield for maturity dtm[i].
+Used for interpolation methods. Given an output `result` from this method,
+`result[i]` returns the yield for maturity `dtm[i]`.
 """
 curve_get_zero_rates(curve::AbstractIRCurve) = error("method not defined")
 
