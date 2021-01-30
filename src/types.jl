@@ -152,6 +152,7 @@ is_cubic_spline_on_discount_factors(m::CurveMethod) = false
 is_cubic_spline_on_discount_factors(m::CubicSplineOnDiscountFactors) = true
 is_cubic_spline_on_discount_factors(m::CompositeInterpolation) = is_cubic_spline_on_discount_factors(m.before_first) || is_cubic_spline_on_discount_factors(m.inner) || is_cubic_spline_on_discount_factors(m.after_last)
 
+"Abstract type for an Interest Rate curve"
 abstract type AbstractIRCurve{M<:CurveMethod} end
 
 # Helper function to create splinefit results for method CubicSplineOnDiscountFactors
