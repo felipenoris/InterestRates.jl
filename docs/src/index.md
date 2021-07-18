@@ -247,12 +247,10 @@ discountfactor(buffered_curve_brl, fixed_maturity) # stores in cache
 
 ## Composite Curves
 
-*Warning: This is an experimental feature. The API may change in the future.*
-
-`InterestRates.CompositeIRCurve(curve_a, curve_b, ...)` will return a composite curve.
-
-Calling `discountfactor` or `ERF` on a composite curve will return the product of the results
-of these functions for each curve inside a composite curve.
+```@docs
+InterestRates.ComposeProdFactorCurve
+InterestRates.ComposeDivFactorCurve
+```
 
 ## Source Code
 

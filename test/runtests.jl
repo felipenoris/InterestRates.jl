@@ -256,7 +256,7 @@ end
     @test InterestRates.curve_get_dict_parameter(curve_spline_discount, :custom_parameter) == param
 end
 
-@testset "CompositeIRCurve" begin
+@testset "ComposeFactorCurve" begin
     dt_curve = Date(2015, 08, 11)
 
     vert_x = [11, 15, 19, 23, 25]
@@ -270,16 +270,31 @@ end
         InterestRates.ContinuousCompounding(), InterestRates.NelsonSiegel(), dt_curve,
         [0.1, 0.2, 0.3, 0.5])
 
-    composite_curve = InterestRates.CompositeIRCurve(curve_spline_rates, curve_NS)
+    @testset "ComposeMult" begin
+        compose_mult_curve = InterestRates.ComposeProdFactorCurve(curve_spline_rates, curve_NS, InterestRates.BDays252(BusinessDays.BRSettlement()), InterestRates.ExponentialCompounding())
 
-    curve_b252_ec_lin = InterestRates.IRCurve("dummy-linear", InterestRates.BDays252(BusinessDays.Brazil()),
-        InterestRates.ExponentialCompounding(), InterestRates.Linear(), Date(2015, 8, 10),
-        vert_x, vert_y)
+        curve_b252_ec_lin = InterestRates.IRCurve("dummy-linear", InterestRates.BDays252(BusinessDays.BRSettlement()),
+            InterestRates.ExponentialCompounding(), InterestRates.Linear(), Date(2015, 8, 10),
+            vert_x, vert_y)
 
-    @test_throws AssertionError composite_curve_2 = InterestRates.CompositeIRCurve(curve_NS, curve_b252_ec_lin)
-    @test InterestRates.curve_get_date(composite_curve) == InterestRates.curve_get_date(curve_NS)
-    @test InterestRates.discountfactor(composite_curve, Date(2015,10,1)) ≈ InterestRates.discountfactor(curve_NS, Date(2015,10,1)) * InterestRates.discountfactor(curve_spline_rates, Date(2015,10,1))
-    @test InterestRates.ERF(composite_curve, Date(2015,10,1)) == InterestRates.ERF(curve_NS, Date(2015,10,1)) * InterestRates.ERF(curve_spline_rates, Date(2015,10,1))
+        @test_throws AssertionError InterestRates.ComposeProdFactorCurve(curve_NS, curve_b252_ec_lin, InterestRates.BDays252(BusinessDays.BRSettlement()), InterestRates.ExponentialCompounding())
+        @test InterestRates.curve_get_date(compose_mult_curve) == InterestRates.curve_get_date(curve_NS)
+        @test InterestRates.discountfactor(compose_mult_curve, Date(2015,10,1)) ≈ InterestRates.discountfactor(curve_NS, Date(2015,10,1)) * InterestRates.discountfactor(curve_spline_rates, Date(2015,10,1))
+        @test InterestRates.ERF(compose_mult_curve, Date(2015,10,1)) == InterestRates.ERF(curve_NS, Date(2015,10,1)) * InterestRates.ERF(curve_spline_rates, Date(2015,10,1))
+
+        let
+            maturity = Date(2015,10,1)
+            erf = InterestRates.ERF(compose_mult_curve, maturity)
+            yf = BusinessDays.bdayscount(BusinessDays.BRSettlement(), dt_curve, maturity) / 252
+            @test  InterestRates.zero_rate(compose_mult_curve, maturity) ≈ erf^(1/yf) - 1
+        end
+    end
+
+    @testset "ComposeDiv" begin
+        compose_div_curve = InterestRates.ComposeDivFactorCurve(curve_spline_rates, curve_NS, InterestRates.BDays252(BusinessDays.BRSettlement()), InterestRates.ExponentialCompounding())
+        @test InterestRates.discountfactor(compose_div_curve, Date(2015,10,1)) ≈ InterestRates.discountfactor(curve_spline_rates, Date(2015,10,1)) / InterestRates.discountfactor(curve_NS, Date(2015,10,1))
+        @test InterestRates.ERF(compose_div_curve, Date(2015,10,1)) == InterestRates.ERF(curve_spline_rates, Date(2015,10,1)) / InterestRates.ERF(curve_NS, Date(2015,10,1))
+    end
 end
 
 @testset "BufferedIRCurve" begin

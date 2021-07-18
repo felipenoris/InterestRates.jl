@@ -17,10 +17,11 @@ function ERF(curve::AbstractIRCurve, forward_date::YearFraction, maturity::YearF
     ERF(curve, maturity) / ERF(curve, forward_date)
 end
 
-ERF_to_rate(::ContinuousCompounding, ERF::Float64, t::YearFraction) = log(ERF) / value(t)
-ERF_to_rate(::SimpleCompounding, ERF::Float64, t::YearFraction) = (ERF - 1.0) / value(t)
-ERF_to_rate(::ExponentialCompounding, ERF::Float64, t::YearFraction) = ERF^(1.0/value(t)) - 1.0
-ERF_to_rate(curve::AbstractIRCurve, ERF::Float64, t::YearFraction) = ERF_to_rate(curve_get_compounding(curve), ERF, t)
+ERF_to_rate(::ContinuousCompounding, erf::Float64, t::YearFraction) = log(erf) / value(t)
+ERF_to_rate(::SimpleCompounding, erf::Float64, t::YearFraction) = (erf - 1.0) / value(t)
+ERF_to_rate(::ExponentialCompounding, erf::Float64, t::YearFraction) = erf^(1.0/value(t)) - 1.0
+ERF_to_rate(curve::AbstractIRCurve, erf::Float64, t::YearFraction) = ERF_to_rate(curve_get_compounding(curve), erf, t)
+ERF_to_rate(curve::AbstractIRCurve, erf::Float64, maturity::Date) = ERF_to_rate(curve, erf, yearfraction(curve, maturity))
 
 discountfactor_to_rate(c::CompoundingType, _discountfactor_::Float64, t::YearFraction) = ERF_to_rate(c, 1.0 / _discountfactor_, t)
 
