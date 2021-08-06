@@ -250,6 +250,7 @@ end
     @test InterestRates.advancedays(InterestRates.BDays252(BusinessDays.Brazil()), Date(2015,9,1), [0, 1, 3, 4, 5]) == [Date(2015,9,1),Date(2015,9,2),Date(2015,9,4),Date(2015,9,8),Date(2015,9,9)]
     @test InterestRates.advancedays(InterestRates.Actual360(), Date(2015,9,1), [0, 1, 3, 4, 5]) == [Date(2015,9,1),Date(2015,9,2),Date(2015,9,4),Date(2015,9,5),Date(2015,9,6)]
     @test InterestRates.advancedays(InterestRates.Actual365(), Date(2015,9,1), [0, 1, 3, 4, 5]) == [Date(2015,9,1),Date(2015,9,2),Date(2015,9,4),Date(2015,9,5),Date(2015,9,6)]
+    @test InterestRates.advancedays(InterestRates.Thirty360(), Date(2015,9,1), [0, 1, 3, 4, 5]) == [Date(2015,9,1),Date(2015,9,2),Date(2015,9,4),Date(2015,9,5),Date(2015,9,6)]
 
     param = 10
     InterestRates.curve_set_dict_parameter!(curve_spline_discount, :custom_parameter, param)
@@ -730,7 +731,6 @@ end
     @test InterestRates.yearfractionvalue(dc, Date(2012, 2,28), Date(2011,12,28)) == -InterestRates.yearfractionvalue(dc, Date(2011,12,28), Date(2012, 2,28))
     @test InterestRates.yearfractionvalue(dc, Date(2012, 3,28), Date(2012, 2,29)) == -InterestRates.yearfractionvalue(dc, Date(2012, 2,29), Date(2012, 3,28))
 
-
     # discount factor
     dt_curve = Date(2012,3,1)
     curve = InterestRates.IRCurve("dummy-thirty360", InterestRates.Thirty360(),
@@ -741,7 +741,6 @@ end
     @test InterestRates.discountfactor(curve, Date(2012, 4,1)) == 1/(1+0.05 * 30/360)
     @test InterestRates.discountfactor(curve, Date(2012, 9,1)) == 1/(1+0.05 * 180/360)
     @test InterestRates.discountfactor(curve, Date(2013, 3,1)) == 1/(1+0.05 * 360/360)
-
 end
 
 @testset "Usage" begin
