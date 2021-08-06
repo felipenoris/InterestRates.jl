@@ -24,10 +24,27 @@ Base.hash(d::BDays252) = 1 + hash(d.hc)
 daycount(conv::BDays252, date_start::Date, date_end::Date) = BusinessDays.bdayscount(conv.hc, date_start, date_end)
 daycount(::Actual360, date_start::Date, date_end::Date) = Int(Dates.value(date_end - date_start))
 daycount(::Actual365, date_start::Date, date_end::Date) = Int(Dates.value(date_end - date_start))
+function daycount(::Thirty360, date_start::Date, date_end::Date)
+    Y = Dates.year(date_end) - Dates.year(date_start)
+    M = Dates.month(date_end) - Dates.month(date_start)
+
+    d1 = Dates.day(date_start)
+    d2 = Dates.day(date_end)
+    if d1 >= 30
+        d1 = 30
+        if d2 >= 30
+            d2 = 30
+        end
+    end
+    D = d2-d1
+
+    return 360Y + 30M + D
+end
 
 advancedays(conv::BDays252, date_start::Date, daycount::Int) = BusinessDays.advancebdays(conv.hc, date_start, daycount)
 advancedays(::Actual360, date_start::Date, daycount::Int) = date_start + Day(daycount)
 advancedays(::Actual365, date_start::Date, daycount::Int) = date_start + Day(daycount)
+advancedays(::Thirty360, date_start::Date, daycount::Int) = date_start + Day(daycount)
 
 function advancedays(conv::DayCountConvention, date_start::Date, daycount_vec::Vector{Int})
     l = length(daycount_vec)
@@ -43,6 +60,7 @@ advancedays(curve::AbstractIRCurve, daycount) = advancedays(curve_get_daycount(c
 daysperyear(::BDays252) = 252
 daysperyear(::Actual360) = 360
 daysperyear(::Actual365) = 365
+daysperyear(::Thirty360) = 360
 
 function days_to_maturity(curve::AbstractIRCurve, maturity::Date)
     d = daycount(curve_get_daycount(curve), curve_get_date(curve), maturity)

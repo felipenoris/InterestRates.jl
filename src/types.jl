@@ -12,11 +12,13 @@ Given an initial date `D1` and a final date `D2`, here's how the distance betwee
 
 * *Actual360* : `(D2 - D1) / 360`
 * *Actual365* : `(D2 - D1) / 365`
+* *Thirty360* : `(360*(year(D2)-year(D1)) + 30*(month(D2)-month(D1)) + (day(D2)-day(D1))) / 360`
 * *BDays252* : `bdays(D1, D2) / 252`, where `bdays` is the business days between `D1` and `D2` from [BusinessDays.jl package](https://github.com/felipenoris/BusinessDays.jl).
 """
 abstract type DayCountConvention end
 struct Actual360 <: DayCountConvention end
 struct Actual365 <: DayCountConvention end
+struct Thirty360 <: DayCountConvention end
 
 mutable struct BDays252 <: DayCountConvention
     hc::BusinessDays.HolidayCalendar
