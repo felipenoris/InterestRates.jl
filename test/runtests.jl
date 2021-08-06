@@ -696,6 +696,54 @@ end
     end
 end
 
+@testset "Thirty360" begin
+
+    dc = InterestRates.Thirty360()
+    # usual rule: ((d2-d1) + (m2-m1)*30 + (y2-y1)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2011,12,28), Date(2012, 2,28)) == ((28-28) + (2-12)*30 + (2012-2011)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2011,12,28), Date(2012, 2,29)) == ((29-28) + (2-12)*30 + (2012-2011)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2011,12,28), Date(2012, 3, 1)) == ((1-28) + (3-12)*30 + (2012-2011)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2011,12,28), Date(2016, 2,28)) == ((28-28) + (2-12)*30 + (2016-2011)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2011,12,28), Date(2016, 2,29)) == ((29-28) + (2-12)*30 + (2016-2011)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2011,12,28), Date(2016, 3, 1)) == ((1-28) + (3-12)*30 + (2016-2011)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 2,28), Date(2012, 3,28)) == ((28-28) + (3-2)*30 + (2012-2012)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 2,29), Date(2012, 3,28)) == ((28-29) + (3-2)*30 + (2012-2012)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 3, 1), Date(2012, 3,28)) == ((28-1) + (3-3)*30 + (2012-2012)*360)/360
+
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 5,29), Date(2013, 8,29)) == ((29-29) + (8-5)*30 + (2013-2012)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 5,29), Date(2013, 8,30)) == ((30-29) + (8-5)*30 + (2013-2012)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 5,29), Date(2013, 8,31)) == ((31-29) + (8-5)*30 + (2013-2012)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 5,30), Date(2013, 8,29)) == ((29-30) + (8-5)*30 + (2013-2012)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 5,30), Date(2013, 8,30)) == ((30-30) + (8-5)*30 + (2013-2012)*360)/360
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 5,30), Date(2013, 8,31)) == ((30-30) + (8-5)*30 + (2013-2012)*360)/360 # exception
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 5,31), Date(2013, 8,29)) == ((29-30) + (8-5)*30 + (2013-2012)*360)/360 # exception
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 5,31), Date(2013, 8,30)) == ((30-30) + (8-5)*30 + (2013-2012)*360)/360 # exception
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 5,31), Date(2013, 8,31)) == ((30-30) + (8-5)*30 + (2013-2012)*360)/360 # exception
+
+    # zeros
+    @test InterestRates.yearfractionvalue(dc, Date(2011,12,28), Date(2011,12,28)) == 0
+    @test InterestRates.yearfractionvalue(dc, Date(2011,12,31), Date(2011,12,31)) == 0
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 2,28), Date(2012, 2,28)) == 0
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 2,29), Date(2012, 2,29)) == 0
+
+    # reflection
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 2,28), Date(2011,12,28)) == -InterestRates.yearfractionvalue(dc, Date(2011,12,28), Date(2012, 2,28))
+    @test InterestRates.yearfractionvalue(dc, Date(2012, 3,28), Date(2012, 2,29)) == -InterestRates.yearfractionvalue(dc, Date(2012, 2,29), Date(2012, 3,28))
+
+
+    # discount factor
+    dt_curve = Date(2012,3,1)
+    curve = InterestRates.IRCurve("dummy-thirty360", InterestRates.Thirty360(),
+        InterestRates.SimpleCompounding(), InterestRates.StepFunction(), dt_curve,
+        [1], [0.05])
+
+    @test InterestRates.discountfactor(curve, Date(2012, 3,28)) == 1/(1+0.05 * ((28-1) + (3-3)*30 + (2012-2012)*360)/360)
+    @test InterestRates.discountfactor(curve, Date(2012, 4,1)) == 1/(1+0.05 * 30/360)
+    @test InterestRates.discountfactor(curve, Date(2012, 9,1)) == 1/(1+0.05 * 180/360)
+    @test InterestRates.discountfactor(curve, Date(2013, 3,1)) == 1/(1+0.05 * 360/360)
+
+end
+
 @testset "Usage" begin
     include("usage.jl")
 end
