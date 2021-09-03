@@ -279,6 +279,7 @@ end
             vert_x, vert_y)
 
         @test_throws AssertionError InterestRates.ComposeProdFactorCurve(curve_NS, curve_b252_ec_lin, InterestRates.BDays252(BusinessDays.BRSettlement()), InterestRates.ExponentialCompounding())
+        @test InterestRates.curve_get_name(compose_mult_curve) == ""
         @test InterestRates.curve_get_date(compose_mult_curve) == InterestRates.curve_get_date(curve_NS)
         @test InterestRates.discountfactor(compose_mult_curve, Date(2015,10,1)) ≈ InterestRates.discountfactor(curve_NS, Date(2015,10,1)) * InterestRates.discountfactor(curve_spline_rates, Date(2015,10,1))
         @test InterestRates.ERF(compose_mult_curve, Date(2015,10,1)) == InterestRates.ERF(curve_NS, Date(2015,10,1)) * InterestRates.ERF(curve_spline_rates, Date(2015,10,1))
@@ -289,12 +290,19 @@ end
             yf = BusinessDays.bdayscount(BusinessDays.BRSettlement(), dt_curve, maturity) / 252
             @test  InterestRates.zero_rate(compose_mult_curve, maturity) ≈ erf^(1/yf) - 1
         end
+
+        compose_mult_named_curve = InterestRates.ComposeProdFactorCurve("curve-name", curve_spline_rates, curve_NS, InterestRates.BDays252(BusinessDays.BRSettlement()), InterestRates.ExponentialCompounding())
+        @test InterestRates.curve_get_name(compose_mult_named_curve) == "curve-name"
     end
 
     @testset "ComposeDiv" begin
         compose_div_curve = InterestRates.ComposeDivFactorCurve(curve_spline_rates, curve_NS, InterestRates.BDays252(BusinessDays.BRSettlement()), InterestRates.ExponentialCompounding())
         @test InterestRates.discountfactor(compose_div_curve, Date(2015,10,1)) ≈ InterestRates.discountfactor(curve_spline_rates, Date(2015,10,1)) / InterestRates.discountfactor(curve_NS, Date(2015,10,1))
         @test InterestRates.ERF(compose_div_curve, Date(2015,10,1)) == InterestRates.ERF(curve_spline_rates, Date(2015,10,1)) / InterestRates.ERF(curve_NS, Date(2015,10,1))
+        @test InterestRates.curve_get_name(compose_div_curve) == ""
+
+        compose_div_named_curve = InterestRates.ComposeDivFactorCurve("curve-name", curve_spline_rates, curve_NS, InterestRates.BDays252(BusinessDays.BRSettlement()), InterestRates.ExponentialCompounding())
+        @test InterestRates.curve_get_name(compose_div_named_curve) == "curve-name"
     end
 
     @testset "ComposeMult -> ComposeDiv" begin

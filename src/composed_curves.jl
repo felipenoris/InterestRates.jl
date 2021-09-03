@@ -1,5 +1,6 @@
 
 mutable struct ComposeFactorCurve{F<:Function, IRA<:AbstractIRCurve, IRB<:AbstractIRCurve} <: AbstractIRCurve{NullMethod}
+    name::String
     date::Date
     op::F
     curve_a::IRA
@@ -8,6 +9,7 @@ mutable struct ComposeFactorCurve{F<:Function, IRA<:AbstractIRCurve, IRB<:Abstra
     compounding::CompoundingType
 
     function ComposeFactorCurve(
+                name::AbstractString,
                 date::Date,
                 op::F,
                 curve_a::IRA,
@@ -17,12 +19,26 @@ mutable struct ComposeFactorCurve{F<:Function, IRA<:AbstractIRCurve, IRB<:Abstra
             ) where {F<:Function, IRA<:AbstractIRCurve, IRB<:AbstractIRCurve}
 
         @assert curve_get_date(curve_a) == date && curve_get_date(curve_b) == date "curve_a and curve_b should have the same dates"
-        return new{F, IRA, IRB}(date, op, curve_a, curve_b, daycount, compounding)
+        return new{F, IRA, IRB}(name, date, op, curve_a, curve_b, daycount, compounding)
     end
 end
 
+function ComposeFactorCurve(
+                date::Date,
+                op::F,
+                curve_a::IRA,
+                curve_b::IRB,
+                daycount::DayCountConvention,
+                compounding::CompoundingType
+            ) where {F<:Function, IRA<:AbstractIRCurve, IRB<:AbstractIRCurve}
+
+    ComposeFactorCurve("", date, op, curve_a, curve_b, daycount, compounding)
+end
+
+
 """
     ComposeProdFactorCurve(
+            [name],
             curve_a::IRA,
             curve_b::IRB,
             daycount::DayCountConvention,
@@ -43,8 +59,21 @@ function ComposeProdFactorCurve(
     return ComposeFactorCurve(curve_get_date(curve_a), *, curve_a, curve_b, daycount, compounding)
 end
 
+function ComposeProdFactorCurve(
+            name::AbstractString,
+            curve_a::IRA,
+            curve_b::IRB,
+            daycount::DayCountConvention,
+            compounding::CompoundingType
+        ) where {IRA<:AbstractIRCurve, IRB<:AbstractIRCurve}
+
+    @nospecialize daycount compounding
+    return ComposeFactorCurve(name, curve_get_date(curve_a), *, curve_a, curve_b, daycount, compounding)
+end
+
 """
     ComposeDivFactorCurve(
+            [name],
             curve_a::IRA,
             curve_b::IRB,
             daycount::DayCountConvention,
@@ -64,6 +93,23 @@ function ComposeDivFactorCurve(
 
     @nospecialize daycount compounding
     return ComposeFactorCurve(curve_get_date(curve_a), /, curve_a, curve_b, daycount, compounding)
+end
+
+function ComposeDivFactorCurve(
+            name::AbstractString,
+            curve_a::IRA,
+            curve_b::IRB,
+            daycount::DayCountConvention,
+            compounding::CompoundingType
+        ) where {IRA<:AbstractIRCurve, IRB<:AbstractIRCurve}
+
+    @nospecialize daycount compounding
+    return ComposeFactorCurve(name, curve_get_date(curve_a), /, curve_a, curve_b, daycount, compounding)
+end
+
+function curve_get_name(c::ComposeFactorCurve)
+    @nospecialize c
+    return c.name
 end
 
 function curve_get_date(c::ComposeFactorCurve)
