@@ -597,10 +597,11 @@ end
 
     dt_curve = Date(2015,08,03)
 
-    curve_map = InterestRates.CurveMap(map_parallel_1pct, InterestRates.IRCurve("dummy-cont-flatforward", InterestRates.Actual360(),
+    curve_map = InterestRates.CurveMap("parallel-1pct", map_parallel_1pct, InterestRates.IRCurve("dummy-cont-flatforward", InterestRates.Actual360(),
         InterestRates.ContinuousCompounding(), InterestRates.FlatForward(), dt_curve,
         vert_x, vert_y))
 
+    @test InterestRates.curve_get_name(curve_map) == "parallel-1pct"
     @test zero_rate(curve_map, dt_curve + Dates.Day(11)) ≈ 0.1
     @test zero_rate(curve_map, dt_curve + Dates.Day(15)) ≈ 0.15
     @test zero_rate(curve_map, dt_curve + Dates.Day(19)) ≈ 0.20
