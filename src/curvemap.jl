@@ -2,10 +2,16 @@
 """
 Acceps a map function that is applied to the `zero_rate` of the curve.
 
+The map function `f` takes the form `f(rate, maturity)` with the following arguments:
+
+    * `rate` is the retult of `zero_rate` applied to underlying curve for `maturity`.
+
+    * `maturity` is the requested zero rate maturity.
+
 The `zero_rate` for a `CurveMap` is implemented as:
 
 ```julia
-zero_rate(curve::CurveMap, maturity::Date) = curve.f(zero_rate(curve.curve))
+zero_rate(curve::CurveMap, maturity::Date) = curve.f(zero_rate(curve.curve, maturity), maturity)
 ```
 
 # Example
@@ -15,7 +21,9 @@ vert_x = [11, 15, 19, 23]
 vert_y = [0.09, 0.14, 0.19, 0.18] # yield values 9%, 14%, 19%, 18%
 
 # parallel shock of 1%
-map_parallel_1pct = r -> r + 0.01
+function map_parallel_1pct(rate, maturity)
+    return rate + 0.01
+end
 
 dt_curve = Date(2015,08,03)
 
@@ -38,4 +46,4 @@ for fun in (:curve_get_name, :curve_get_daycount, :curve_get_compounding, :curve
     end
 end
 
-zero_rate(curve::CurveMap, maturity::Date) = curve.f(zero_rate(curve.curve, maturity))
+zero_rate(curve::CurveMap, maturity::Date) = curve.f(zero_rate(curve.curve, maturity), maturity)

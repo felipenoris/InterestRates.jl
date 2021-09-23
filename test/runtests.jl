@@ -591,7 +591,9 @@ end
     vert_y = [0.09, 0.14, 0.19, 0.18]
 
     # parallel shock of 1%
-    map_parallel_1pct = r -> r + 0.01
+    function map_parallel_1pct(rate, maturity)
+        return rate + 0.01
+    end
 
     dt_curve = Date(2015,08,03)
 
