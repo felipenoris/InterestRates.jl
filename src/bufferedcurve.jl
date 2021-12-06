@@ -20,7 +20,7 @@ function zero_rate(curve::BufferedIRCurve, maturity::Date)
     lock(curve.lock)
     try
         if !haskey(curve.dates_buffer, maturity)
-            curve.dates_buffer[maturity] = _zero_rate(curve_get_method(curve), curve, maturity)
+            curve.dates_buffer[maturity] = zero_rate(curve.curve, maturity)
         end
         return curve.dates_buffer[maturity]
     finally
@@ -34,7 +34,7 @@ function zero_rate(curve::BufferedIRCurve, maturity::YearFraction{T}) where {T<:
     lock(curve.lock)
     try
         if !haskey(curve.yf_buffer, yf_value)
-            curve.yf_buffer[yf_value] = _zero_rate(curve_get_method(curve), curve, maturity)
+            curve.yf_buffer[yf_value] = zero_rate(curve.curve, maturity)
         end
         return curve.yf_buffer[yf_value]
     finally

@@ -628,6 +628,23 @@ end
     @test discountfactor(curve_map, dt_curve) == 1
     @test isnan(ERF_to_rate(curve_map, 1.0, InterestRates.YearFraction(0.0)))
     @test isnullcurve(curve_map) == false
+
+end
+
+@testset "Buffered CurveMap" begin
+    
+    flat_curve = InterestRates.IRCurve(
+        "flat", InterestRates.Actual360(), InterestRates.SimpleCompounding(), InterestRates.StepFunction(),
+        Date(2021,1,1), [1], [0.1]
+    )
+    @test InterestRates.zero_rate(flat_curve, Date(2022,1,1)) ≈ 0.1
+
+    map_curve = InterestRates.CurveMap("mapped", (r,m) -> r+0.05, flat_curve)
+    @test InterestRates.zero_rate(map_curve, Date(2022,1,1)) ≈ 0.15
+
+    buffered_curve = InterestRates.BufferedIRCurve(map_curve)
+    @test InterestRates.zero_rate(buffered_curve, Date(2022,1,1)) ≈ 0.15
+
 end
 
 @testset "DailyDatesRange" begin
