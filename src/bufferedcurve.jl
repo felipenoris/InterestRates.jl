@@ -42,7 +42,16 @@ function zero_rate(curve::BufferedIRCurve, maturity::YearFraction{T}) where {T<:
     end
 end
 
-function zero_rate(curve::BufferedIRCurve, maturity_vec::Vector{T}) where {T<:Union{Date, YearFraction}}
+function zero_rate(curve::BufferedIRCurve, maturity_vec::Vector{Date})
+    n = length(maturity_vec)
+    result = Vector{Float64}(undef, n)
+    for i in 1:n
+        @inbounds result[i] = zero_rate(curve, maturity_vec[i])
+    end
+    return result
+end
+
+function zero_rate(curve::BufferedIRCurve, maturity_vec::Vector{YearFraction})
     n = length(maturity_vec)
     result = Vector{Float64}(undef, n)
     for i in 1:n
