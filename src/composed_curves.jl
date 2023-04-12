@@ -15,7 +15,7 @@ mutable struct ComposeFactorCurve{F<:Function, IRA<:AbstractIRCurve, IRB<:Abstra
                 curve_a::IRA,
                 curve_b::IRB,
                 daycount::DayCountConvention,
-                compounding::CompoundingType
+                compounding::CompoundingType,
             ) where {F<:Function, IRA<:AbstractIRCurve, IRB<:AbstractIRCurve}
 
         @assert curve_get_date(curve_a) == date && curve_get_date(curve_b) == date "curve_a and curve_b should have the same dates"
@@ -29,7 +29,7 @@ function ComposeFactorCurve(
                 curve_a::IRA,
                 curve_b::IRB,
                 daycount::DayCountConvention,
-                compounding::CompoundingType
+                compounding::CompoundingType,
             ) where {F<:Function, IRA<:AbstractIRCurve, IRB<:AbstractIRCurve}
 
     ComposeFactorCurve("", date, op, curve_a, curve_b, daycount, compounding)
@@ -52,7 +52,7 @@ function ComposeProdFactorCurve(
             curve_a::IRA,
             curve_b::IRB,
             daycount::DayCountConvention,
-            compounding::CompoundingType
+            compounding::CompoundingType,
         ) where {IRA<:AbstractIRCurve, IRB<:AbstractIRCurve}
 
     @nospecialize daycount compounding
@@ -64,7 +64,7 @@ function ComposeProdFactorCurve(
             curve_a::IRA,
             curve_b::IRB,
             daycount::DayCountConvention,
-            compounding::CompoundingType
+            compounding::CompoundingType,
         ) where {IRA<:AbstractIRCurve, IRB<:AbstractIRCurve}
 
     @nospecialize daycount compounding
@@ -77,7 +77,7 @@ end
             curve_a::IRA,
             curve_b::IRB,
             daycount::DayCountConvention,
-            compounding::CompoundingType
+            compounding::CompoundingType,
         ) where {IRA<:AbstractIRCurve, IRB<:AbstractIRCurve}
 
 
@@ -88,7 +88,7 @@ function ComposeDivFactorCurve(
             curve_a::IRA,
             curve_b::IRB,
             daycount::DayCountConvention,
-            compounding::CompoundingType
+            compounding::CompoundingType,
         ) where {IRA<:AbstractIRCurve, IRB<:AbstractIRCurve}
 
     @nospecialize daycount compounding
@@ -100,7 +100,7 @@ function ComposeDivFactorCurve(
             curve_a::IRA,
             curve_b::IRB,
             daycount::DayCountConvention,
-            compounding::CompoundingType
+            compounding::CompoundingType,
         ) where {IRA<:AbstractIRCurve, IRB<:AbstractIRCurve}
 
     @nospecialize daycount compounding

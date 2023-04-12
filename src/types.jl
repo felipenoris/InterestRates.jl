@@ -147,12 +147,12 @@ mutable struct CompositeInterpolation <: Interpolation
 end
 
 # Helper functions to identify cubic spline method
-is_cubic_spline_on_rates(m::CurveMethod) = false
-is_cubic_spline_on_rates(m::CubicSplineOnRates) = true
-is_cubic_spline_on_rates(m::CompositeInterpolation) = is_cubic_spline_on_rates(m.before_first) || is_cubic_spline_on_rates(m.inner) || is_cubic_spline_on_rates(m.after_last)
-is_cubic_spline_on_discount_factors(m::CurveMethod) = false
-is_cubic_spline_on_discount_factors(m::CubicSplineOnDiscountFactors) = true
-is_cubic_spline_on_discount_factors(m::CompositeInterpolation) = is_cubic_spline_on_discount_factors(m.before_first) || is_cubic_spline_on_discount_factors(m.inner) || is_cubic_spline_on_discount_factors(m.after_last)
+@inline is_cubic_spline_on_rates(::CurveMethod) = false
+@inline is_cubic_spline_on_rates(::CubicSplineOnRates) = true
+@inline is_cubic_spline_on_rates(m::CompositeInterpolation) = is_cubic_spline_on_rates(m.before_first) || is_cubic_spline_on_rates(m.inner) || is_cubic_spline_on_rates(m.after_last)
+@inline is_cubic_spline_on_discount_factors(::CurveMethod) = false
+@inline is_cubic_spline_on_discount_factors(::CubicSplineOnDiscountFactors) = true
+@inline is_cubic_spline_on_discount_factors(m::CompositeInterpolation) = is_cubic_spline_on_discount_factors(m.before_first) || is_cubic_spline_on_discount_factors(m.inner) || is_cubic_spline_on_discount_factors(m.after_last)
 
 "Abstract type for an Interest Rate curve"
 abstract type AbstractIRCurve{M<:CurveMethod} end
@@ -179,7 +179,7 @@ mutable struct IRCurve{M} <: AbstractIRCurve{M}
     compounding::CompoundingType
     method::M
     date::Date
-    dtm::Vector{Int} # for interpolation methods, stores days_to_maturity on curve's daycount convention.
+    dtm::Vector{Int}            # for interpolation methods, stores days_to_maturity on curve's daycount convention.
     zero_rates::Vector{Float64} # for interpolation methods, parameters[i] stores yield for maturity dtm[i].
     parameters::Vector{Float64} # for parametric methods, parameters stores model's constant parameters.
     dict::Dict{Symbol, Any}     # holds pre-calculated values for optimization, or additional parameters.
@@ -218,14 +218,18 @@ mutable struct IRCurve{M} <: AbstractIRCurve{M}
     end
 
     # Constructor for Parametric methods
-    function IRCurve(name::AbstractString, _daycount::DayCountConvention,
-        compounding::CompoundingType, method::M,
-        date::Date,
-        parameters::Vector{Float64},
-        dict = Dict{Symbol, Any}()) where {M<:Parametric}
+    function IRCurve(
+                name::AbstractString,
+                _daycount::DayCountConvention,
+                compounding::CompoundingType,
+                method::M,
+                date::Date,
+                parameters::Vector{Float64},
+                dict = Dict{Symbol, Any}(),
+            ) where {M<:Parametric}
 
         @assert !isempty(parameters) "Empty yields vector"
-        new{M}(String(name), _daycount, compounding, method, date, Vector{Int}(), Vector{Float64}(), parameters, dict)
+        return new{M}(String(name), _daycount, compounding, method, date, Vector{Int}(), Vector{Float64}(), parameters, dict)
     end
 end
 
