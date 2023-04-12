@@ -185,10 +185,15 @@ mutable struct IRCurve{M} <: AbstractIRCurve{M}
     dict::Dict{Symbol, Any}     # holds pre-calculated values for optimization, or additional parameters.
 
     # Constructor for Interpolation methods
-    function IRCurve(name::AbstractString, _daycount::DayCountConvention,
-        compounding::CompoundingType, method::M,
-        date::Date, dtm::Vector{Int},
-        zero_rates::Vector{Float64}, parameters = Vector{Float64}(), dict = Dict{Symbol, Any}()) where {M<:Interpolation}
+    function IRCurve(
+                name::AbstractString,
+	        _daycount::DayCountConvention,
+                compounding::CompoundingType, method::M,
+                date::Date, dtm::Vector{Int},
+                zero_rates::Vector{Float64},
+	        parameters = Vector{Float64}(),
+	        dict = Dict{Symbol, Any}(),
+	    ) where {M<:Interpolation}
 
         @assert !isempty(dtm) "Empty days-to-maturity vector"
         @assert !isempty(zero_rates) "Empty zero_rates vector"
