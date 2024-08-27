@@ -62,19 +62,22 @@ function splinefit(x_in::Vector{T}, y_in::Vector{Float64}) :: Spline{T} where {T
     Y = y_in
 
     n = length(x_in)
-    @assert n == length(y_in) "x_in and y_in doesn't conform on sizes."
+
+    if n != length(y_in)
+        error("x_in and y_in doesn't conform on sizes.")
+    end
 
     H = [X[i+1] - X[i] for i in 1:(n-1)]  # i in [0,...,n-2]
     A = Y
     Alpha = [(3/H[i])*(A[i+1] - A[i]) - (3/H[i-1])*(A[i] - A[i-1]) for i in 2:(n-1)]
     Alpha = [0; Alpha]
 
-    L = ones(n)
-    Mu = zeros(n)
-    Z = zeros(n)
-    B = zeros(n)
-    C = zeros(n)
-    D = zeros(n)
+    L = ones(Float64, n)
+    Mu = zeros(Float64, n)
+    Z = zeros(Float64, n)
+    B = zeros(Float64, n)
+    C = zeros(Float64, n)
+    D = zeros(Float64, n)
 
     for i in 2:n-1
         L[i] = 2 * (X[i+1] -  X[i-1]) - H[i-1] * Mu[i-1]
