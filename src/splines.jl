@@ -22,7 +22,8 @@ function splineint(s::Spline{T}, x_out::Number) where {T<:Number}
         n = length(s.x)
         x = x_out - s.x[n]
         dxn = s.x[n] - s.x[n-1]
-        b = s.params[n-3] + 2*s.params[n-2]*dxn + 3*s.params[n-1]*dxn*dxn
+        i = 4*(n-1)
+        b = s.params[i-2] + 2*s.params[i-1]*dxn + 3*s.params[i]*dxn*dxn
         return s.y[n] + b*x
     
     elseif x_out < s.x[1]
@@ -57,6 +58,9 @@ end
 
 # Build a Spline object by fitting 3rd order polynomials around points (x_in, y_in)
 function splinefit(x_in::Vector{T}, y_in::Vector{Float64}) :: Spline{T} where {T}
+    X = x_in
+    Y = y_in
+
     n = length(x_in)
     @assert n == length(y_in) "x_in and y_in doesn't conform on sizes."
 
@@ -84,5 +88,6 @@ function splinefit(x_in::Vector{T}, y_in::Vector{Float64}) :: Spline{T} where {T
         D[i] = (C[i+1] - C[i]) / (3*H[i])
     end
 
-    return reduce(vcat, [[A[i], B[i], C[i], D[i]] for i in 1:n-1])
+    spline_params = reduce(vcat, [[A[i], B[i], C[i], D[i]] for i in 1:n-1])
+    return Spline(x_in, y_in, spline_params)
 end
