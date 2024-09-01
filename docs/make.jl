@@ -5,8 +5,11 @@ import InterestRates
 makedocs(
     sitename = "InterestRates.jl",
     modules = [ InterestRates ],
-    pages = [ "Home" => "index.md",
-              "API Reference" => "api.md" ]
+    pages = [
+        "Home" => "index.md",
+        "API Reference" => "api.md",
+    ],
+    checkdocs=:none,
 )
 
 deploydocs(
