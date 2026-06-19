@@ -25,7 +25,8 @@ ERF_to_rate(curve::AbstractIRCurve, erf::Float64, maturity::Date) = ERF_to_rate(
 
 discountfactor_to_rate(c::CompoundingType, _discountfactor_::Float64, t::YearFraction) = ERF_to_rate(c, 1.0 / _discountfactor_, t)
 
-function discountfactor_to_rate(c::CompoundingType, _discountfactor_vec_::Vector{Float64}, t_vec::Vector{YearFraction})
+function discountfactor_to_rate(c::CompoundingType, _discountfactor_vec_::AbstractVector{Float64}, t_vec::AbstractVector{YearFraction})
+    Base.require_one_based_indexing(_discountfactor_vec_, t_vec)
     l = length(_discountfactor_vec_)
     @assert l == length(t_vec) "_discountfactor_vec_ and t_vec must have the same length. ($l != $(length(t_vec)))"
 
@@ -59,7 +60,8 @@ end
 # Optimized vector functions for `ERF` and `discountfactor` functions
 for fun in (:ERF, :discountfactor)
     @eval begin
-        function ($fun)(curve::AbstractIRCurve, maturity_vec::Vector{Date})
+        function ($fun)(curve::AbstractIRCurve, maturity_vec::AbstractVector{Date})
+            Base.require_one_based_indexing(maturity_vec)
             len = length(maturity_vec)
             _zero_rate_vec_ = zero_rate(curve, maturity_vec)
             result = Vector{Float64}(undef, len)

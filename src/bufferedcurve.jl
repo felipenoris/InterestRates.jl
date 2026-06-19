@@ -42,7 +42,8 @@ function zero_rate(curve::BufferedIRCurve, maturity::YearFraction{T}) where {T<:
     end
 end
 
-function zero_rate(curve::BufferedIRCurve, maturity_vec::Vector{Date})
+function zero_rate(curve::BufferedIRCurve, maturity_vec::AbstractVector{Date})
+    Base.require_one_based_indexing(maturity_vec)
     n = length(maturity_vec)
     result = Vector{Float64}(undef, n)
     for i in 1:n
@@ -51,7 +52,8 @@ function zero_rate(curve::BufferedIRCurve, maturity_vec::Vector{Date})
     return result
 end
 
-function zero_rate(curve::BufferedIRCurve, maturity_vec::Vector{YearFraction})
+function zero_rate(curve::BufferedIRCurve, maturity_vec::AbstractVector{YearFraction})
+    Base.require_one_based_indexing(maturity_vec)
     n = length(maturity_vec)
     result = Vector{Float64}(undef, n)
     for i in 1:n
