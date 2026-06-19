@@ -22,7 +22,9 @@ end
 
 # Returns tuple (index_a, index_b) for input vector x
 # for interpolands on linear interpolation on point x_out
-function _interpolationpoints(x::Vector{T}, x_out::Number) where {T<:Number}
+function _interpolationpoints(x::AbstractVector{T}, x_out::Number) where {T<:Number}
+    Base.require_one_based_indexing(x)
+    
     local index_a::Int
     local index_b::Int
 
@@ -50,7 +52,9 @@ end
 _linearinterp(Xa::Number, Ya::Number, Xb::Number, Yb::Number, x_out::Number) = (x_out - Xa) * (Yb - Ya) / (Xb - Xa) + Ya
 
 # Linear interpolation of zero_rates
-function _zero_rate(::Linear, x::Vector{N1}, y::Vector{N2}, x_out::Number) where {N1<:Number, N2<:Number}
+function _zero_rate(::Linear, x::AbstractVector{N1}, y::AbstractVector{N2}, x_out::Number) where {N1<:Number, N2<:Number}
+    Base.require_one_based_indexing(x, y)
+    
     # If this curve has only 1 vertice, this will be a flat curve
     if length(x) == 1
         return y[1]
@@ -61,7 +65,9 @@ function _zero_rate(::Linear, x::Vector{N1}, y::Vector{N2}, x_out::Number) where
 end
 
 # Step Function
-function _zero_rate(::StepFunction, x::Vector{N1}, y::Vector{N2}, x_out::Number) where {N1<:Number, N2<:Number}
+function _zero_rate(::StepFunction, x::AbstractVector{N1}, y::AbstractVector{N2}, x_out::Number) where {N1<:Number, N2<:Number}
+    Base.require_one_based_indexing(x, y)
+    
     # If this curve has only 1 vertice, this will be a flat curve
     if length(x) == 1
         return y[1]
@@ -154,7 +160,9 @@ function _zero_rate(method::CubicSplineOnRates, curve::AbstractIRCurve, maturity
     return splineint(sp, days_to_maturity(curve, maturity))
 end
 
-function _zero_rate(::CubicSplineOnRates, curve::AbstractIRCurve, maturity_vec::Vector{Date})
+function _zero_rate(::CubicSplineOnRates, curve::AbstractIRCurve, maturity_vec::AbstractVector{Date})
+    Base.require_one_based_indexing(maturity_vec)
+    
     sp = curve_get_spline_fit_on_rates(curve)
 
     l = length(maturity_vec)
@@ -177,12 +185,14 @@ function _zero_rate(method::CubicSplineOnDiscountFactors, curve::AbstractIRCurve
     return _zero_rate(method, curve, yearfraction(curve, maturity))
 end
 
-# to make splineint work in the following method _zero_rate(::CubicSplineOnDiscountFactors, ::AbstractIRCurve, ::Vector{Date})
+# to make splineint work in the following method _zero_rate(::CubicSplineOnDiscountFactors, ::AbstractIRCurve, ::AbstractVector{Date})
 function splineint(s::Spline{T1}, x_out::YearFraction{T2}) where {T1<:Number, T2<:Number}
     splineint(s, value(x_out))
 end
 
-function _zero_rate(::CubicSplineOnDiscountFactors, curve::AbstractIRCurve, maturity_vec::Vector{Date})
+function _zero_rate(::CubicSplineOnDiscountFactors, curve::AbstractIRCurve, maturity_vec::AbstractVector{Date})
+    Base.require_one_based_indexing(maturity_vec)
+    
     sp = curve_get_spline_fit_on_discount_factors(curve)
     mat_vec_len = length(maturity_vec)
 
@@ -197,13 +207,14 @@ end
 # Generate vector functions
 for elty in (:FlatForward, :CompositeInterpolation, :StepFunction, :Linear, :NelsonSiegel, :Svensson)
     @eval begin
-        function _zero_rate(m::$elty, curve::AbstractIRCurve, maturity_vec::Vector{Date})
+        function _zero_rate(m::$elty, curve::AbstractIRCurve, maturity_vec::AbstractVector{Date})
+            Base.require_one_based_indexing(maturity_vec)
             l = length(maturity_vec)
             rates = Vector{Float64}(undef, l)
             for i = 1:l
                 @inbounds rates[i] = _zero_rate(m, curve, maturity_vec[i])
             end
-        return rates
+            return rates
         end
     end
 end

@@ -16,4 +16,4 @@ forward_rate(curve::NullIRCurve, forward_date::Date, maturity::Date) = 0.0
 forward_rate(curve::NullIRCurve, forward_date::Date, maturity::YearFraction) = 0.0
 zero_rate(curve::NullIRCurve, maturity::Date) = 0.0
 zero_rate(curve::NullIRCurve, maturity::YearFraction) = 0.0
-zero_rate(curve::NullIRCurve, maturity_vec::Vector{Date}) = zeros(length(maturity_vec))
+zero_rate(curve::NullIRCurve, maturity_vec::AbstractVector{Date}) = zeros(length(maturity_vec))

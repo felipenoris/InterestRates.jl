@@ -142,9 +142,10 @@ for T in (:Date, :YearFraction)
 end
 
 # Unoptimized vector function for ERF
-function ERF(curve::ComposeFactorCurve, maturity_vec::Vector{Date})
+function ERF(curve::ComposeFactorCurve, maturity_vec::AbstractVector{Date})
     @nospecialize curve
 
+    Base.require_one_based_indexing(maturity_vec)
     len = length(maturity_vec)
     result = Vector{Float64}(undef, len)
     for i in 1:len
@@ -154,9 +155,10 @@ function ERF(curve::ComposeFactorCurve, maturity_vec::Vector{Date})
 end
 
 # Unoptimized vector function for discountfactor
-function discountfactor(curve::ComposeFactorCurve, maturity_vec::Vector{Date})
+function discountfactor(curve::ComposeFactorCurve, maturity_vec::AbstractVector{Date})
     @nospecialize curve
 
+    Base.require_one_based_indexing(maturity_vec)
     len = length(maturity_vec)
     result = Vector{Float64}(undef, len)
     for i in 1:len

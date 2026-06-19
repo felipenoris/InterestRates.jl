@@ -46,7 +46,8 @@ advancedays(::Actual360, date_start::Date, daycount::Int) = date_start + Day(day
 advancedays(::Actual365, date_start::Date, daycount::Int) = date_start + Day(daycount)
 advancedays(::Thirty360, date_start::Date, daycount::Int) = date_start + Day(daycount)
 
-function advancedays(conv::DayCountConvention, date_start::Date, daycount_vec::Vector{Int})
+function advancedays(conv::DayCountConvention, date_start::Date, daycount_vec::AbstractVector{Int})
+    Base.require_one_based_indexing(daycount_vec)
     l = length(daycount_vec)
     result = Vector{Date}(undef, l)
     for i in 1:l
