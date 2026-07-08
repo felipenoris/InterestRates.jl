@@ -80,8 +80,8 @@ end
     @test discountfactor(curve_b252_ec_lin, maturity_2_days, maturity_3_days) ≈ discountfactor(curve_b252_ec_lin, maturity_3_days) / discountfactor(curve_b252_ec_lin, maturity_2_days)
     @test zero_rate(curve_b252_ec_lin, advancebdays(BusinessDays.Brazil(), dt_curve, 11)) ≈ 0.10
     @test_throws AssertionError zero_rate(curve_b252_ec_lin, advancebdays(BusinessDays.Brazil(), dt_curve, -4)) # maturity before curve date
-    @test zero_rate(curve_b252_ec_lin, advancebdays(BusinessDays.Brazil(), dt_curve, 11-4)) ≈ 0.05 # extrapolate before first vertice
-    @test zero_rate(curve_b252_ec_lin, advancebdays(BusinessDays.Brazil(), dt_curve, 23+4)) ≈ 0.18 # extrapolate after last vertice
+    @test zero_rate(curve_b252_ec_lin, advancebdays(BusinessDays.Brazil(), dt_curve, 11-4)) ≈ 0.05 # extrapolate before first vertex
+    @test zero_rate(curve_b252_ec_lin, advancebdays(BusinessDays.Brazil(), dt_curve, 23+4)) ≈ 0.18 # extrapolate after last vertex
 
     dt_maturity = dt_curve+Dates.Day(30)
     @test ERF_to_rate(curve_b252_ec_lin, ERF(curve_b252_ec_lin, dt_maturity), InterestRates.yearfraction(curve_b252_ec_lin, dt_maturity)) ≈ zero_rate(curve_b252_ec_lin, dt_maturity)
@@ -115,12 +115,12 @@ end
     @test zero_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(13)) ≈ 0.128846153846152 # ffwd interp as zero_rate
     @test ERF(curve_ac360_cont_ff, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ 1.00158458746737
     @test forward_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ 0.1425000000000040
-    @test zero_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(30)) ≈ 0.1789166666666680 # ffwd extrap after last vertice
+    @test zero_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(30)) ≈ 0.1789166666666680 # ffwd extrap after last vertex
     @test forward_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ forward_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(50), dt_curve + Dates.Day(51))
     @test forward_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ forward_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(50), dt_curve + Dates.Day(100))
 
     @test forward_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(11), dt_curve + Dates.Day(15)) ≈ 0.2875
-    @test zero_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(9)) ≈ 0.05833333333333 # ffwd extrap before first vertice
+    @test zero_rate(curve_ac360_cont_ff, dt_curve + Dates.Day(9)) ≈ 0.05833333333333 # ffwd extrap before first vertex
 
     @test discountfactor(curve_ac360_cont_ff, dt_curve) == 1
     @test isnan(ERF_to_rate(curve_ac360_cont_ff, 1.0, InterestRates.YearFraction(0.0)))
@@ -364,12 +364,12 @@ end
         @test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(13)) ≈ 0.128846153846152 # ffwd interp as zero_rate
         @test ERF(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ 1.00158458746737
         @test forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ 0.1425000000000040
-        @test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(30)) ≈ 0.1789166666666680 # ffwd extrap after last vertice
+        @test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(30)) ≈ 0.1789166666666680 # ffwd extrap after last vertex
         @test forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(50), dt_curve + Dates.Day(51))
         @test forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(50), dt_curve + Dates.Day(100))
 
         @test forward_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(11), dt_curve + Dates.Day(15)) ≈ 0.2875
-        @test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(9)) ≈ 0.05833333333333 # ffwd extrap before first vertice
+        @test zero_rate(buffered_curve_ac360_cont_ff, dt_curve + Dates.Day(9)) ≈ 0.05833333333333 # ffwd extrap before first vertex
 
         @test discountfactor(buffered_curve_ac360_cont_ff, dt_curve) == 1
         @test isnan(ERF_to_rate(buffered_curve_ac360_cont_ff, 1.0, InterestRates.YearFraction(0.0)))
@@ -618,12 +618,12 @@ end
     @test zero_rate(curve_map, dt_curve + Dates.Day(13)) ≈ 0.128846153846152 # ffwd interp as zero_rate
     @test ERF(curve_map, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ 1.00158458746737
     @test forward_rate(curve_map, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ 0.1425000000000040
-    @test zero_rate(curve_map, dt_curve + Dates.Day(30)) ≈ 0.1789166666666680 # ffwd extrap after last vertice
+    @test zero_rate(curve_map, dt_curve + Dates.Day(30)) ≈ 0.1789166666666680 # ffwd extrap after last vertex
     @test forward_rate(curve_map, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ forward_rate(curve_map, dt_curve + Dates.Day(50), dt_curve + Dates.Day(51))
     @test forward_rate(curve_map, dt_curve + Dates.Day(19), dt_curve + Dates.Day(23)) ≈ forward_rate(curve_map, dt_curve + Dates.Day(50), dt_curve + Dates.Day(100))
 
     @test forward_rate(curve_map, dt_curve + Dates.Day(11), dt_curve + Dates.Day(15)) ≈ 0.2875
-    @test zero_rate(curve_map, dt_curve + Dates.Day(9)) ≈ 0.05833333333333 # ffwd extrap before first vertice
+    @test zero_rate(curve_map, dt_curve + Dates.Day(9)) ≈ 0.05833333333333 # ffwd extrap before first vertex
 
     @test discountfactor(curve_map, dt_curve) == 1
     @test isnan(ERF_to_rate(curve_map, 1.0, InterestRates.YearFraction(0.0)))

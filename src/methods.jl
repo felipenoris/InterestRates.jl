@@ -29,12 +29,12 @@ function _interpolationpoints(x::AbstractVector{T}, x_out::Number) where {T<:Num
     local index_b::Int
 
     if x_out <= x[1]
-        # Interpolation point is before first vertice
+        # Interpolation point is before first vertex
         # Slope will be determined by the 1st and 2nd vertices
         index_a = 1
         index_b = 2
     elseif x_out >= x[end]
-        # Interpolation point is after last vertice
+        # Interpolation point is after last vertex
         # Slope will be determined by the last and last-1 vertices
         index_b = length(x)
         index_a = index_b - 1
@@ -55,7 +55,7 @@ _linearinterp(Xa::Number, Ya::Number, Xb::Number, Yb::Number, x_out::Number) = (
 function _zero_rate(::Linear, x::AbstractVector{N1}, y::AbstractVector{N2}, x_out::Number) where {N1<:Number, N2<:Number}
     Base.require_one_based_indexing(x, y)
     
-    # If this curve has only 1 vertice, this will be a flat curve
+    # If this curve has only 1 vertex, this will be a flat curve
     if length(x) == 1
         return y[1]
     end
@@ -68,18 +68,18 @@ end
 function _zero_rate(::StepFunction, x::AbstractVector{N1}, y::AbstractVector{N2}, x_out::Number) where {N1<:Number, N2<:Number}
     Base.require_one_based_indexing(x, y)
     
-    # If this curve has only 1 vertice, this will be a flat curve
+    # If this curve has only 1 vertex, this will be a flat curve
     if length(x) == 1
         return y[1]
     end
 
     if x_out <= x[1]
-        # Interpolation point is before first vertice
-        # The result will be extrapolated using the first vertice zero_rate
+        # Interpolation point is before first vertex
+        # The result will be extrapolated using the first vertex zero_rate
         return y[1]
     elseif x_out >= x[end]
-        # Interpolation point is after last vertice
-        # The result will be extrapolated using the last vertice zero_rate
+        # Interpolation point is after last vertex
+        # The result will be extrapolated using the last vertex zero_rate
         return y[end]
     else
         # Inner point
@@ -91,7 +91,7 @@ end
 # Maybe not useful for SimpleCompounding curves.
 function _zero_rate(::FlatForward, curve::AbstractIRCurve, maturity::T) where {T<:Union{Date, YearFraction}}
 
-    # If this curve has only 1 vertice, this will be a flat curve
+    # If this curve has only 1 vertex, this will be a flat curve
     if length(curve_get_zero_rates(curve)) == 1
         return curve_get_zero_rates(curve)[1]
     end
